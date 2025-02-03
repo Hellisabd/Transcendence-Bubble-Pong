@@ -1,0 +1,12 @@
+{
+	"name": "fastify-app",
+	"version": "1.0.0",
+	"main": "core.js",
+	"scripts": {
+	  "start": "node Backend/js/core.js"
+	},
+	"dependencies": {
+	  "fastify": "^3.0.0",
+	  "fastify-static": "^3.0.0"
+	}
+  }

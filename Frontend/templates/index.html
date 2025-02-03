@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/btn.css">
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPA Demo</title>
+</head>
+<body>
+  <div id="content">
+    <h1>Page d'accueil</h1>
+    <p>Bienvenue sur la page d'accueil !</p>
+    <button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
+    <button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
+    <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button>
+  </div>
+  {% include 'scripts.html' %}
+</body>
+</html>
