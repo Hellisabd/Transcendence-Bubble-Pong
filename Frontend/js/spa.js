@@ -13,7 +13,8 @@ function navigateTo(page,  addHistory = true) {
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
 
-	let url = page == "index" ? "/" : `/${page}/`
+	let url = page;
+    console.log(url);
     // Utiliser Fetch API pour récupérer le contenu du serveur
     fetch(url)  // Ajout du "/" pour éviter des erreurs
         .then(response => {

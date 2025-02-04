@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/btn.css">
+  <link rel="stylesheet" href="/Frontend/css/style.css">
+    <link rel="stylesheet" href="/Frontend/css/btn.css">
     <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPA Demo</title>
@@ -13,8 +13,9 @@
     <p>Bienvenue sur la page d'accueil !</p>
     <button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
     <button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
-    <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button>
+    <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
+    <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
   </div>
-  {% include 'scripts.html' %}
+  <script src="/Frontend/js/spa.js"></script>
 </body>
 </html>
