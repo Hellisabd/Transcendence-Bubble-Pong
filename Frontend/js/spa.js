@@ -13,8 +13,7 @@ function navigateTo(page,  addHistory = true) {
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
 
-	let url = page;
-    console.log(url);
+	let url = page == "index" ? "/" : `/${page}`
     // Utiliser Fetch API pour récupérer le contenu du serveur
     fetch(url)  // Ajout du "/" pour éviter des erreurs
         .then(response => {
@@ -36,7 +35,7 @@ function navigateTo(page,  addHistory = true) {
                 console.error("Erreur : Aucun élément #content trouvé dans la page chargée.")
             }
 			if (addHistory)
-            	window.history.pushState({ page: page }, "", `/${page}/`);
+            	window.history.pushState({ page: page }, "", `/${page}`);
         })
         .catch(error => console.error('Erreur de chargement de la page:', error));
 }

@@ -19,6 +19,8 @@ fastify.register(fastifystatic, {root: path.join(__dirname, '../../Frontend'), p
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
+  if (page[page.length - 1] == '/')
+    page = page.substring(0, page.length - 1)
   console.log(`page::::: ${page}`)
   if (page == '')
     page = 'index'
