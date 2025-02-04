@@ -1,4 +1,15 @@
-const fastify = require('fastify')({ logger: true });
+const fastify = require("fastify")({
+  logger: {
+    level: "warn",
+    transport: {
+      target: "pino-pretty",
+      options: {
+        ignore: "pid,hostname,time,reqId,responseTime", 
+        singleLine: true,
+      },
+    },
+  },
+});
 const path = require('path');
 const fastifystatic = require('fastify-static');
 

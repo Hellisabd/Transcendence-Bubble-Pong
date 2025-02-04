@@ -1,5 +1,6 @@
 FROM nginx:latest
 
-COPY ./Backend/nginx/config/conf.d /etc/nginx/conf.d
+COPY ./Backend/nginx/config/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY ./Backend/nginx/config/conf.d/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8000
