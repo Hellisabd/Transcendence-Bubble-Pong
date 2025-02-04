@@ -1,25 +1,21 @@
-const fastify = require('fastify')({ logger: true })
-const path = require('path')
-const fastifyStatic = require('fastify-static')
+const fastify = require('fastify')({ logger: true });
+const path = require('path');
+const fastifystatic = require('fastify-static');
 
-const fs = require('fs');
+fastify.register(fastifystatic, {root: path.join(__dirname, '../../Frontend/templates'), prefix: '/', })
 
-// Vérifie si le répertoire existe avant d'essayer de l'utiliser
-const templatesPath = "/usr/src/app/Frontend/templates";
+fastify.get('/', async (request, reply) => {
+    return reply.sendFile('bonjour_monsieur.html');
+});
 
-fastify.register(fastifyStatic, {
-  root: templatesPath, // Répertoire des templates
-  prefix: '/templates/',  // Le chemin de base pour accéder aux fichiers
-})
+const start = async () => {
+    try {
+        await fastify.listen({ port: 3000, host: '0.0.0.0' });
+        console.log('Server running on http://localhost:3000');
+    } catch (err) {
+        fastify.log.error(err);
+        process.exit(1);
+    }
+};
 
-fastify.get('/:page?', async (request, reply) => {
-  return reply.sendFile('index.html')
-})
-
-fastify.listen(3000, '0.0.0.0', err => {
-  if (err) {
-    fastify.log.error(err)
-    process.exit(1)
-  }
-  fastify.log.info(`Server listening at http://0.0.0.0:3000`)
-})
+start();
