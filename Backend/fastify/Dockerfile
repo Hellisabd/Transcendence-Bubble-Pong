@@ -15,6 +15,7 @@ COPY ./Backend/fastify/config/package*.json ./
 COPY ./Backend/fastify/js/*.js ./Backend/js/
 COPY ./Frontend/templates/* ./Frontend/templates/
 RUN npm install
+RUN npm install ejs
 
 USER fastify
 
