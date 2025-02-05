@@ -17,7 +17,6 @@ WORKDIR /usr/src/app
 COPY ./Backend/fastify/config/package*.json ./
 COPY ./Backend/fastify/js/*.js ./Backend/js/
 COPY ./Frontend/templates/* ./Frontend/templates/
-COPY ./Backend/dataBase ./dataBase
 RUN npm install
 RUN npm install ejs
 RUN npm install pino-pretty
@@ -26,8 +25,8 @@ RUN npm install pino-pretty
 # RUN touch Backend/data/core.db
 
 # # 📌 Fix des permissions
-RUN chown -R fastify:fastify /usr/src/app/dataBase/
-RUN chmod -R 777 /usr/src/app/dataBase/core.db
+# RUN chown -R fastify:fastify /usr/src/app/dataBase/
+# RUN chmod -R 777 /usr/src/app/dataBase/core.db
 
 USER fastify
 
