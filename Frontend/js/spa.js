@@ -9,9 +9,11 @@ function navigateTo(page,  addHistory = true) {
     console.log("Navigating to:", page);
 
     const contentDiv = document.getElementById("content");
+    const headerDiv = document.getElementById("header");
 
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
+    headerDiv.innerHTML = '';
 
 	let url = page == "index" ? "/" : `/${page}`
     // Utiliser Fetch API pour récupérer le contenu du serveur
@@ -27,12 +29,19 @@ function navigateTo(page,  addHistory = true) {
             tempDiv.innerHTML = html;
 
             const newContent = tempDiv.querySelector("#content");
+            const newHeader = tempDiv.querySelector("header");
 
             if (newContent) {
                 contentDiv.innerHTML = newContent.innerHTML;
             }
             else {
                 console.error("Erreur : Aucun élément #content trouvé dans la page chargée.")
+            }
+            if (newHeader) {
+                headerDiv.innerHTML = newHeader.innerHTML;
+            }
+            else {
+                console.error("Erreur : Aucun élément #header trouvé dans la page chargée.")
             }
 			if (addHistory)
             	window.history.pushState({ page: page }, "", `/${page}`);
