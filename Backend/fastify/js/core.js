@@ -11,33 +11,30 @@ const fastify = require("fastify")({
   },
 });
 const path = require('path');
-const fastifystatic = require('fastify-static');
-const pointOfView = require("point-of-view");
+const fastifystatic = require('@fastify/static');
+const view = require('@fastify/view');
 const fs = require('fs');
 const fastifySqlite = require('fastify-sqlite')
 
-fastify.register(pointOfView, {
+console.log(`on est la:::: ${__dirname}`)
+
+fastify.register(view, {
   engine: { ejs: require("ejs") },
   root: path.join(__dirname, "../../Frontend/templates"),
   includeViewExtension: true,
 });
 
+const dbFile = process.env.DB_FILE
+
 fastify.register(fastifySqlite, {
-  dbFile: path.join(__dirname, "core.db"),
+  dbFile: dbFile,
 });
+
+console.log(`dbFile :::::: ${dbFile}`)
 
 fastify.register(fastifystatic, {
   root: path.join(__dirname, '../../Frontend'), 
   prefix: '/Frontend/', 
-});
-
-fastify.get("/data", async (request, reply) => {
-  try {
-    const rows = await fastify.sqlite.all(dbFile); // Remplace "my_table" par le vrai nom de ta table
-    return { success: true, data: rows };
-  } catch (err) {
-    return reply.code(500).send({ success: false, error: err.message });
-  }
 });
 
 fastify.get('/:page', async (request, reply) => {
@@ -59,7 +56,19 @@ fastify.get('/:page', async (request, reply) => {
   return reply.view(filName);
 });
 
+fastify.ready().then(async () => {
+  const db = fastify.sqlite;
 
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL
+    )
+  `);
+
+  console.log("✅ Table 'users' créée/vérifiée !");
+});
 
 const start = async () => {
     try {
