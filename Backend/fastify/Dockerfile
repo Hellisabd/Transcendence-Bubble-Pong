@@ -21,12 +21,10 @@ RUN npm install
 RUN npm install ejs
 RUN npm install pino-pretty
 
-# RUN mkdir Backend/data
-# RUN touch Backend/data/core.db
-
-# # 📌 Fix des permissions
-# RUN chown -R fastify:fastify /usr/src/app/dataBase/
-# RUN chmod -R 777 /usr/src/app/dataBase/core.db
+RUN mkdir dataBase
+RUN touch dataBase/core.db
+RUN chown -R fastify:fastify /usr/src/app/dataBase/
+RUN chmod -R 777 /usr/src/app/dataBase/core.db
 
 USER fastify
 

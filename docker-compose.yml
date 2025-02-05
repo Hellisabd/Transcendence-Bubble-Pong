@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./Backend/nginx/Dockerfile
       args: 
-        USER_ID: ${USER_ID}   # Utilisateur de l'hôte (modifiez si nécessaire)
+        USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     ports:
       - "8000:8000"
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: ./Backend/fastify/Dockerfile
       args: 
-        USER_ID: ${USER_ID}   # Utilisateur de l'hôte (modifiez si nécessaire)
+        USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
       - ./Backend/fastify:/usr/src/app/Backend
@@ -32,6 +32,7 @@ services:
     container_name: fastify
     env_file:
       - .env
+
 networks:
   app-network:
     driver: bridge
