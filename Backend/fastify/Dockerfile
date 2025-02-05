@@ -26,8 +26,8 @@ RUN npm install pino-pretty
 # RUN touch Backend/data/core.db
 
 # # 📌 Fix des permissions
-# RUN chown -R fastify:fastify /usr/src/app/Backend/data
-# RUN chmod -R 777 /usr/src/app/Backend/data/core.db
+RUN chown -R fastify:fastify /usr/src/app/dataBase/
+RUN chmod -R 777 /usr/src/app/dataBase/core.db
 
 USER fastify
 

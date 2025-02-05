@@ -56,19 +56,19 @@ fastify.get('/:page', async (request, reply) => {
   return reply.view(filName);
 });
 
-fastify.ready().then(async () => {
-  const db = fastify.sqlite;
+// fastify.ready().then(async () => {
+//   const db = fastify.sqlite;
 
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL
-    )
-  `);
+//   await db.exec(`
+//     CREATE TABLE IF NOT EXISTS users (
+//       id INTEGER PRIMARY KEY AUTOINCREMENT,
+//       name TEXT NOT NULL,
+//       email TEXT UNIQUE NOT NULL
+//     )
+//   `);
 
-  console.log("✅ Table 'users' créée/vérifiée !");
-});
+//   console.log("✅ Table 'users' créée/vérifiée !");
+// });
 
 const start = async () => {
     try {

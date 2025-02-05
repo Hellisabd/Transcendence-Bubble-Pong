@@ -21,6 +21,7 @@ services:
     volumes:
       - ./Backend/fastify:/usr/src/app/Backend
       - ./Frontend:/usr/src/app/Frontend
+      - sqlite_data:/usr/src/app/dataBase
     networks:
       - app-network
     container_name: fastify
@@ -29,3 +30,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  sqlite_data:
