@@ -14,15 +14,31 @@ const path = require('path');
 const fastifystatic = require('fastify-static');
 const pointOfView = require("point-of-view");
 const fs = require('fs');
+const fastifySqlite = require('fastify-sqlite')
 
 fastify.register(pointOfView, {
   engine: { ejs: require("ejs") },
-  root: path.join(__dirname, "../../Frontend/templates"), // Dossier des templates
-  includeViewExtension: true, // Permet d'écrire `reply.view("index")` au lieu de `reply.view("index.njk")`
+  root: path.join(__dirname, "../../Frontend/templates"),
+  includeViewExtension: true,
 });
 
+fastify.register(fastifySqlite, {
+  dbFile: path.join(__dirname, "core.db"),
+});
 
-fastify.register(fastifystatic, {root: path.join(__dirname, '../../Frontend'), prefix: '/Frontend/', })
+fastify.register(fastifystatic, {
+  root: path.join(__dirname, '../../Frontend'), 
+  prefix: '/Frontend/', 
+});
+
+fastify.get("/data", async (request, reply) => {
+  try {
+    const rows = await fastify.sqlite.all(dbFile); // Remplace "my_table" par le vrai nom de ta table
+    return { success: true, data: rows };
+  } catch (err) {
+    return reply.code(500).send({ success: false, error: err.message });
+  }
+});
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
@@ -47,6 +63,7 @@ fastify.get('/:page', async (request, reply) => {
 
 const start = async () => {
     try {
+        await fastify.ready();
         await fastify.listen({ port: 3000, host: '0.0.0.0' });
         console.log('Server running on http://localhost:3000');
     } catch (err) {

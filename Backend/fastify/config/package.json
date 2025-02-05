@@ -6,8 +6,9 @@
 	  "start": "node Backend/js/core.js"
 	},
 	"dependencies": {
-	  "fastify": "^3.0.0",
-	  "fastify-static": "^3.0.0",
-	  "point-of-view": "^4.15.0"
+	  "fastify": "^4.0.0",
+	  "fastify-static": "^4.0.0",
+	  "point-of-view": "^4.15.0",
+	  "fastify-sqlite": "^1.0.0"
 	}
   }
