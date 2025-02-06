@@ -1,0 +1,12 @@
+{
+	"name": "pong",
+	"version": "1.0.0",
+	"main": "pong.js",
+	"scripts": {
+	  "start": "node Backend/js/pong.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.0.0",
+	  "@fastify/websocket": "^7.2.0"
+	}
+  }

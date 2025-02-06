@@ -10,10 +10,12 @@ services:
       - "8000:8000"
     depends_on:
       - fastify
+      - pong
     env_file:
       - .env
     networks:
       - app-network
+      - pong-network
     container_name: nginx
 
   fastify:
@@ -29,12 +31,31 @@ services:
       - sqlite_data:/usr/src/app/dataBase
     networks:
       - app-network
+      - pong-network
     container_name: fastify
+    depends_on:
+      - pong
     env_file:
       - .env
 
+  pong:
+    build:
+      context: .
+      dockerfile: ./Backend/pong/Dockerfile 
+      args: 
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    networks:
+      - pong-network
+    container_name: pong
+    env_file:
+      - .env
+    restart: "no"
+
 networks:
   app-network:
+    driver: bridge
+  pong-network:
     driver: bridge
 
 volumes:
