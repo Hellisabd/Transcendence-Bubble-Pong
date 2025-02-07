@@ -37,6 +37,8 @@ services:
       - pong
     env_file:
       - .env
+    ports:
+      - "3000:3000"
 
   pong:
     build:
@@ -46,11 +48,14 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     networks:
+      - app-network
       - pong-network
     container_name: pong
     env_file:
       - .env
     restart: "no"
+    ports:
+      - "4000:4000"
 
 networks:
   app-network:

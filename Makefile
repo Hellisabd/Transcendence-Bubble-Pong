@@ -22,6 +22,14 @@ all :
 	docker-compose build
 	docker-compose up
 
+nginx :
+	docker-compose build nginx
+	docker-compose up
+
+pong :
+	docker-compose build pong fastify
+	docker-compose up
+
 clean :
 	docker-compose down --volumes --remove-orphans
 

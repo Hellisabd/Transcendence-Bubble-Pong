@@ -9,6 +9,8 @@ RUN groupadd -g ${GROUP_ID} fastify
 RUN getent passwd fastify || useradd -m -u ${USER_ID} -g fastify fastify
 
 RUN npm install -g npm@11.1.0
+RUN npm install -g wscat
+RUN apt-get update && apt-get install -y net-tools
 
 # Créer un répertoire pour l'application
 WORKDIR /usr/src/app

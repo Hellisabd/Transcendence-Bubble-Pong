@@ -17,38 +17,41 @@ const fs = require('fs');
 const fastifySqlite = require('fastify-sqlite');
 const WebSocket = require("ws");
 
-const PONG_WS_URL = "ws://pong:4000/ws";
-let pongSocket;
-let retries = 0;
+let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
+pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
 
-function connectToPong() {
-    if (retries >= 5) {
-        console.error("❌ Impossible de se connecter à Pong après plusieurs tentatives.");
-        return;
-    }
 
-    console.log(`🔄 Tentative de connexion à Pong (${retries + 1}/5)...`);
+// let pongSocket;
+// let retries = 0;
 
-    pongSocket = new WebSocket(PONG_WS_URL);
+// function connectToPong() {
+//     if (retries >= 5) {
+//         console.error("❌ Impossible de se connecter à Pong après plusieurs tentatives.");
+//         return;
+//     }
 
-    pongSocket.on("open", () => {
-        console.log("✅ Connecté au serveur WebSocket de Pong !");
-        retries = 0; // Reset des tentatives en cas de succès
-    });
+//     console.log(`🔄 Tentative de connexion à Pong (${retries + 1}/5)...`);
 
-    pongSocket.on("error", (err) => {
-        console.error("⚠️ Erreur de connexion à Pong:", err.message);
-        retries++;
-        setTimeout(connectToPong, 2000); // Réessayer après 2 secondes
-    });
+//     pongSocket = new WebSocket(PONG_WS_URL);
 
-    pongSocket.on("close", () => {
-        console.warn("🔌 Connexion WebSocket fermée, tentative de reconnexion...");
-        setTimeout(connectToPong, 2000);
-    });
-}
+//     pongSocket.on("open", () => {
+//         console.log("✅ Connecté au serveur WebSocket de Pong !");
+//         retries = 0; // Reset des tentatives en cas de succès
+//     });
 
-connectToPong();
+//     pongSocket.on("error", (err) => {
+//         console.error("⚠️ Erreur de connexion à Pong:", err.message);
+//         retries++;
+//         setTimeout(connectToPong, 2000); // Réessayer après 2 secondes
+//     });
+
+//     pongSocket.on("close", () => {
+//         console.warn("🔌 Connexion WebSocket fermée, tentative de reconnexion...");
+//         setTimeout(connectToPong, 2000);
+//     });
+// }
+
+// connectToPong();
 
 fastify.get("/game/status", async (request, reply) => {
   return new Promise((resolve) => {
@@ -111,15 +114,12 @@ fastify.ready().then(async () => {
       email TEXT UNIQUE NOT NULL
     )
   `);
-
-  console.log("✅ Table 'users' créée/vérifiée !");
 });
 
 const start = async () => {
     try {
         await fastify.ready();
         await fastify.listen({ port: 3000, host: '0.0.0.0' });
-        console.log('Server running on http://localhost:3000');
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);

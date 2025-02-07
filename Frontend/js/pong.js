@@ -2,14 +2,30 @@ console.log("game.js chargé");
 
 function initializeGame() {
     console.log("Initialisation du jeu...");
-    const canvas = document.getElementById("pongCanvas");
-	console.log("Canvas trouvé :", canvas);
-    if (canvas) {
+    // const canvas = document.getElementById("pongCanvas");
+	// console.log("Canvas trouvé :", canvas);
+    // if (canvas) {
         const canvas = document.getElementById("pongCanvas");
         const ctx = canvas.getContext("2d");
+        console.log("Création WebSocket...");
 
-        const socket = new WebSocket("ws://localhost:4000/ws/pong/");
+        const socket = new WebSocket("wss://transcendence:8000/ws/pong");
 
+        // ✅ Connexion ouverte
+        socket.onopen = function() {
+            console.log("✅ WebSocket connectée !");
+        };
+
+        // ❌ Gestion des erreurs
+        socket.onerror = function(event) {
+            console.error("❌ WebSocket erreur :", event);
+        };
+
+        // ⚠️ Connexion fermée
+        socket.onclose = function(event) {
+            console.warn("⚠️ WebSocket fermée :", event);
+        };
+        
         const paddleWidth = 20;
         const paddleHeight = 100;
         const ballRadius = 10;
@@ -25,17 +41,27 @@ function initializeGame() {
 
         socket.onmessage = function(event) {
             gameState = JSON.parse(event.data);
-            // console.log(event.data);
+            console.log(event.data);
             drawGame();
         };
 
-        // Envoie les commandes au serveur
         document.addEventListener("keydown", function(event) {
-            if (event.key === "ArrowUp") socket.send(JSON.stringify({ player: "player2", move: "up" }));
-            if (event.key === "ArrowDown") socket.send(JSON.stringify({ player: "player2", move: "down" }));
-            if (event.key === "w") socket.send(JSON.stringify({ player: "player1", move: "up" }));
-            if (event.key === "s") socket.send(JSON.stringify({ player: "player1", move: "down" }));
+            if (socket.readyState === WebSocket.OPEN) {
+                let message = null;
+        
+                if (event.key === "ArrowUp") message = { player: "player2", move: "up" };
+                if (event.key === "ArrowDown") message = { player: "player2", move: "down" };
+                if (event.key === "w") message = { player: "player1", move: "up" };
+                if (event.key === "s") message = { player: "player1", move: "down" };
+        
+                if (message) {
+                    socket.send(JSON.stringify(message));
+                }
+            } else {
+                console.warn("WebSocket non prêt, message ignoré.");
+            }
         });
+        
 
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -65,8 +91,8 @@ function initializeGame() {
 
         // Boucle de rendu
         setInterval(drawGame, 1000 / 60);
-        } 
-        else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
+        // } 
+        // else {
+        // console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
-}
+// }
