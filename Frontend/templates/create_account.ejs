@@ -5,22 +5,25 @@
         <link rel="stylesheet" href="/Frontend/css/style.css">
         <link rel="stylesheet" href="/Frontend/css/btn.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Connexion</title>
+        <title>Create Account</title>
         <script>
         
         </script>
 </head>
 <body>
     <div id="content">
-        <h2>Connexion</h2>
-        <form onsubmit="login(event)">
+        <h2>Create Account</h2>
+        <form onsubmit="create_account(event)">
+            <label for="email">Adresse Email :</label>
+            <input type="text" id="email" required>
+            <br>
             <label for="username">Nom d'utilisateur :</label>
             <input type="text" id="username" required>
             <br>
             <label for="password">Mot de passe :</label>
             <input type="password" id="password" required>
             <br>
-            <button type="submit">Se connecter</button>
+            <button type="submit">Creer son Compte</button>
         </form>
     </div>
 	<%- include('scripts.ejs') %>

@@ -8,33 +8,49 @@ services:
         GROUP_ID: ${GROUP_ID}
     ports:
       - "8000:8000"
+    volumes:
+      - ./Frontend:/usr/share/nginx/html
     depends_on:
-      - fastify
+      - spa
     env_file:
       - .env
     networks:
-      - app-network
+      - spa-network
     container_name: nginx
 
-  fastify:
+  spa:
     build:
       context: .
-      dockerfile: ./Backend/fastify/Dockerfile
+      dockerfile: ./Backend/spa/Dockerfile
       args: 
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
-      - ./Backend/fastify:/usr/src/app/Backend
+      - ./Backend/spa:/usr/src/app/Backend
       - ./Frontend:/usr/src/app/Frontend
-      - sqlite_data:/usr/src/app/dataBase
     networks:
-      - app-network
-    container_name: fastify
+      - spa-network
+    container_name: spa
     env_file:
       - .env
-
+  
+  users:
+    build:
+      context: .
+      dockerfile: ./Backend/Users/Dockerfile
+      args: 
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    volumes:
+      - ./Backend/Users:/usr/src/app/Backend
+      - sqlite_data:/usr/src/app/dataBase
+    networks:
+      - spa-network
+    container_name: users
+    env_file:
+      - .env
 networks:
-  app-network:
+  spa-network:
     driver: bridge
 
 volumes:

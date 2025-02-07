@@ -9,7 +9,7 @@
 	  "fastify": "^4.0.0",
 	  "@fastify/static": "^6.0.0",
 	  "@fastify/view": "^7.2.0",
-	  "fastify-sqlite": "^1.0.0",
-	  "sqlite3": "^5.1.7"
+	  "@fastify/cors": "^8.0.0",
+	  "axios": "^1.7.9"
 	}
   }
