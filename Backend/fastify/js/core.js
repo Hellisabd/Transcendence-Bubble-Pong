@@ -1,15 +1,15 @@
 const fastify = require("fastify")({
-  logger: {
-    level: "warn",
-    transport: {
-      target: "pino-pretty",
-      options: {
-        ignore: "pid,hostname,time,reqId,responseTime", 
-        singleLine: true,
-      },
-    },
-  },
-});
+  logger: true });
+    // level: "warn",
+    // transport: {
+    //   target: "pino-pretty",
+    //   options: {
+    //     ignore: "pid,hostname,time,reqId,responseTime", 
+    //     singleLine: true,
+    //   },
+  //   },
+  // },
+// });
 const path = require('path');
 const fastifystatic = require('@fastify/static');
 const view = require('@fastify/view');
@@ -19,39 +19,6 @@ const WebSocket = require("ws");
 
 let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
 pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
-
-
-// let pongSocket;
-// let retries = 0;
-
-// function connectToPong() {
-//     if (retries >= 5) {
-//         console.error("❌ Impossible de se connecter à Pong après plusieurs tentatives.");
-//         return;
-//     }
-
-//     console.log(`🔄 Tentative de connexion à Pong (${retries + 1}/5)...`);
-
-//     pongSocket = new WebSocket(PONG_WS_URL);
-
-//     pongSocket.on("open", () => {
-//         console.log("✅ Connecté au serveur WebSocket de Pong !");
-//         retries = 0; // Reset des tentatives en cas de succès
-//     });
-
-//     pongSocket.on("error", (err) => {
-//         console.error("⚠️ Erreur de connexion à Pong:", err.message);
-//         retries++;
-//         setTimeout(connectToPong, 2000); // Réessayer après 2 secondes
-//     });
-
-//     pongSocket.on("close", () => {
-//         console.warn("🔌 Connexion WebSocket fermée, tentative de reconnexion...");
-//         setTimeout(connectToPong, 2000);
-//     });
-// }
-
-// connectToPong();
 
 fastify.get("/game/status", async (request, reply) => {
   return new Promise((resolve) => {

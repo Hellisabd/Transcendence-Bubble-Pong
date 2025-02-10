@@ -1,5 +1,5 @@
 const fastify = require("fastify")({ logger: true });
-// fastify.register(require("@fastify/websocket"));
+fastify.register(require("@fastify/websocket"));
 
 let gameState = {
     ball: { x: 500, y: 250 },
@@ -15,10 +15,10 @@ fastify.register(async function (fastify) {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
         
-        // Envoi de l'état initial
-        // socket.send(JSON.stringify({ type: "state", data: gameState }));
+        connection.socket.send(JSON.stringify({ type: "welcome", message: "Bienvenue dans le jeu Pong !" }));
 
         connection.socket.on("message", (message) => {
+            console.log("Message reçu :", message);
             const data = JSON.parse(message);
 
             if (data.type === "move") {

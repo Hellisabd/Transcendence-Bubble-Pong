@@ -14,7 +14,7 @@ COPY ./Frontend usr/src/app/
 
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/nginx/ssl/transcendence.key -subj "/C=FR/ST=IDF/L=Mulhouse/O=42/OU=42/CN=login.42.fr/UID=login"
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/nginx/ssl/transcendence.key -subj "/C=FR/ST=Alsace/L=Mulhouse/O=42/OU=42/CN=transcendence"
 RUN chown -R nginx:nginx /etc/nginx/ssl
 RUN chmod -R 644 /etc/nginx/ssl/*
 RUN mkdir -p /var/cache/nginx/client_temp
