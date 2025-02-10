@@ -1,15 +1,15 @@
 const fastify = require("fastify")({
-  logger: true });
-    // level: "warn",
-    // transport: {
-    //   target: "pino-pretty",
-    //   options: {
-    //     ignore: "pid,hostname,time,reqId,responseTime", 
-    //     singleLine: true,
-    //   },
-  //   },
-  // },
-// });
+  logger: {
+    level: "warn",
+    transport: {
+      target: "pino-pretty",
+      options: {
+        ignore: "pid,hostname,time,reqId,responseTime", 
+        singleLine: true,
+      },
+    },
+  },
+});
 const path = require('path');
 const fastifystatic = require('@fastify/static');
 const view = require('@fastify/view');

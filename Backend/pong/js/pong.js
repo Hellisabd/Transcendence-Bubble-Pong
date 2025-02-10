@@ -1,41 +1,51 @@
 const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
 
-let gameState = {
-    ball: { x: 500, y: 250 },
-    paddles: { player1: { y: 200 }, player2: { y: 200 } },
-    score: { player1: 0, player2: 0 }
-};
+const clients = new Set();
 
-const clients = new Set();  // Liste des connexions WebSocket
-
-// Gestion de WebSocket
 fastify.register(async function (fastify) {
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
+
+        let gameState = {
+            ball: { x: 500, y: 250 },
+            paddles: { player1: { y: 200 }, player2: { y: 200 } },
+            score: { player1: 0, player2: 0 }
+        };
         
-        connection.socket.send(JSON.stringify({ type: "welcome", message: "Bienvenue dans le jeu Pong !" }));
+        const move = 10;
 
         connection.socket.on("message", (message) => {
-            console.log("Message reçu :", message);
-            const data = JSON.parse(message);
+            const data = JSON.parse(message.toString());
+            console.log("Message reçu :", data);
 
-            if (data.type === "move") {
-                const { player, move } = data;
-                if (player === "player1") {
-                    gameState.paddles.player1.y += move === "up" ? -10 : 10;
-                } else if (player === "player2") {
-                    gameState.paddles.player2.y += move === "up" ? -10 : 10;
+            if (data.player === "player1") {
+                if (data.move === "up" && gameState.paddles.player1.y > 0) {
+                    gameState.paddles.player1.y -= move;
+                    console.log("p1.y: ", gameState.paddles.player1.y)
                 }
-
-                // Diffuser l'état mis à jour à tous les clients
-                clients.forEach(client => {
-                    client.socket.send(JSON.stringify({ type: "state", data: gameState }));
-                });
+                else if (data.move === "down" && gameState.paddles.player1.y < 400) {
+                    gameState.paddles.player1.y += move;
+                    console.log("p1.y: ", gameState.paddles.player1.y)
+                }
             }
-        });
-
+            if (data.player === "player2") {
+                if (data.move === "up" && gameState.paddles.player2.y > 0) {
+                    gameState.paddles.player2.y -= move;
+                    console.log("p2.y: ", gameState.paddles.player2.y)
+                }
+                else if (data.move === "down" && gameState.paddles.player2.y < 400) {
+                    gameState.paddles.player2.y += move;
+                    console.log("p2.y: ", gameState.paddles.player2.y)
+                }
+            }
+            
+            clients.forEach(client => {
+                    client.socket.send(JSON.stringify({ gameState }));
+                });
+            });
+        
         connection.socket.on("close", () => {
             clients.delete(connection);
             console.log("Connexion WebSocket fermée.");
