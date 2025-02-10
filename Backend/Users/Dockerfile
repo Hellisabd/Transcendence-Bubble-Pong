@@ -17,13 +17,15 @@ WORKDIR /usr/src/app
 COPY Backend/Users/config/package.json ./
 COPY ./Backend/Users ./
 RUN npm install
-RUN npm install pino-pretty
-RUN ls
+RUN npm install pino-pretty bcrypt
+RUN npm install @fastify/cookie
+RUN apt-get update && apt-get install -y sqlite3
+
 
 RUN mkdir -p dataBase
-RUN touch dataBase/core.db
+# RUN touch dataBase/core.db
 RUN chown -R Users:Users /usr/src/app/dataBase/
-RUN chmod -R 777 /usr/src/app/dataBase/core.db
+# RUN chmod -R 777 /usr/src/app/dataBase/core.db
 
 USER Users
 

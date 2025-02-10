@@ -21,7 +21,7 @@ console.log(`on est la:::: ${__dirname}`)
 const axios = require("axios"); // Pour faire des requêtes HTTP
 
 fastify.register(cors, {
-  origin: "*",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
+  origin: "http://localhost:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Autorise ces méthodes HTTP
   allowedHeaders: ["Content-Type"],
   preflightContinue: true

@@ -14,14 +14,15 @@
     <div id="content">
         <h2>Connexion</h2>
         <form onsubmit="login(event)">
-            <label for="username">Nom d'utilisateur :</label>
-            <input type="text" id="username" required>
+            <label for="email">Email :</label>
+            <input type="text" id="email" required>
             <br>
             <label for="password">Mot de passe :</label>
             <input type="password" id="password" required>
             <br>
             <button type="submit">Se connecter</button>
         </form>
+        <button class="btn" onclick="navigateTo('index')">HOME</button>
     </div>
 	<%- include('scripts.ejs') %>
 </body>

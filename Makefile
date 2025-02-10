@@ -19,7 +19,14 @@ all :
 	docker-compose build
 	docker-compose up
 
+users :
+	docker-compose build users
+	docker-compose up
+
 clean :
+	docker-compose down
+
+fclean : 
 	docker-compose down --volumes --remove-orphans
 
 git	:

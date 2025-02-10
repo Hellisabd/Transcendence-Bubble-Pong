@@ -21,11 +21,6 @@ RUN npm install
 RUN npm install ejs
 RUN npm install pino-pretty
 
-RUN mkdir dataBase
-RUN touch dataBase/core.db
-RUN chown -R spa:spa /usr/src/app/dataBase/
-RUN chmod -R 777 /usr/src/app/dataBase/core.db
-
 USER spa
 
 # Exposer le port utilisé par spa
