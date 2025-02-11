@@ -45,7 +45,9 @@ function initializeGame() {
                     message = { player: "player1", move: "up" };
                 if (event.key === "s")
                     message = { player: "player1", move: "down" };
-        
+                if (event.key === "Space")
+                    message = { game: "new" };
+
                 if (message) {
                     socket.send(JSON.stringify(message));
                 }
@@ -56,14 +58,14 @@ function initializeGame() {
         
 
         function drawGame() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                ctx.fillStyle = "#810000";
-                ctx.fillRect(0, gameState.paddles.player1.y, paddleWidth, paddleHeight);
-                ctx.fillStyle = "#00009c";
-                ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#810000";
+            ctx.fillRect(0, gameState.paddles.player1.y, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#00009c";
+            ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
-                draw_score();
+            draw_score();
         }
 
         function draw_score() {
