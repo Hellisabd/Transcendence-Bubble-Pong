@@ -24,7 +24,8 @@ function initializeGame() {
                 player1: { y: 200 },
                 player2: { y: 200 }
             },
-            score: { player1: 0, player2: 0 }
+            score: { player1: 0, player2: 0 },
+            game: { state: 0 }
         };                
 
         socket.onmessage = function(event) {
@@ -45,8 +46,11 @@ function initializeGame() {
                     message = { player: "player1", move: "up" };
                 if (event.key === "s")
                     message = { player: "player1", move: "down" };
-                if (event.key === "Space")
+                if (event.key === " ") {
+                    console.log("new")
                     message = { game: "new" };
+                    gameState.game.state = 1;
+                }
 
                 if (message) {
                     socket.send(JSON.stringify(message));
@@ -60,12 +64,25 @@ function initializeGame() {
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            ctx.beginPath();
+            ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFFF00";
+            ctx.fill();
+
             ctx.fillStyle = "#810000";
             ctx.fillRect(0, gameState.paddles.player1.y, paddleWidth, paddleHeight);
             ctx.fillStyle = "#00009c";
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
+            console.log(gameState.game.state);
+            if (gameState.game.state == 0) {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#000000";
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+            }
         }
 
         function draw_score() {

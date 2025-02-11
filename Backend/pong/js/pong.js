@@ -11,7 +11,8 @@ fastify.register(async function (fastify) {
         let gameState = {
             ball: { x: 500, y: 250 },
             paddles: { player1: { y: 200 }, player2: { y: 200 } },
-            score: { player1: 0, player2: 0 }
+            score: { player1: 0, player2: 0 },
+            game: { state: 0 }
         };
         let ballSpeedX = 4;
         let ballSpeedY = 4;
@@ -22,12 +23,12 @@ fastify.register(async function (fastify) {
         const paddleWidth = 20;
         const paddleHeight = 100;
         const ballRadius = 10;
-        let game = 0;
 
+        
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            console.log("Message reçu :", data);
-
+            // console.log("Message reçu :", data);
+            
             if (data.player === "player1") {
                 if (data.move === "up" && gameState.paddles.player1.y > 0)
                     gameState.paddles.player1.y -= move;
@@ -42,11 +43,11 @@ fastify.register(async function (fastify) {
             }
 
             if (data.game === "new")
-                game = 1;
+                new_game();
             
-            clients.forEach(client => {
-                    client.socket.send(JSON.stringify({ gameState }));
-                });
+            // clients.forEach(client => {
+            //         client.socket.send(JSON.stringify({ gameState }));
+            //     });
             });
         
         connection.socket.on("close", () => {
@@ -96,7 +97,8 @@ fastify.register(async function (fastify) {
         }
 
         function new_game() {
-            game = 1;
+            console.log("new game")
+            gameState.game.state = 1;
             gameState.score.player1 = 0;
             gameState.score.player2 = 0;
             ballSpeedX = 4;
@@ -107,14 +109,17 @@ fastify.register(async function (fastify) {
 
         function check_score() {
             if (gameState.score.player1 == 3 || gameState.score.player2 == 3)
-              game = 0;
+                gameState.game.state = 0;
         }
 
         function gameLoop() {
-            if (game == 1) {
+            if (gameState.game.state == 1) {
               update();
               check_score();
             }
+            clients.forEach(client => {
+                client.socket.send(JSON.stringify({ gameState }));
+            });
         }
         setInterval(gameLoop, 30);
     });
