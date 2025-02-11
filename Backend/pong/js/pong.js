@@ -3,52 +3,60 @@ fastify.register(require("@fastify/websocket"));
 
 const clients = new Set();
 
+let gameState = {
+    ball: { x: 500, y: 250 },
+    paddles: { player1: { y: 200 }, player2: { y: 200 } },
+    score: { player1: 0, player2: 0 },
+    game: { state: 0 }
+};
+let ballSpeedX = 0.8;
+let ballSpeedY = 0.8;
+let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+const arena_height = 500;
+const arena_width = 1000;
+const move = 5;
+const paddleWidth = 20;
+const paddleHeight = 100;
+const ballRadius = 10;
+
+let moving = { player1: { up: false, down: false }, player2: { up: false, down: false } };
+
 fastify.register(async function (fastify) {
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
-
-        let gameState = {
-            ball: { x: 500, y: 250 },
-            paddles: { player1: { y: 200 }, player2: { y: 200 } },
-            score: { player1: 0, player2: 0 },
-            game: { state: 0 }
-        };
-        let ballSpeedX = 4;
-        let ballSpeedY = 4;
-        let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-        const arena_height = 500;
-        const arena_width = 1000;
-        const move = 10;
-        const paddleWidth = 20;
-        const paddleHeight = 100;
-        const ballRadius = 10;
-
         
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            // console.log("Message reçu :", data);
-            
+        
             if (data.player === "player1") {
-                if (data.move === "up" && gameState.paddles.player1.y > 0)
-                    gameState.paddles.player1.y -= move;
-                else if (data.move === "down" && gameState.paddles.player1.y < arena_height - paddleHeight)
-                    gameState.paddles.player1.y += move;
+                if (data.move === "up") {
+                    moving.player1.up = true;
+                    moving.player1.down = false;
+                } else if (data.move === "down") {
+                    moving.player1.down = true;
+                    moving.player1.up = false;
+                } else if (data.move === "stop") {
+                    moving.player1.up = false;
+                    moving.player1.down = false;
+                }
             }
             if (data.player === "player2") {
-                if (data.move === "up" && gameState.paddles.player2.y > 0)
-                    gameState.paddles.player2.y -= move;
-                else if (data.move === "down" && gameState.paddles.player2.y < arena_height - paddleHeight)
-                    gameState.paddles.player2.y += move;
+                if (data.move === "up") {
+                    moving.player2.up = true;
+                    moving.player2.down = false;
+                } else if (data.move === "down") {
+                    moving.player2.down = true;
+                    moving.player2.up = false;
+                } else if (data.move === "stop") {
+                    moving.player2.up = false;
+                    moving.player2.down = false;
+                }
             }
-
-            if (data.game === "new")
+            if (data.game === "new") {
                 new_game();
-            
-            // clients.forEach(client => {
-            //         client.socket.send(JSON.stringify({ gameState }));
-            //     });
-            });
+            }
+        });
         
         connection.socket.on("close", () => {
             clients.delete(connection);
@@ -56,6 +64,19 @@ fastify.register(async function (fastify) {
         });
         
         function update() {
+            if (moving.player1.up && gameState.paddles.player1.y > 0) {
+                gameState.paddles.player1.y -= move;
+            }
+            if (moving.player1.down && gameState.paddles.player1.y < arena_height - paddleHeight) {
+                gameState.paddles.player1.y += move;
+            }
+            if (moving.player2.up && gameState.paddles.player2.y > 0) {
+                gameState.paddles.player2.y -= move;
+            }
+            if (moving.player2.down && gameState.paddles.player2.y < arena_height - paddleHeight) {
+                gameState.paddles.player2.y += move;
+            }
+
             gameState.ball.x += ballSpeedX;
             gameState.ball.y += ballSpeedY;
     
@@ -67,7 +88,7 @@ fastify.register(async function (fastify) {
                     ballSpeedX = 15;
             }  
             if (gameState.ball.x + ballRadius > arena_width - paddleWidth && gameState.ball.y > gameState.paddles.player2.y && gameState.ball.y < gameState.paddles.player2.y + paddleHeight) {
-                ballSpeedX = -ballSpeedX * 1.1 ;
+                ballSpeedX = -ballSpeedX * 1.1;
                 if (ballSpeedX < -15)
                     ballSpeedX = -15;
             }
@@ -84,6 +105,12 @@ fastify.register(async function (fastify) {
         function resetBall() {
             gameState.ball.x = arena_width / 2;
             gameState.ball.y = arena_height / 2;
+            ballSpeedX /= 2;
+            if (ballSpeedX < 0.8)
+                ballSpeedX = 0.8;
+            ballSpeedY /= 2;
+            if (ballSpeedY < 0.8)
+                ballSpeedY = 0.8;
             speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
             let angle;
             if (Math.random() < 0.5) {
@@ -97,13 +124,11 @@ fastify.register(async function (fastify) {
         }
 
         function new_game() {
-            console.log("new game")
             gameState.game.state = 1;
             gameState.score.player1 = 0;
             gameState.score.player2 = 0;
-            ballSpeedX = 4;
-            ballSpeedY = 4;
-            speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+            ballSpeedX = 1.6;
+            ballSpeedY = 1.6;
             resetBall();
         }
 
@@ -121,7 +146,7 @@ fastify.register(async function (fastify) {
                 client.socket.send(JSON.stringify({ gameState }));
             });
         }
-        setInterval(gameLoop, 30);
+        setInterval(gameLoop, 16);
     });
 });
 

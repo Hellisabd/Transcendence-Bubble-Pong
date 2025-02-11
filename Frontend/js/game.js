@@ -26,7 +26,7 @@ function initializeGame() {
             },
             score: { player1: 0, player2: 0 },
             game: { state: 0 }
-        };                
+        };
 
         socket.onmessage = function(event) {
             let gs = JSON.parse(event.data);
@@ -47,7 +47,6 @@ function initializeGame() {
                 if (event.key === "s")
                     message = { player: "player1", move: "down" };
                 if (event.key === " ") {
-                    console.log("new")
                     message = { game: "new" };
                     gameState.game.state = 1;
                 }
@@ -55,11 +54,25 @@ function initializeGame() {
                 if (message) {
                     socket.send(JSON.stringify(message));
                 }
-            } else {
-                console.warn("WebSocket non prêt, message ignoré.");
             }
         });
-        
+
+        document.addEventListener("keyup", function(event) {
+            if (socket.readyState === WebSocket.OPEN) {
+                let message = null;
+
+                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                    message = { player: "player2", move: "stop" };
+                }
+                if (event.key === "w" || event.key === "s") {
+                    message = { player: "player1", move: "stop" };
+                }
+
+                if (message) {
+                    socket.send(JSON.stringify(message));
+                }
+            }
+        });        
 
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -75,12 +88,11 @@ function initializeGame() {
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
-            console.log(gameState.game.state);
             if (gameState.game.state == 0) {
                 ctx.font = "30px Arial";
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
-                ctx.fillStyle = "#000000";
+                ctx.fillStyle = "#FFFFFF";
                 ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
             }
         }
@@ -95,9 +107,9 @@ function initializeGame() {
             ctx.fillText(gameState.score.player2, canvas.width / 2 + 50, 40);
         }
 
-        setInterval(drawGame, 30);
+        setInterval(drawGame, 16);
         } 
         else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
+            console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }
