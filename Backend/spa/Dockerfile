@@ -20,6 +20,7 @@ COPY ./Frontend/templates/* ./Frontend/templates/
 RUN npm install
 RUN npm install ejs
 RUN npm install pino-pretty
+RUN npm install @fastify/cookie
 
 USER spa
 

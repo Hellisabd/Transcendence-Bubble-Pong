@@ -11,7 +11,7 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account } = require("./proxy");
+const { log, create_account , me , logout } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -19,14 +19,19 @@ const view = require('@fastify/view');
 const fs = require('fs');
 console.log(`on est la:::: ${__dirname}`)
 const axios = require("axios"); // Pour faire des requêtes HTTP
+const fastifyCookie = require("@fastify/cookie");
 
 fastify.register(cors, {
   origin: "http://localhost:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Autorise ces méthodes HTTP
   allowedHeaders: ["Content-Type"],
-  preflightContinue: true
+  preflightContinue: true,
+  credential: true
 });
 
+fastify.register(fastifyCookie, {
+    secret: process.env.COOKIE_SECRET,
+});
 fastify.register(view, {
   engine: { ejs: require("ejs") },
   root: path.join(__dirname, "../../Frontend/templates"),
@@ -40,6 +45,10 @@ fastify.register(fastifystatic, {
 });
 
 fastify.post("/login", log);
+
+fastify.get("/me", me);
+
+fastify.get("/logout", logout);
 
 fastify.post("/create_account", create_account);
 

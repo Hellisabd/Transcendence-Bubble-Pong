@@ -1,11 +1,36 @@
+const fastify = require("fastify")();
 const axios = require("axios");
+const fastifyCookie = require("@fastify/cookie");
+
+let usersession = {}
+
+fastify.register(fastifyCookie, {
+    secret: process.env.COOKIE_SECRET,
+}).then(() => {
+    console.log("✅ Plugin `@fastify/cookie` chargé !");
+}).catch(err => {
+    console.error("❌ Erreur lors de l'enregistrement du plugin :", err);
+});
 
 async function log(req, reply) {
     try {
         console.log("🔄 Redirection de /login vers users...");
         
         const response = await axios.post("http://users:5000/login", req.body);
-        return reply.send(response.data);
+        console.log(response.data);
+        const {token , username} = response.data;
+        usersession[token] = username;
+        return reply
+        .setCookie("session", token, {
+            path: "/",
+            httpOnly: true,  
+            secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
+            maxAge: 18000,  
+            sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
+            domain: "localhost",  // ⚠️ Change en fonction de ton domaine
+            partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
+        })
+        .send({ success: true, message: `Bienvenue ${username}`});
     } catch (error) {
         console.error("❌ Erreur API users:", error.message);
         return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
@@ -16,7 +41,9 @@ async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
         
-        const response = await axios.post("http://users:5000/create_account", req.body);
+        const response = await axios.post("http://users:5000/create_account", req.body, {
+            withCredentials: true
+        });
         return reply.send(response.data);
     } catch (error) {
         console.error("❌ Erreur API users:", error.message);
@@ -24,4 +51,30 @@ async function create_account(req, reply) {
     }
 }
 
-module.exports = { log , create_account };
+async function me(req, reply) {
+    try {
+        console.log("🔄 Redirection de /create_account vers me...");
+        const response = await axios.get("http://users:5000/me", {
+            withCredentials: true
+        })
+        return reply.send(response.data);
+    } catch (error) {
+        console.error("❌ Erreur API users:", error.message);
+        if (error.response.status === 402)
+            return null;
+        return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
+    }
+}
+
+async function logout(req, reply) {
+    try {
+        const response = await axios.get("http://users:5000/logout", {
+            withCredentials: true
+        })
+        return reply.send(response.data);
+    } catch (error) {
+        return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
+    }
+}
+
+module.exports = { log , create_account , me , logout };

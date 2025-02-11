@@ -1,4 +1,3 @@
-
 console.log("Script spa.js chargé !");
 
 if (window.location.pathname === "/") {
@@ -15,7 +14,10 @@ function navigateTo(page,  addHistory = true) {
 
 	let url = page == "index" ? "/" : `/${page}`
     // Utiliser Fetch API pour récupérer le contenu du serveur
-    fetch(url)  // Ajout du "/" pour éviter des erreurs
+    fetch(url, {
+        credentials: "include",
+        headers: { "Content-Type": "text/html" }
+    })  // Ajout du "/" pour éviter des erreurs
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
