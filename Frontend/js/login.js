@@ -65,3 +65,11 @@ async function create_account(event) {
         alert("Erreur de connexion au serveur.");
     }
 }
+
+async function logout() {
+    await fetch("/logout", {
+        method: "GET",
+    });
+    alert("deconnexion!");
+    navigateTo("");
+}

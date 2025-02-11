@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <div id="content_head">
       <link rel="stylesheet" href="/Frontend/css/style.css">
       <link rel="stylesheet" href="/Frontend/css/btn.css">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SPA Demo</title>
-    </div>
 </head>
 <body>
+  <div id="user" style="display: none;"></div>
   <div id="content">
     <h1>Page d'accueil</h1>
     <p>Bienvenue sur la page d'accueil !</p>
@@ -17,7 +16,8 @@
     <button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
     <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
     <button class="btn" onclick="navigateTo('login')">Login</button>
-    <button class="btn" onclick="navigateTo('create_account')">Create Account</button>
+        <button class="btn" onclick="logout()">Logout</button>
+        <button class="btn" onclick="navigateTo('create_account')">Create Account</button>
     <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
   </div>
   <%- include('scripts.ejs') %>

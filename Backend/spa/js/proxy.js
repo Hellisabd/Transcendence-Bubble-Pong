@@ -51,30 +51,12 @@ async function create_account(req, reply) {
     }
 }
 
-async function me(req, reply) {
-    try {
-        console.log("🔄 Redirection de /create_account vers me...");
-        const response = await axios.get("http://users:5000/me", {
-            withCredentials: true
-        })
-        return reply.send(response.data);
-    } catch (error) {
-        console.error("❌ Erreur API users:", error.message);
-        if (error.response.status === 402)
-            return null;
-        return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
-    }
+async function get_user(token) {
+    return usersession[token] || null;
 }
 
-async function logout(req, reply) {
-    try {
-        const response = await axios.get("http://users:5000/logout", {
-            withCredentials: true
-        })
-        return reply.send(response.data);
-    } catch (error) {
-        return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
-    }
+async function logout(token, reply) {
+    delete usersession[token];
 }
 
-module.exports = { log , create_account , me , logout };
+module.exports = { log , create_account , logout, get_user };

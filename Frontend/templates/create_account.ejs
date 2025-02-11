@@ -6,11 +6,9 @@
         <link rel="stylesheet" href="/Frontend/css/btn.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Create Account</title>
-        <script>
-        
-        </script>
 </head>
 <body>
+    <div id="user" style="display: none;"></div>
     <div id="content">
         <h2>Create Account</h2>
         <form onsubmit="create_account(event)">
@@ -25,6 +23,7 @@
             <br>
             <button type="submit">Creer son Compte</button>
         </form>
+        <button class="btn" onclick="logout()">Logout</button>
         <button class="btn" onclick="navigateTo('index')">HOME</button>
     </div>
 	<%- include('scripts.ejs') %>

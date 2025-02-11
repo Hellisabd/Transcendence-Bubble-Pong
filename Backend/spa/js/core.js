@@ -11,7 +11,7 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account , me , logout } = require("./proxy");
+const { log, create_account , get_user , logout } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -46,15 +46,25 @@ fastify.register(fastifystatic, {
 
 fastify.post("/login", log);
 
-fastify.get("/me", me);
+fastify.get("/get_user", async (req, reply) => {
+    const token = req.cookies.session;
+    const username = await get_user(token);
+    return reply.send({success: true, username});
+})
 
-fastify.get("/logout", logout);
+fastify.get("/logout", async (req, reply) => {
+  const token = req.cookies.session;
+  const username = await logout(token);
+  return reply.clearCookie("session", {
+    path: "/",
+    httpOnly: true,
+    secure: true, // ✅ Doit être `true` en production (HTTPS)
+    sameSite: "None"
+})
+.send({ success: true, message: "Déconnexion réussie" });
+})
 
 fastify.post("/create_account", create_account);
-
-// fastify.listen({ port: 3000, host: "0.0.0.0" }, () => {
-//     console.log("🚀 Serveur SPA démarré sur http://0.0.0.0:3000");
-// });
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
