@@ -39,37 +39,59 @@ async function create_account(event) {
     const password = document.getElementById("password").value;
     const email = document.getElementById("email").value;
     
-    try {
-        const response = await fetch("/create_account", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password, email })
-        });
-        console.log(`username: ${username}`);
-        console.log(`password: ${password}`);
-        console.log(`email: ${email}`);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-
+    const response = await fetch("/create_account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, email })
+    });
+    console.log(`username: ${username}`);
+    console.log(`password: ${password}`);
+    console.log(`email: ${email}`);
+    if (!response.success) {
+        alert("Erreur: utilisateur existant");
+    } else {
         const result = await response.json();
-
+    
         if (result.success) {
             alert("Compte creer!");
             navigateTo("login");
         } else {
             alert("Erreur : " + result.error);
         }
-    } catch (error) {
-        console.error("Erreur réseau :", error);
-        alert("Erreur de connexion au serveur.");
     }
+
 }
 
-async function logout() {
+async function logout(print) {
     await fetch("/logout", {
         method: "GET",
     });
-    alert("deconnexion!");
-    navigateTo("");
+    if (print) {
+        alert("deconnexion!");
+        navigateTo("");
+    }
+}
+
+async function modify_user(event) {
+    event.preventDefault();
+    const newusername = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    console.log(`newusername: ${newusername}`);
+    console.log(`password: ${password}`);
+    console.log(`email: ${email}`);
+    const username = await get_user(); 
+    console.log(`oldusername: ${newusername}`);
+    if (!username) {
+        alert("Cant get user!");
+    } else {
+        await fetch("/modify_user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newusername, password, email, username })
+        });
+        logout(0);
+        alert("Modification Done!");
+        navigateTo("login");
+    }
 }

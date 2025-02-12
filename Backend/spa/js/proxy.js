@@ -51,8 +51,10 @@ async function create_account(req, reply) {
         });
         return reply.send(response.data);
     } catch (error) {
+        const statuscode = error.response ? error.response.status : 500;
+        const errormessage = error.response ? error.response.data.error : "Server Error";
         console.error("❌ Erreur API users:", error.message);
-        return reply.code(500).send({ error: "Erreur interne du serveur SPA" });
+        return reply.code(statuscode).send({ error: errormessage });
     }
 }
 
@@ -64,4 +66,12 @@ async function logout(token, reply) {
     delete usersession[token];
 }
 
-module.exports = { log , create_account , logout, get_user };
+async function modify_user(req, reply) {
+
+    const response = await axios.post("http://users:5000/modify_user", req.body, {
+        withCredentials: true
+    });
+    reply.send(response.data);
+}
+
+module.exports = { log , create_account , logout, get_user, modify_user };

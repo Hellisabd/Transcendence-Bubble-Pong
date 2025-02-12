@@ -47,7 +47,7 @@ console.log(`📌 Base de données utilisée : ${dbFile}`);
 db.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL
   )
@@ -82,6 +82,30 @@ fastify.post("/login", async (request, reply) => {
       return reply.send({ success: false, error: "Connexion échouée : Mot de passe incorrect" });
     const token = generateToken(user);
     return reply.send({ success: true, token, username: user.username });
+  } catch (error) {
+    return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+  }
+});
+
+fastify.post("/modify_user", async (request, reply) => {
+  const { email, password, newusername, username } = request.body;
+  console.log(`newusername: ${newusername}`);
+  console.log(`password: ${password}`);
+  console.log(`email: ${email}`);
+  console.log(`oldusername: ${username}`);
+  if (!email || !password || !newusername || !username) {
+    return reply.code(400).send({ success: false, error: "Champs manquants" });
+  }
+  try {
+    const newpassword = await bcrypt.hash(password, SALT_ROUNDS); 
+    const stmt = db.prepare("UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?");
+    const result = stmt.run(newusername, email, newpassword, username);
+    console.log("ici");
+    if (result.changes > 0) {
+      return reply.send({succes: true});
+    } else {
+      return reply.send({success: false});
+    }
   } catch (error) {
     return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
   }
@@ -123,12 +147,14 @@ fastify.post("/create_account", async (request, reply) => {
   try {
     // 🔍 Vérifier si l'utilisateur existe déjà
     console.log(`🔍 Recherche de l'utilisateur avec l'email : '${email}'`);
-    const existingUser = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
-
+    const existingemail = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+    if (existingemail) {
+      return reply.code(409).send({ success: false });
+    }
     console.log("🔍 Résultat de la requête SELECT :", existingUser);
-
+    const existingUser = db.prepare("SELECT * FROM users WHERE email = ?").get(username);
     if (existingUser) {
-      return reply.code(409).send({ success: false, error: "L'utilisateur existe déjà" });
+      return reply.code(409).send({ success: false });
     }
     const hashedpasswrd = await bcrypt.hash(password, SALT_ROUNDS);
     // 🔹 Insérer le nouvel utilisateur

@@ -5,13 +5,13 @@
         <link rel="stylesheet" href="/Frontend/css/style.css">
         <link rel="stylesheet" href="/Frontend/css/btn.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Create Account</title>
+        <title>Modify User</title>
 </head>
 <body>
     <div id="user" style="display: none;"></div>
     <div id="content">
-        <h2>Create Account</h2>
-        <form onsubmit="create_account(event)">
+        <h2>Modify User</h2>
+        <form onsubmit="modify_user(event)">
             <label for="email">Adresse Email :</label>
             <input type="text" id="email" required>
             <br>
@@ -21,7 +21,7 @@
             <label for="password">Mot de passe :</label>
             <input type="password" id="password" required>
             <br>
-            <button type="submit">Creer son Compte</button>
+            <button type="submit">modifier informations</button>
         </form>
         <button class="btn" onclick="logout(1)">Logout</button>
         <button class="btn" onclick="navigateTo('index')">HOME</button>
