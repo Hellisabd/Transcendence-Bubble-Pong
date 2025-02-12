@@ -17,20 +17,25 @@ async function log(req, reply) {
         console.log("🔄 Redirection de /login vers users...");
         
         const response = await axios.post("http://users:5000/login", req.body);
-        console.log(response.data);
-        const {token , username} = response.data;
-        usersession[token] = username;
-        return reply
-        .setCookie("session", token, {
-            path: "/",
-            httpOnly: true,  
-            secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
-            maxAge: 18000,  
-            sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
-            domain: "localhost",  // ⚠️ Change en fonction de ton domaine
-            partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
-        })
-        .send({ success: true, message: `Bienvenue ${username}`});
+        const result = await response.data;
+        if (result.success) {
+            console.log(response.data);
+            const {token , username} = response.data;
+            usersession[token] = username;
+            return reply
+            .setCookie("session", token, {
+                path: "/",
+                httpOnly: true,  
+                secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
+                maxAge: 18000,  
+                sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
+                domain: "localhost",  // ⚠️ Change en fonction de ton domaine
+                partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
+            })
+            .send({ success: true, message: `Bienvenue ${username}`});
+        } else {
+            return reply.send({success: false});
+        }
     } catch (error) {
         console.error("❌ Erreur API users:", error.message);
         return reply.code(500).send({ error: "Erreur interne du serveur SPA" });

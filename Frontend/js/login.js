@@ -19,8 +19,8 @@ async function login(event) {
         }
 
         const result = await response.json();
-        console.log(result);
-        if (result.success == true) {
+        console.log(`result::: ${result.success}`);
+        if (result.success) {
             alert(JSON.stringify(result));
             navigateTo("");
         } else {
