@@ -19,12 +19,12 @@ async function login(event) {
         }
 
         const result = await response.json();
-
-        if (result.success) {
+        console.log(result);
+        if (result.success == true) {
             alert(JSON.stringify(result));
             navigateTo("");
         } else {
-            alert("Erreur : " + result.error);
+            alert("Erreur : Wrong email or password");
         }
     } catch (error) {
         console.error("Erreur réseau :", error);
@@ -56,7 +56,7 @@ async function create_account(event) {
 
         if (result.success) {
             alert("Compte creer!");
-            navigateTo("");
+            navigateTo("login");
         } else {
             alert("Erreur : " + result.error);
         }

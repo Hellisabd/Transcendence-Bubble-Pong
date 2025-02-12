@@ -74,6 +74,7 @@ fastify.post("/login", async (request, reply) => {
   }
   try {
     const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
+    console.log(user);
     if (!user)
         return reply.send({ success: false, error: "Connexion Echouée : invalid email" });
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -82,7 +83,7 @@ fastify.post("/login", async (request, reply) => {
     const token = generateToken(user);
     return reply.send({ success: true, token, username: user.username });
   } catch (error) {
-    return reply.code(500).send({ error: "Erreur interne du serveur" });
+    return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
   }
 });
 
