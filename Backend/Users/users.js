@@ -151,8 +151,8 @@ fastify.post("/create_account", async (request, reply) => {
     if (existingemail) {
       return reply.code(409).send({ success: false });
     }
-    console.log("🔍 Résultat de la requête SELECT :", existingUser);
     const existingUser = db.prepare("SELECT * FROM users WHERE email = ?").get(username);
+    console.log("🔍 Résultat de la requête SELECT :", existingUser);
     if (existingUser) {
       return reply.code(409).send({ success: false });
     }

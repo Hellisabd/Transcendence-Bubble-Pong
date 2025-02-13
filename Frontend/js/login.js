@@ -49,6 +49,7 @@ async function create_account(event) {
     console.log(`email: ${email}`);
     if (!response.success) {
         alert("Erreur: utilisateur existant");
+        navigateTo("create_account");
     } else {
         const result = await response.json();
     
