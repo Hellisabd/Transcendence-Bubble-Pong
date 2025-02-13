@@ -1,0 +1,17 @@
+{
+	"name": "fastify-app",
+	"version": "1.0.0",
+	"main": "core.js",
+	"scripts": {
+	  "start": "node Backend/js/core.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.0.0",
+	  "@fastify/static": "^6.0.0",
+	  "@fastify/view": "^7.2.0",
+	  "@fastify/websocket": "^7.2.0",
+	  "@fastify/cors": "^8.0.0",
+	  "axios": "^1.7.9",
+	  "@fastify/cookie": "^7.0.0"
+	}
+  }

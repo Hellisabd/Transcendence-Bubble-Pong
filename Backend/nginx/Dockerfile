@@ -10,7 +10,7 @@ RUN getent passwd nginx || useradd -m -u ${USER_ID} -g nginx_new_group nginx
 
 COPY ./Backend/nginx/config/conf.d/default.conf /etc/nginx/conf.d/default.conf
 COPY ./Backend/nginx/config/conf.d/nginx.conf /etc/nginx/nginx.conf
-COPY ./Frontend usr/src/app/
+COPY ./Frontend usr/share/nginx/html
 
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y
@@ -18,7 +18,7 @@ RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/
 RUN chown -R nginx:nginx /etc/nginx/ssl
 RUN chmod -R 644 /etc/nginx/ssl/*
 RUN mkdir -p /var/cache/nginx/client_temp
-RUN chown -R nginx:nginx /var
+RUN chown -R nginx:nginx_new_group /var
 RUN chmod -R 777 /var/cache/nginx
 RUN touch  /var/run/nginx.pid
 RUN chmod -R 777 /var/run/nginx.pid
