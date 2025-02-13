@@ -1,17 +1,20 @@
 console.log("game.js chargé");
 
-function initializeGame() {
+function initializeGame(): void {
     console.log("Initialisation du jeu...");
-    const canvas = document.getElementById("pongCanvas");
+    const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     if (canvas) {
         const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return ;
+        }
         const socket = new WebSocket("wss://transcendence:8000/ws/pong");
-        socket.onopen = function() {
+        socket.onopen = () => {
             console.log("✅ WebSocket connectée !");};
-        socket.onerror = function(event) {
+        socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
-        socket.onclose = function(event) {
+        socket.onclose = (event) => {
             console.warn("⚠️ WebSocket fermée :", event);};
         
         const paddleWidth = 20;
@@ -36,7 +39,7 @@ function initializeGame() {
 
         document.addEventListener("keydown", function(event) {
             if (socket.readyState === WebSocket.OPEN) {
-                let message = null;
+                let message: { player?: string; move?: string; game?: string } | null = null;
         
                 if (event.key === "ArrowUp")
                     message = { player: "player2", move: "up" };
@@ -59,7 +62,7 @@ function initializeGame() {
 
         document.addEventListener("keyup", function(event) {
             if (socket.readyState === WebSocket.OPEN) {
-                let message = null;
+                let message: { player?: string; move?: string; game?: string } | null = null;
 
                 if (event.key === "ArrowUp" || event.key === "ArrowDown") {
                     message = { player: "player2", move: "stop" };
@@ -74,7 +77,10 @@ function initializeGame() {
             }
         });        
 
-        function drawGame() {
+        function drawGame(): void {
+            if (!ctx) {
+                return ;
+            }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             ctx.beginPath();
@@ -97,14 +103,17 @@ function initializeGame() {
             }
         }
 
-        function draw_score() {
+        function draw_score(): void {
+            if (!ctx) {
+                return ;
+            }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
             ctx.font = "40px Arial";
             ctx.fillStyle = "#810000";
-            ctx.fillText(gameState.score.player1, canvas.width / 2 - 50, 40);
+            ctx.fillText(String(gameState.score.player1), canvas.width / 2 - 50, 40);
             ctx.fillStyle = "#00009c";
-            ctx.fillText(gameState.score.player2, canvas.width / 2 + 50, 40);
+            ctx.fillText(String(gameState.score.player2), canvas.width / 2 + 50, 40);
         }
 
         setInterval(drawGame, 16);

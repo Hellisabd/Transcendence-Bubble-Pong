@@ -29,7 +29,6 @@ services:
         GROUP_ID: ${GROUP_ID}
     volumes:
       - ./Backend/spa:/usr/src/app/Backend
-      - ./Frontend:/usr/src/app/Frontend
     networks:
       - spa-network
       - pong-network

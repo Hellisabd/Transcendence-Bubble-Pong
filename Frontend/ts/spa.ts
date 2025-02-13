@@ -4,8 +4,8 @@ if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
 }
 
-async function set_user() {
-    const userDiv = document.getElementById("user");
+async function set_user(): Promise<void> {
+    const userDiv = document.getElementById("user") as HTMLDivElement;
     
     const username =  await get_user();
     console.log(`✅ Utilisateur récupéré : ${username}`);
@@ -20,20 +20,20 @@ async function set_user() {
 }
 
 
-async function navigateTo(page, addHistory = true) {
+async function navigateTo(page: string, addHistory: boolean = true): Promise<void> {
     console.log("Navigating to:", page);
 
-    const contentDiv = document.getElementById("content");
-    const userDiv = document.getElementById("user");
+    const contentDiv = document.getElementById("content") as HTMLDivElement;
+    const userDiv = document.getElementById("user") as HTMLDivElement;
 
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
 
-    let url = page == "index" ? "/" : `/${page}`;
+    let url: string = page == "index" ? "/" : `/${page}`;
 
     try {
-        response = await fetch(url, {
+        const response: Response = await fetch(url, {
             credentials: "include",
             headers: { "Content-Type": "text/html" }
         });
@@ -41,13 +41,13 @@ async function navigateTo(page, addHistory = true) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const html = await response.text();
+        const html: string = await response.text();
 
-        const tempDiv = document.createElement("div");
+        const tempDiv: HTMLDivElement = document.createElement("div");
         tempDiv.innerHTML = html;
 
         // ✅ Mise à jour du contenu principal
-        const newContent = tempDiv.querySelector("#content");
+        const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
             contentDiv.innerHTML = newContent.innerHTML;
         } else {
@@ -55,7 +55,7 @@ async function navigateTo(page, addHistory = true) {
         }
 
         // ✅ Attendre la valeur correcte de `get_user()`
-        const username = await get_user(); 
+        const username: string | null = await get_user(); 
         console.log(`✅ Utilisateur récupéré : ${username}`);
 
         if (username) {
@@ -75,7 +75,7 @@ async function navigateTo(page, addHistory = true) {
     }
 }
 
-async function get_user() {
+async function get_user(): Promise<string | null> {
     try {
         const response = await fetch("/get_user", {
             method: "GET",
@@ -83,15 +83,16 @@ async function get_user() {
         })
         if (!response.ok)
             return null;
-        const data = await response.json();
-        return data.success ? data.username : null; 
+        const data: {success: boolean; username?: string} = await response.json();
+        return data.success ? data.username ?? null : null; 
     } catch (error) {
         alert("Erreur cant get user");
+        return null;
     }
 }
 
 // Gestion de l'historique
-window.onpopstate = function(event) {
+window.onpopstate = function(event: PopStateEvent): void {
     if (event.state) {
 		console.log("Navigating back/forward to:", event.state.page);
         navigateTo(event.state.page, false);

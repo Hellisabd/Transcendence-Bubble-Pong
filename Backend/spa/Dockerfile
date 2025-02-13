@@ -12,13 +12,19 @@ RUN npm install -g npm@11.1.0
 RUN npm install -g wscat
 RUN apt-get update && apt-get install -y net-tools
 
+
 # Créer un répertoire pour l'application
 WORKDIR /usr/src/app
 
+RUN chown -R spa:spa /usr/src/app
+
 # Copier package.json et installer les dépendances
-COPY ./Backend/spa/config/package*.json ./
+COPY ./Backend/spa/config/*.json ./
 COPY ./Backend/spa/js/*.js ./Backend/js/
-COPY ./Frontend/templates/* ./Frontend/templates/
+COPY ./Frontend ./Frontend
+
+RUN chown -R spa:spa /usr/src/app/Frontend
+
 RUN npm install
 RUN npm install ejs
 RUN npm install -g typescript
