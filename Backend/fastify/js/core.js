@@ -20,23 +20,6 @@ const WebSocket = require("ws");
 let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
 pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
 
-fastify.get("/game/status", async (request, reply) => {
-  return new Promise((resolve) => {
-      pongSocket.once("message", (message) => {
-          const data = JSON.parse(message);
-          if (data.type === "state") {
-              resolve(data.data);
-          }
-      });
-  });
-});
-
-fastify.post("/game/move", async (request, reply) => {
-  const { player, move } = request.body;
-  pongSocket.send(JSON.stringify({ type: "move", player, move }));
-  return { success: true };
-});
-
 fastify.register(view, {
   engine: { ejs: require("ejs") },
   root: path.join(__dirname, "../../Frontend/templates"),
