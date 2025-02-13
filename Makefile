@@ -19,8 +19,8 @@ all :
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
 	export DOCKER_ROOT=/goinfre/$(whoami)/docker-root
-	docker-compose build
-	docker-compose up
+	docekr-compose down
+	docker-compose up -d
 
 nginx :
 	docker-compose build nginx
@@ -32,6 +32,10 @@ pong :
 users :
 	docker-compose build users
 	docker-compose up
+
+build :
+	docekr-compose down
+	docker-compose build
 
 clean :
 	docker-compose down
