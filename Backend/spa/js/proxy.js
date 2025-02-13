@@ -49,6 +49,7 @@ async function create_account(req, reply) {
         const response = await axios.post("http://users:5000/create_account", req.body, {
             withCredentials: true
         });
+        console.log(response.data);
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;

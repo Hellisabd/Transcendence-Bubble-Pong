@@ -19,6 +19,7 @@ COPY ./Backend/Users ./
 RUN npm install
 RUN npm install pino-pretty bcrypt
 RUN npm install @fastify/cookie
+RUN npm install -g typescript
 RUN apt-get update && apt-get install -y sqlite3
 
 

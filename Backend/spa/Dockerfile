@@ -19,6 +19,7 @@ COPY ./Backend/spa/js/*.js ./Backend/js/
 COPY ./Frontend/templates/* ./Frontend/templates/
 RUN npm install
 RUN npm install ejs
+RUN npm install -g typescript
 RUN npm install pino-pretty
 RUN npm install @fastify/cookie
 

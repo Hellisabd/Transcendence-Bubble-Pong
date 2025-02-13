@@ -47,18 +47,14 @@ async function create_account(event) {
     console.log(`username: ${username}`);
     console.log(`password: ${password}`);
     console.log(`email: ${email}`);
-    if (!response.success) {
-        alert("Erreur: utilisateur existant");
-        navigateTo("create_account");
+    const result = await response.json();
+    console.log(`result success:: ${result.success}`);
+
+    if (result.success) {
+        alert("Compte creer!");
+        navigateTo("login");
     } else {
-        const result = await response.json();
-    
-        if (result.success) {
-            alert("Compte creer!");
-            navigateTo("login");
-        } else {
-            alert("Erreur : " + result.error);
-        }
+        alert("Erreur: utilisateur existant");
     }
 
 }
