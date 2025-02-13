@@ -29,7 +29,7 @@ async function log(req, reply) {
                 secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
                 maxAge: 18000,  
                 sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
-                domain: "localhost",  // ⚠️ Change en fonction de ton domaine
+                domain: "transcendence",  // ⚠️ Change en fonction de ton domaine
                 partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
             })
             .send({ success: true, message: `Bienvenue ${username}`});

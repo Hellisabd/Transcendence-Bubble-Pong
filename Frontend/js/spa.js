@@ -1,4 +1,4 @@
-console.log("Script spa.js chargé !");
+console.log("Script spa.ts chargé !");
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");

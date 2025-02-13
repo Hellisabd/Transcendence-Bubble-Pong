@@ -63,6 +63,8 @@ async function logout(print) {
     await fetch("/logout", {
         method: "GET",
     });
+    console.log(`print: ${print}`);
+    console.log("print: ", print);
     if (print) {
         alert("deconnexion!");
         navigateTo("");
