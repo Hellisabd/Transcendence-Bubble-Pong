@@ -3,13 +3,15 @@
 	"version": "1.0.0",
 	"main": "core.js",
 	"scripts": {
-	  "start": "node Backend/js/core.js"
+	  "start": "node users.js"
 	},
 	"dependencies": {
 	  "fastify": "^4.0.0",
 	  "@fastify/static": "^6.0.0",
 	  "@fastify/view": "^7.2.0",
-	  "fastify-sqlite": "^1.0.0",
-	  "sqlite3": "^5.1.7"
+	  "better-sqlite3": "^9.0.0",
+	  "jsonwebtoken": "^9.0.2",
+	  "@fastify/cors": "^8.0.0",
+	  "@fastify/cookie": "^7.0.0"
 	}
   }
