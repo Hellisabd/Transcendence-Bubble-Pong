@@ -31,13 +31,13 @@ function initializeGame(): void {
             game: { state: 0 }
         };
 
-        socket.onmessage = function(event) {
+        socket.onmessage = (event) => {
             let gs = JSON.parse(event.data);
             gameState = gs.gameState;
             drawGame();
         };
 
-        document.addEventListener("keydown", function(event) {
+        document.addEventListener("keydown", (event) => {
             if (socket.readyState === WebSocket.OPEN) {
                 let message: { player?: string; move?: string; game?: string } | null = null;
         
@@ -60,7 +60,7 @@ function initializeGame(): void {
             }
         });
 
-        document.addEventListener("keyup", function(event) {
+        document.addEventListener("keyup", (event) => {
             if (socket.readyState === WebSocket.OPEN) {
                 let message: { player?: string; move?: string; game?: string } | null = null;
 

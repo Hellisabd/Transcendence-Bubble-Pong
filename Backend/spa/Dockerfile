@@ -16,14 +16,15 @@ RUN apt-get update && apt-get install -y net-tools
 # Créer un répertoire pour l'application
 WORKDIR /usr/src/app
 
-RUN chown -R spa:spa /usr/src/app
 
 # Copier package.json et installer les dépendances
 COPY ./Backend/spa/config/*.json ./
 COPY ./Backend/spa/js/*.js ./Backend/js/
 COPY ./Frontend ./Frontend
+COPY ./Backend/spa/config/entrypoint.sh ./
 
-RUN chown -R spa:spa /usr/src/app/Frontend
+RUN chmod +x entrypoint.sh
+RUN chown -R spa:spa /usr/src/app
 
 RUN npm install
 RUN npm install ejs
@@ -37,4 +38,4 @@ USER spa
 EXPOSE 3000
 
 # Lancer l'application
-CMD ["npm", "start"]
+CMD ["./entrypoint.sh"]
