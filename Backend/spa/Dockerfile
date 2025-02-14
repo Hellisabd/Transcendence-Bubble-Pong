@@ -11,7 +11,7 @@ RUN getent passwd spa || useradd -m -u ${USER_ID} -g spa spa
 RUN npm install -g npm@11.1.0
 RUN npm install -g wscat
 RUN apt-get update && apt-get install -y net-tools
-
+RUN apt install -y inotify-tools
 
 # Créer un répertoire pour l'application
 WORKDIR /usr/src/app

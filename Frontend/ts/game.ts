@@ -24,8 +24,8 @@ function initializeGame(): void {
         let gameState = {
             ball: { x: 500, y: 250 },
             paddles: {
-                player1: { y: 200 },
-                player2: { y: 200 }
+                player1: { name: "A", y: 200 },
+                player2: { name: "B", y: 200 }
             },
             score: { player1: 0, player2: 0 },
             game: { state: 0 }
@@ -112,8 +112,10 @@ function initializeGame(): void {
             ctx.font = "40px Arial";
             ctx.fillStyle = "#810000";
             ctx.fillText(String(gameState.score.player1), canvas.width / 2 - 50, 40);
+            ctx.fillText(String(gameState.paddles.player1.name), canvas.width / 2 - 200, 40);
             ctx.fillStyle = "#00009c";
             ctx.fillText(String(gameState.score.player2), canvas.width / 2 + 50, 40);
+            ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
         }
 
         setInterval(drawGame, 16);

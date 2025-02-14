@@ -5,7 +5,7 @@ const clients = new Set();
 
 let gameState = {
     ball: { x: 500, y: 250 },
-    paddles: { player1: { y: 200 }, player2: { y: 200 } },
+    paddles: { player1: { name: "A", y: 200 }, player2: { name: "B", y: 200 } },
     score: { player1: 0, player2: 0 },
     game: { state: 0 }
 };

@@ -11,10 +11,12 @@
   <div id="user" style="display: none;"></div>
   <div id="content">
     <button class="btn" onclick="navigateTo('index')">HOME</button>
+    <button class="btn" onclick="logout(1)">Logout</button>
+    <button class="btn" onclick="initializeGame()">PLAY</button>
+    <br>
+    <br>
     <br>
     <canvas id="pongCanvas" width="1000" height="500"></canvas>
-        <button class="btn" onclick="logout(1)">Logout</button>
-        <button class="btn" onclick="initializeGame()">PLAY</button>
   </div>
   <%- include('scripts.ejs') %>
 </body>

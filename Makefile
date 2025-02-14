@@ -20,7 +20,7 @@ all :
 	fi
 	export DOCKER_ROOT=/goinfre/$(whoami)/docker-root
 	docker-compose down
-	docker-compose up -d
+	docker-compose up
 
 nginx :
 	docker-compose build nginx
@@ -34,7 +34,7 @@ users :
 	docker-compose up
 
 build :
-	docekr-compose down
+	docker-compose down
 	docker-compose build
 
 clean :

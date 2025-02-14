@@ -29,6 +29,9 @@ services:
         GROUP_ID: ${GROUP_ID}
     volumes:
       - ./Backend/spa:/usr/src/app/Backend
+      - ./Frontend/css:/usr/src/app/Frontend/css
+      - ./Frontend/templates:/usr/src/app/Frontend/templates
+      - ./Frontend/ts:/usr/src/app/Frontend/ts
     networks:
       - spa-network
       - pong-network
@@ -47,6 +50,8 @@ services:
       args: 
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+    volumes:
+      - ./Backend/pong:/usr/src/app/Backend
     networks:
       - spa-network
       - pong-network
