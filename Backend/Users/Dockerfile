@@ -13,6 +13,12 @@ RUN npm install -g npm@11.1.0
 # Créer un répertoire pour l'application
 WORKDIR /usr/src/app
 
+RUN apt-get update
+RUN apt install -y inotify-tools
+COPY ./Backend/Users/config/entrypoint.sh ./
+RUN chmod +x entrypoint.sh
+RUN chown -R Users:Users /usr/src/app
+
 # Copier package.json et installer les dépendances
 COPY Backend/Users/config/package.json ./
 COPY ./Backend/Users ./
@@ -34,4 +40,4 @@ USER Users
 EXPOSE 5000
 
 # Lancer l'application
-CMD ["npm", "start"]
+CMD ["./entrypoint.sh"]

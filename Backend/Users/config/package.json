@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"main": "core.js",
 	"scripts": {
-	  "start": "node js/users.js"
+	  "start": "node Backend/js/users.js"
 	},
 	"dependencies": {
 	  "fastify": "^4.0.0",

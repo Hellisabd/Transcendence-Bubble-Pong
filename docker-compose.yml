@@ -70,7 +70,7 @@ services:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
-      - ./Backend/Users:/usr/src/app/Backend
+      - ./Backend/Users/js:/usr/src/app/Backend/js
       - sqlite_data:/usr/src/app/dataBase
     networks:
       - spa-network
