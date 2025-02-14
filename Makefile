@@ -19,7 +19,7 @@ all :
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
 	export DOCKER_ROOT=/goinfre/$(whoami)/docker-root
-	docekr-compose down
+	docker-compose down
 	docker-compose up -d
 
 nginx :
