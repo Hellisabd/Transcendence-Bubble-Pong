@@ -9,7 +9,8 @@ function initializeGame(): void {
         if (!ctx) {
             return ;
         }
-        const socket = new WebSocket("wss://transcendence:8000/ws/pong");
+        const sock_name = window.location.host;
+        const socket = new WebSocket("wss://" + sock_name + "/ws/pong");
         socket.onopen = () => {
             console.log("✅ WebSocket connectée !");};
         socket.onerror = (event) => {
