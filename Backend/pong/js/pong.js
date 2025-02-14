@@ -5,16 +5,16 @@ const clients = new Set();
 
 let gameState = {
     ball: { x: 500, y: 250 },
-    paddles: { player1: { name: "A", y: 200 }, player2: { name: "B", y: 200 } },
+    paddles: { player1: { name: "C", y: 200 }, player2: { name: "B", y: 200 } },
     score: { player1: 0, player2: 0 },
     game: { state: 0 }
 };
 let ballSpeedX = 0.8;
 let ballSpeedY = 0.8;
+let move = 5;
 let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
 const arena_height = 500;
 const arena_width = 1000;
-const move = 5;
 const paddleWidth = 20;
 const paddleHeight = 100;
 const ballRadius = 10;
@@ -141,10 +141,10 @@ fastify.register(async function (fastify) {
             if (gameState.game.state == 1) {
               update();
               check_score();
-            }
-            clients.forEach(client => {
-                client.socket.send(JSON.stringify({ gameState }));
-            });
+              clients.forEach(client => {
+                  client.socket.send(JSON.stringify({ gameState }));
+              });
+          }
         }
         setInterval(gameLoop, 16);
     });
