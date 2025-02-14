@@ -8,6 +8,11 @@
         <title>Connexion</title>
 </head>
 <body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          navigateTo("login"); // Appelle la fonction au chargement de la page
+        });
+      </script>
     <div id="user" style="display: none;"></div>
     <div id="content">
         <h2>Connexion</h2>
@@ -20,7 +25,7 @@
             <br>
             <button type="submit">Se connecter</button>
         </form>
-        <button class="btn" onclick="navigateTo('index')">HOME</button>
+        <button class="btn" onclick="navigateTo('create_account')">Create Account</button>
     </div>
 	<%- include('scripts.ejs') %>
 </body>

@@ -22,7 +22,22 @@ async function set_user(): Promise<void> {
 
 async function navigateTo(page: string, addHistory: boolean = true): Promise<void> {
     console.log("Navigating to:", page);
-
+    let afficheUser = false;
+    const username: string = await get_user(); 
+    console.log(`✅ Utilisateur récupéré : ${username}`);
+    const loging: boolean = page == "login";
+    const creating: boolean = page == "create_account";
+    const loged: boolean = creating || loging;
+    console.log("loged::::", loged);
+    console.log("page::::", page);
+    console.log("username::::", username);
+    if (username.length > 0)
+        afficheUser = true;
+    if (!loged && !afficheUser) {
+        console.log("passe dans recur");
+        navigateTo("login");
+        return ;
+    }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     const userDiv = document.getElementById("user") as HTMLDivElement;
 
@@ -53,19 +68,11 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
         } else {
             console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
-
         // ✅ Attendre la valeur correcte de `get_user()`
-        const username: string | null = await get_user(); 
-        console.log(`✅ Utilisateur récupéré : ${username}`);
-
-        if (username) {
-            userDiv.innerHTML = `👤 ${username}`;
+        if (afficheUser) {
+            userDiv.innerHTML = `prout: ${username}`;
             userDiv.style.display = "block";
-        } else {
-            userDiv.innerHTML = "";
-            userDiv.style.display = "none";
         }
-
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
@@ -75,19 +82,19 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
     }
 }
 
-async function get_user(): Promise<string | null> {
+async function get_user(): Promise<string> {
     try {
         const response = await fetch("/get_user", {
             method: "GET",
             credentials: "include",
         })
         if (!response.ok)
-            return null;
+            return "";
         const data: {success: boolean; username?: string} = await response.json();
-        return data.success ? data.username ?? null : null; 
+        return data.success ? data.username ?? "" : ""; 
     } catch (error) {
         alert("Erreur cant get user");
-        return null;
+        return "";
     }
 }
 

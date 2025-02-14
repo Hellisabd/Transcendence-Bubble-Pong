@@ -8,6 +8,11 @@
       <title>SPA Demo</title>
 </head>
 <body>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      navigateTo("index"); // Appelle la fonction au chargement de la page
+    });
+  </script>
   <div id="user" style="display: none;"></div>
   <div id="content">
     <h1>Page d'accueil</h1>
@@ -17,8 +22,8 @@
     <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
     <button class="btn" onclick="navigateTo('login')">Login</button>
     <button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
-        <button class="btn" onclick="logout(1)">Logout</button>
-        <button class="btn" onclick="navigateTo('create_account')">Create Account</button>
+    <button class="btn" onclick="logout(1)">Logout</button>
+    <button class="btn" onclick="navigateTo('create_account')">Create Account</button>
     <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
   </div>
   <%- include('scripts.ejs') %>
