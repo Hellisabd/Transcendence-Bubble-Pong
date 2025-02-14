@@ -26,7 +26,7 @@ pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de
 console.log(`on est la:::: ${__dirname}`)
 
 fastify.register(cors, {
-  origin: "http://localhost:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
+  origin: "http://k1r4p7:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Autorise ces méthodes HTTP
   allowedHeaders: ["Content-Type"],
   preflightContinue: true,

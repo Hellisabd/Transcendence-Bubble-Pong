@@ -25,6 +25,24 @@ fastify.register(async function (fastify) {
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
+
+        let player_id = 0;
+
+        connection.socket.on("message", (message) => {
+            const data = JSON.parse(message.toString());
+        
+            if (data.username) {
+                console.log(player_id)
+                if (player_id == 0) {
+                    gameState.paddles.player1.name = data.username;
+                    player_id++;
+                }
+                else if (player_id == 1) {
+                    gameState.paddles.player2.name = data.username;
+                    player_id = 0;
+                }
+            }
+        });
         
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
@@ -53,7 +71,7 @@ fastify.register(async function (fastify) {
                     moving.player2.down = false;
                 }
             }
-            if (data.game === "new") {
+            if (data.game === "new" && gameState.game.state == 0) {
                 new_game();
             }
         });
@@ -129,6 +147,7 @@ fastify.register(async function (fastify) {
             gameState.score.player2 = 0;
             ballSpeedX = 1.6;
             ballSpeedY = 1.6;
+            move = 5;
             resetBall();
         }
 

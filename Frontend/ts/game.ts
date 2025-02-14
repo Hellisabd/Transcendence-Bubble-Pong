@@ -1,6 +1,28 @@
 console.log("game.js chargé");
 
-function initializeGame(): void {
+async function get_user(): Promise<string> {
+    try {
+        const response = await fetch("/get_user", {
+            method: "GET",
+            credentials: "include",
+        });
+        if (!response.ok) {
+            return "";
+        }
+        const data: { success: boolean; username?: string } = await response.json();
+        return data.success ? data.username ?? "" : "";
+    } catch (error) {
+        alert("Erreur: Impossible de récupérer l'utilisateur");
+        return "";
+    }
+}
+
+async function play_pong() {
+    const user = await get_user();
+    initializeGame(user);
+}
+
+function initializeGame(user: string): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
@@ -9,10 +31,12 @@ function initializeGame(): void {
         if (!ctx) {
             return ;
         }
-        const sock_name = window.location.host;
+        const sock_name = window.location.host
         const socket = new WebSocket("wss://" + sock_name + "/ws/pong");
         socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");};
+            console.log("✅ WebSocket connectée !");
+            socket.send(JSON.stringify({ username: user}));
+        };
         socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
         socket.onclose = (event) => {
@@ -102,6 +126,7 @@ function initializeGame(): void {
                 ctx.fillStyle = "#FFFFFF";
                 ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
             }
+            requestAnimationFrame(drawGame);
         }
 
         function draw_score(): void {
@@ -119,7 +144,7 @@ function initializeGame(): void {
             ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
         }
 
-        setInterval(drawGame, 16);
+        drawGame();
         } 
         else {
             console.error("Erreur : Le canvas n'a pas été trouvé.");
