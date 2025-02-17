@@ -11,7 +11,7 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account , get_user , logout, modify_user } = require("./proxy");
+const { log, create_account , get_user , logout, modify_user, waiting_room } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -71,6 +71,8 @@ fastify.get("/logout", async (req, reply) => {
 fastify.post("/create_account", create_account);
 
 fastify.post("/modify_user", modify_user);
+
+fastify.post("/waiting_room", waiting_room);
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page

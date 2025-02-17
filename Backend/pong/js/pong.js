@@ -3,6 +3,14 @@ fastify.register(require("@fastify/websocket"));
 
 const clients = new Set();
 
+let playerReady = new Set();
+
+const waitingClient = {}
+
+let waiting_room = [];
+
+let players = {}
+
 let gameState = {
     ball: { x: 500, y: 250 },
     paddles: { player1: { name: "C", y: 200 }, player2: { name: "B", y: 200 } },
@@ -25,28 +33,14 @@ fastify.register(async function (fastify) {
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
-
-        let player_id = 0;
-
+        
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-        
-            if (data.username) {
-                console.log(player_id)
-                if (player_id == 0) {
-                    gameState.paddles.player1.name = data.username;
-                    player_id++;
-                }
-                else if (player_id == 1) {
-                    gameState.paddles.player2.name = data.username;
-                    player_id = 0;
-                }
+            if (data.username1 && data.username2) {
+                console.log(`user1: ${data.username1}\n user2: ${data.username2}`);
+                gameState.paddles.player1.name = data.username1;
+                gameState.paddles.player2.name = data.username2;
             }
-        });
-        
-        connection.socket.on("message", (message) => {
-            const data = JSON.parse(message.toString());
-        
             if (data.player === "player1") {
                 if (data.move === "up") {
                     moving.player1.up = true;
@@ -71,13 +65,18 @@ fastify.register(async function (fastify) {
                     moving.player2.down = false;
                 }
             }
-            if (data.game === "new" && gameState.game.state == 0) {
-                new_game();
+            if (data.game === "new") {
+                playerReady.add(data.player);
+                if (playerReady.size == 2) {
+                    console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
+                    new_game();
+                }
             }
         });
         
         connection.socket.on("close", () => {
             clients.delete(connection);
+            playerReady.clear();
             console.log("Connexion WebSocket fermée.");
         });
         
@@ -168,6 +167,29 @@ fastify.register(async function (fastify) {
         setInterval(gameLoop, 16);
     });
 });
+
+fastify.post("/waiting_room", async (req, reply) => {
+    const {username} = req.body;
+    if (!username) {
+        return reply.code(200).send({ success: false, error: "Username manquant" });
+    } if (waiting_room.includes(username)) {
+        return reply.code(200).send({ success: false, error: "User already in queue" });
+    } else {
+        waiting_room.push(username);
+        if (waiting_room.length < 2) {
+            return reply.code(200).send({ success: true, message: "Match not ready" });
+        } else {
+            const username1 = waiting_room[0];
+            const username2 = waiting_room[1];
+            console.log(`username1::::: ${username1} username2 :::::: ${username2}`);
+            waiting_room.splice(0, waiting_room.length);
+            for (let i = 0; waiting_room.length > i; i++) {
+                console.log(`user:::: ${waiting_room[i]}`);
+            }
+            return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
+        }
+    }
+})
 
 const start = async () => {
     try {

@@ -28,9 +28,6 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
     const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
-    console.log("loged::::", loged);
-    console.log("page::::", page);
-    console.log("username::::", username);
     if (username.length > 0)
         afficheUser = true;
     if (!loged && !afficheUser) {

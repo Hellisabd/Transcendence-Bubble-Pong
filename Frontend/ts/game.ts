@@ -1,5 +1,7 @@
 console.log("game.js chargé");
 
+let waiting_room: string[] = [];
+
 async function get_user(): Promise<string> {
     try {
         const response = await fetch("/get_user", {
@@ -19,10 +21,23 @@ async function get_user(): Promise<string> {
 
 async function play_pong() {
     const user = await get_user();
-    initializeGame(user);
+    const response = await fetch("/waiting_room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({username: user})
+    });
+    const data = await response.json();
+    console.log(`data.success:  ${data.success}, data.username1: ${data.username1}, data.username2: ${data.username2}`);
+    if (data.success && data.username1 && data.username2) {
+        console.log("✅ Match prêt, démarrage du jeu !");
+        initializeGame(data.username1, data.username2);
+    }
+    else if (!data.success)
+        alert("Can't do that");
+    console.log("lance pas le jeu");
 }
 
-function initializeGame(user: string): void {
+function initializeGame(user1: string, user2: string): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
@@ -35,7 +50,7 @@ function initializeGame(user: string): void {
         const socket = new WebSocket("wss://" + sock_name + "/ws/pong");
         socket.onopen = () => {
             console.log("✅ WebSocket connectée !");
-            socket.send(JSON.stringify({ username: user}));
+            socket.send(JSON.stringify({ username1: user1, username2: user2}));
         };
         socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
@@ -49,8 +64,8 @@ function initializeGame(user: string): void {
         let gameState = {
             ball: { x: 500, y: 250 },
             paddles: {
-                player1: { name: "A", y: 200 },
-                player2: { name: "B", y: 200 }
+                player1: { name: user1, y: 200 },
+                player2: { name: user2, y: 200 }
             },
             score: { player1: 0, player2: 0 },
             game: { state: 0 }

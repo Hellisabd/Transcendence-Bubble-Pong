@@ -68,11 +68,16 @@ async function logout(token, reply) {
 }
 
 async function modify_user(req, reply) {
-
+    console.log("i m here");
     const response = await axios.post("http://users:5000/modify_user", req.body, {
         withCredentials: true
     });
     reply.send(response.data);
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user };
+async function waiting_room(req, reply) {
+    const response = await axios.post("http://pong:4000/waiting_room", req.body);
+    reply.send(response.data);
+}
+
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room };
