@@ -42,22 +42,6 @@ async function play_pong() {
             initializeGame(data.player1, data.player2);
         }
     };
-    // const response = await fetch("/waiting_room", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json"},
-    //     body: JSON.stringify({username: user})
-    // });
-    // const data = await response.json();
-    // console.log(`data.success:  ${data.success}, data.username1: ${data.username1}, data.username2: ${data.username2}`);
-    // if (data.success && data.username1 && data.username2) {
-    //     console.log("✅ Match prêt, démarrage du jeu !");
-    //     initializeGame(data.username1, data.username2);
-    // }
-    // else if (data.success) {
-    //     play_pong();
-    // }
-    // else if (!data.success)
-        // alert("Can't do that");
 }
 
 function initializeGame(user1: string, user2: string): void {
@@ -90,8 +74,8 @@ function initializeGame(user1: string, user2: string): void {
                 player1: { name: user1, y: 200 },
                 player2: { name: user2, y: 200 }
             },
-            score: { player1: 0, player2: 0 }
-            // game: { state: 0 }
+            score: { player1: 0, player2: 0 },
+            game: { player1: 0, player2: 0 }
         };
 
         socket.onmessage = (event) => {
@@ -108,10 +92,13 @@ function initializeGame(user1: string, user2: string): void {
                     message = { player: player_id, move: "up" };
                 if (event.key === "ArrowDown")
                     message = { player: player_id, move: "down"};
-                // if (event.key === " ") {
-                //     message = { game: "new" };
-                //     gameState.game.state = 1;
-                // }
+                if (event.key === " ") {
+                    message = { game: "new", player: player_id };
+                    if (player_id == 1)
+                        gameState.game.player1 = 1;
+                    if (player_id == 2)
+                        gameState.game.player2 = 1;
+                }
 
                 if (message) {
                     socket.send(JSON.stringify(message));
@@ -150,15 +137,16 @@ function initializeGame(user1: string, user2: string): void {
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
-            // if (gameState.game.state == 0) {
-            //     ctx.font = "30px Arial";
-            //     ctx.fillStyle = "white";
-            //     ctx.textAlign = "center";
-            //     ctx.fillStyle = "#FFFFFF";
-            //     ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
-            // }
-            requestAnimationFrame(drawGame);
+            if (gameState.game.player1 == 0 || gameState.game.player2 == 0) {
+                ctx.font = "30px Arial";
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+            }
         }
+        requestAnimationFrame(drawGame);
+
 
         function draw_score(): void {
             if (!ctx) {
@@ -174,10 +162,8 @@ function initializeGame(user1: string, user2: string): void {
             ctx.fillText(String(gameState.score.player2), canvas.width / 2 + 50, 40);
             ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
         }
-
-        drawGame();
-        } 
-        else {
-            console.error("Erreur : Le canvas n'a pas été trouvé.");
+    } 
+    else {
+        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }

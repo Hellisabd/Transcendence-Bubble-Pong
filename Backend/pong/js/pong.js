@@ -7,7 +7,7 @@ const clients = new Set();
 
 const clientsWaiting = new Set();
 
-let playerReady = new Set();
+// let playerReady = new Set();
 
 let waitingClient = {}
 
@@ -19,10 +19,10 @@ let gameState = {
     ball: { x: 500, y: 250 },
     paddles: { player1: { name: "C", y: 200 }, player2: { name: "B", y: 200 } },
     score: { player1: 0, player2: 0 },
-    game: { state: 0 }
+    game: { player1: 0, player2: 0 }
 };
-let ballSpeedX = 0.8;
-let ballSpeedY = 0.8;
+let ballSpeedX = 1.6;
+let ballSpeedY = 1.6;
 let move = 5;
 let speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
 const arena_height = 500;
@@ -69,11 +69,6 @@ fastify.register(async function (fastify) {
         
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            if (data.username1 && data.username2) {
-                console.log(`user1: ${data.username1}\n user2: ${data.username2}`);
-                gameState.paddles.player1.name = data.username1;
-                gameState.paddles.player2.name = data.username2;
-            }
             if (data.player == 1) {
                 if (data.move === "up") {
                     moving.player1.up = true;
@@ -98,18 +93,20 @@ fastify.register(async function (fastify) {
                     moving.player2.down = false;
                 }
             }
-            // if (data.game === "new") {
-            //     playerReady.add(data.player);
-            //     if (playerReady.size == 2) {
-            //         console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
-            //         new_game();
-            //     }
-            // }
+            if (data.game === "new" && (gameState.game.player1 == 0 || gameState.game.player2 == 0)) {
+                if (data.player == 1)
+                    gameState.game.player1 = 1;
+                if (data.player == 2)
+                    gameState.game.player2 = 1;
+                if (gameState.game.player1 == 1 && gameState.game.player2 == 1) {
+                    console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
+                    new_game();
+                }
+            }
         });
         
         connection.socket.on("close", () => {
             clients.delete(connection);
-            playerReady.clear();
             console.log("Connexion WebSocket fermée.");
         });
         
@@ -156,11 +153,11 @@ fastify.register(async function (fastify) {
             gameState.ball.x = arena_width / 2;
             gameState.ball.y = arena_height / 2;
             ballSpeedX /= 2;
-            if (ballSpeedX < 0.8)
-                ballSpeedX = 0.8;
+            if (ballSpeedX < 1.6)
+                ballSpeedX = 1.6;
             ballSpeedY /= 2;
-            if (ballSpeedY < 0.8)
-                ballSpeedY = 0.8;
+            if (ballSpeedY < 1.6)
+                ballSpeedY = 1.6;
             speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
             let angle;
             if (Math.random() < 0.5) {
@@ -173,29 +170,30 @@ fastify.register(async function (fastify) {
             ballSpeedY = speed * Math.sin(angle);
         }
 
-        // function new_game() {
-        //     gameState.game.state = 1;
-        //     gameState.score.player1 = 0;
-        //     gameState.score.player2 = 0;
-        //     ballSpeedX = 1.6;
-        //     ballSpeedY = 1.6;
-        //     move = 5;
-        //     resetBall();
-        // }
-
-        // function check_score() {
-        //     if (gameState.score.player1 == 3 || gameState.score.player2 == 3)
-        //         gameState.game.state = 0;
-        // }
-
+        function new_game() {
+            gameState.score.player1 = 0;
+            gameState.score.player2 = 0;
+            ballSpeedX = 1.6;
+            ballSpeedY = 1.6;
+            move = 5;
+            resetBall();
+        }
+        
+        function check_score() {
+            if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
+                gameState.game.player1 = 0;
+                gameState.game.player2 = 0;
+            }
+        }
+        
         function gameLoop() {
-            // if (gameState.game.state == 1) {
+            if (gameState.game.player1 == 1 && gameState.game.player2 == 1) {
               update();
-            //   check_score();
+              check_score();
               clients.forEach(client => {
                   client.socket.send(JSON.stringify({ gameState }));
               });
-        //   }
+          }
         }
         setInterval(gameLoop, 16);
     });
