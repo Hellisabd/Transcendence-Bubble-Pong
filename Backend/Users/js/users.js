@@ -68,7 +68,7 @@ fastify.listen({ port: 5000, host: "0.0.0.0" }, (err, address) => {
 
 // 🔹 Route POST pour le login
 fastify.post("/login", async (request, reply) => {
-  const { email, password } = request.body;
+  const { email, password , domain} = request.body;
   if (!email || !password) {
     return reply.code(400).send({ success: false, error: "Champs manquants" });
   }
@@ -81,7 +81,7 @@ fastify.post("/login", async (request, reply) => {
     if (!passwordMatch)
       return reply.send({ success: false, error: "Connexion échouée : Mot de passe incorrect" });
     const token = generateToken(user);
-    return reply.send({ success: true, token, username: user.username });
+    return reply.send({ success: true, token, username: user.username, "domain": domain });
   } catch (error) {
     return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
   }

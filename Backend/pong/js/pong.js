@@ -1,11 +1,15 @@
 const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
 
+let i = 0;
+
 const clients = new Set();
+
+const clientsWaiting = new Set();
 
 let playerReady = new Set();
 
-const waitingClient = {}
+let waitingClient = {}
 
 let waiting_room = [];
 
@@ -30,6 +34,32 @@ const ballRadius = 10;
 let moving = { player1: { up: false, down: false }, player2: { up: false, down: false } };
 
 fastify.register(async function (fastify) {
+    fastify.get("/ws/pong/waiting", { websocket: true }, (connection, req) => { 
+        clientsWaiting.add(connection);
+        console.log("Nouvelle connexion WebSocket sur Waiting !");
+        connection.socket.on("message", (message) => {
+            const data = JSON.parse(message.toString());
+            if (i == 0) {
+                waitingClient[0] = data.username;
+                gameState.paddles.player1.name = data.username;
+                i++;
+            } else if (i == 1) {
+                waitingClient[1] = data.username;
+                gameState.paddles.player2.name = data.username;
+                i++;
+            }
+            // console.log("waitingClient.length: ");
+            // console.log(waitingClient.length);
+            console.log("i: ", i);
+            if (i == 2) {
+                clientsWaiting.forEach(clientsWaiting => {
+                    clientsWaiting.socket.send(JSON.stringify({ success: true, player1: gameState.paddles.player1.name, player2: gameState.paddles.player2.name, player: player1 }));
+                });
+                waitingClient = {};
+                i = 0;
+            }
+        });
+    })
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         clients.add(connection);
         console.log("Nouvelle connexion WebSocket !");
@@ -172,17 +202,20 @@ fastify.post("/waiting_room", async (req, reply) => {
     const {username} = req.body;
     if (!username) {
         return reply.code(200).send({ success: false, error: "Username manquant" });
-    } if (waiting_room.includes(username)) {
-        return reply.code(200).send({ success: false, error: "User already in queue" });
+    } if (waiting_room.includes(username) && waiting_room.length == 2) {
+        const username1 = waiting_room[0];
+        const username2 = waiting_room[1];
+        waiting_room.splice(0, waiting_room.length);
+        return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
     } else {
-        waiting_room.push(username);
+        if (!waiting_room.includes(username))
+            waiting_room.push(username);
         if (waiting_room.length < 2) {
             return reply.code(200).send({ success: true, message: "Match not ready" });
         } else {
             const username1 = waiting_room[0];
             const username2 = waiting_room[1];
             console.log(`username1::::: ${username1} username2 :::::: ${username2}`);
-            waiting_room.splice(0, waiting_room.length);
             for (let i = 0; waiting_room.length > i; i++) {
                 console.log(`user:::: ${waiting_room[i]}`);
             }

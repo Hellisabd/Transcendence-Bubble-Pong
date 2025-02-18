@@ -20,14 +20,16 @@ async function login(event: Event): Promise<void> {
     const password = (document.getElementById("password") as HTMLInputElement).value;
     
     try {
+        let domain =  window.location.host.substring(0, window.location.host.indexOf(':'));
         const response = await fetch("/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password, "domain": domain })
         });
 
         console.log(`email: ${email}`);
         console.log(`password: ${password}`);
+        console.log("domain:", domain);
         
         const result: LoginResponse = await response.json();
         console.log(`result::: ${result.success}`);

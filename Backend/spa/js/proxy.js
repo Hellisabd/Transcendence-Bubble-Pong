@@ -20,7 +20,8 @@ async function log(req, reply) {
         const result = await response.data;
         if (result.success) {
             console.log(response.data);
-            const {token , username} = response.data;
+            const {token , username, domain} = response.data;
+            console.log(`domain::: ${domain}`);
             usersession[token] = username;
             return reply
             .setCookie("session", token, {
@@ -29,7 +30,7 @@ async function log(req, reply) {
                 secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
                 maxAge: 18000,  
                 sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
-                domain: "transcendence",  // ⚠️ Change en fonction de ton domaine
+                domain: domain,  // ⚠️ Change en fonction de ton domaine
                 partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
             })
             .send({ success: true, message: `Bienvenue ${username}`});

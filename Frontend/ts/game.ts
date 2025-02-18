@@ -21,23 +21,43 @@ async function get_user(): Promise<string> {
 
 async function play_pong() {
     const user = await get_user();
-    const response = await fetch("/waiting_room", {
-        method: "POST",
-        headers: { "Content-Type": "application/json"},
-        body: JSON.stringify({username: user})
-    });
-    const data = await response.json();
-    console.log(`data.success:  ${data.success}, data.username1: ${data.username1}, data.username2: ${data.username2}`);
-    if (data.success && data.username1 && data.username2) {
-        console.log("✅ Match prêt, démarrage du jeu !");
-        initializeGame(data.username1, data.username2);
-    }
-    else if (!data.success)
-        alert("Can't do that");
-    console.log("lance pas le jeu");
+
+    const sock_name = window.location.host
+    const socket = new WebSocket("wss://" + sock_name + "/ws/pong/waiting");
+    socket.onopen = () => {
+        console.log("✅ WebSocket connectée !");
+        socket.send(JSON.stringify({ username: user }));
+    };
+    socket.onerror = (event) => {
+        console.error("❌ WebSocket erreur :", event);};
+    socket.onclose = (event) => {
+        console.warn("⚠️ WebSocket fermée :", event);};
+    socket.onmessage = (event) => {
+        let data = JSON.parse(event.data);
+        if (data.success == true) {
+            socket.close();
+            initializeGame(data.player1, data.player2);
+        }
+    };
+    // const response = await fetch("/waiting_room", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json"},
+    //     body: JSON.stringify({username: user})
+    // });
+    // const data = await response.json();
+    // console.log(`data.success:  ${data.success}, data.username1: ${data.username1}, data.username2: ${data.username2}`);
+    // if (data.success && data.username1 && data.username2) {
+    //     console.log("✅ Match prêt, démarrage du jeu !");
+    //     initializeGame(data.username1, data.username2);
+    // }
+    // else if (data.success) {
+    //     play_pong();
+    // }
+    // else if (!data.success)
+        // alert("Can't do that");
 }
 
-function initializeGame(user1: string, user2: string): void {
+function initializeGame(user1: string, user2: string, player: string): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
