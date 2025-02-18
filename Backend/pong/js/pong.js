@@ -52,9 +52,12 @@ fastify.register(async function (fastify) {
             // console.log(waitingClient.length);
             console.log("i: ", i);
             if (i == 2) {
+                i = 0;
                 clientsWaiting.forEach(clientsWaiting => {
-                    clientsWaiting.socket.send(JSON.stringify({ success: true, player1: gameState.paddles.player1.name, player2: gameState.paddles.player2.name, player: player1 }));
+                    i++;
+                    clientsWaiting.socket.send(JSON.stringify({ success: true, player1: gameState.paddles.player1.name, player2: gameState.paddles.player2.name, player_id: i }));
                 });
+                clientsWaiting.clear();
                 waitingClient = {};
                 i = 0;
             }
@@ -71,7 +74,7 @@ fastify.register(async function (fastify) {
                 gameState.paddles.player1.name = data.username1;
                 gameState.paddles.player2.name = data.username2;
             }
-            if (data.player === "player1") {
+            if (data.player == 1) {
                 if (data.move === "up") {
                     moving.player1.up = true;
                     moving.player1.down = false;
@@ -83,7 +86,7 @@ fastify.register(async function (fastify) {
                     moving.player1.down = false;
                 }
             }
-            if (data.player === "player2") {
+            if (data.player == 2) {
                 if (data.move === "up") {
                     moving.player2.up = true;
                     moving.player2.down = false;
@@ -95,13 +98,13 @@ fastify.register(async function (fastify) {
                     moving.player2.down = false;
                 }
             }
-            if (data.game === "new") {
-                playerReady.add(data.player);
-                if (playerReady.size == 2) {
-                    console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
-                    new_game();
-                }
-            }
+            // if (data.game === "new") {
+            //     playerReady.add(data.player);
+            //     if (playerReady.size == 2) {
+            //         console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
+            //         new_game();
+            //     }
+            // }
         });
         
         connection.socket.on("close", () => {
@@ -170,29 +173,29 @@ fastify.register(async function (fastify) {
             ballSpeedY = speed * Math.sin(angle);
         }
 
-        function new_game() {
-            gameState.game.state = 1;
-            gameState.score.player1 = 0;
-            gameState.score.player2 = 0;
-            ballSpeedX = 1.6;
-            ballSpeedY = 1.6;
-            move = 5;
-            resetBall();
-        }
+        // function new_game() {
+        //     gameState.game.state = 1;
+        //     gameState.score.player1 = 0;
+        //     gameState.score.player2 = 0;
+        //     ballSpeedX = 1.6;
+        //     ballSpeedY = 1.6;
+        //     move = 5;
+        //     resetBall();
+        // }
 
-        function check_score() {
-            if (gameState.score.player1 == 3 || gameState.score.player2 == 3)
-                gameState.game.state = 0;
-        }
+        // function check_score() {
+        //     if (gameState.score.player1 == 3 || gameState.score.player2 == 3)
+        //         gameState.game.state = 0;
+        // }
 
         function gameLoop() {
-            if (gameState.game.state == 1) {
+            // if (gameState.game.state == 1) {
               update();
-              check_score();
+            //   check_score();
               clients.forEach(client => {
                   client.socket.send(JSON.stringify({ gameState }));
               });
-          }
+        //   }
         }
         setInterval(gameLoop, 16);
     });

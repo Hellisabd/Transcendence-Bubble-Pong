@@ -1,5 +1,7 @@
 console.log("game.js chargé");
 
+let player_id = 0;
+
 let waiting_room: string[] = [];
 
 async function get_user(): Promise<string> {
@@ -36,6 +38,7 @@ async function play_pong() {
         let data = JSON.parse(event.data);
         if (data.success == true) {
             socket.close();
+            player_id = data.player_id;
             initializeGame(data.player1, data.player2);
         }
     };
@@ -57,7 +60,7 @@ async function play_pong() {
         // alert("Can't do that");
 }
 
-function initializeGame(user1: string, user2: string, player: string): void {
+function initializeGame(user1: string, user2: string): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
@@ -87,8 +90,8 @@ function initializeGame(user1: string, user2: string, player: string): void {
                 player1: { name: user1, y: 200 },
                 player2: { name: user2, y: 200 }
             },
-            score: { player1: 0, player2: 0 },
-            game: { state: 0 }
+            score: { player1: 0, player2: 0 }
+            // game: { state: 0 }
         };
 
         socket.onmessage = (event) => {
@@ -99,20 +102,16 @@ function initializeGame(user1: string, user2: string, player: string): void {
 
         document.addEventListener("keydown", (event) => {
             if (socket.readyState === WebSocket.OPEN) {
-                let message: { player?: string; move?: string; game?: string } | null = null;
+                let message: { player?: number; move?: string; game?: string } | null = null;
         
                 if (event.key === "ArrowUp")
-                    message = { player: "player2", move: "up" };
+                    message = { player: player_id, move: "up" };
                 if (event.key === "ArrowDown")
-                    message = { player: "player2", move: "down" };
-                if (event.key === "w")
-                    message = { player: "player1", move: "up" };
-                if (event.key === "s")
-                    message = { player: "player1", move: "down" };
-                if (event.key === " ") {
-                    message = { game: "new" };
-                    gameState.game.state = 1;
-                }
+                    message = { player: player_id, move: "down"};
+                // if (event.key === " ") {
+                //     message = { game: "new" };
+                //     gameState.game.state = 1;
+                // }
 
                 if (message) {
                     socket.send(JSON.stringify(message));
@@ -122,13 +121,10 @@ function initializeGame(user1: string, user2: string, player: string): void {
 
         document.addEventListener("keyup", (event) => {
             if (socket.readyState === WebSocket.OPEN) {
-                let message: { player?: string; move?: string; game?: string } | null = null;
+                let message: { player?: number; move?: string; game?: string } | null = null;
 
                 if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    message = { player: "player2", move: "stop" };
-                }
-                if (event.key === "w" || event.key === "s") {
-                    message = { player: "player1", move: "stop" };
+                    message = { player: player_id, move: "stop" };
                 }
 
                 if (message) {
@@ -154,13 +150,13 @@ function initializeGame(user1: string, user2: string, player: string): void {
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
-            if (gameState.game.state == 0) {
-                ctx.font = "30px Arial";
-                ctx.fillStyle = "white";
-                ctx.textAlign = "center";
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
-            }
+            // if (gameState.game.state == 0) {
+            //     ctx.font = "30px Arial";
+            //     ctx.fillStyle = "white";
+            //     ctx.textAlign = "center";
+            //     ctx.fillStyle = "#FFFFFF";
+            //     ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+            // }
             requestAnimationFrame(drawGame);
         }
 
