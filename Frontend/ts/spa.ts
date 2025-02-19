@@ -73,6 +73,7 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
+        Disconnect_from_game();
 
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
