@@ -5,8 +5,9 @@ let player_id = 0;
 let lobbyKey: string | null = null;
 
 let socket: WebSocket | null = null;
+let Wsocket: WebSocket | null = null;
 
-let disp: boolean;
+let disp: boolean = true;
 
 async function get_user(): Promise<string> {
     try {
@@ -26,22 +27,24 @@ async function get_user(): Promise<string> {
 }
 
 async function play_pong() {
+    console.log("deco pong");
+    Disconnect_from_game();
     const user = await get_user();
 
     const sock_name = window.location.host
-    const Wsocket = new WebSocket("wss://" + sock_name + "/ws/pong/waiting");
+    Wsocket = new WebSocket("wss://" + sock_name + "/ws/pong/waiting");
     Wsocket.onopen = () => {
-        console.log("✅ WebSocket connectée !");
-        Wsocket.send(JSON.stringify({ username: user }));
+        console.log("✅ WebSocket waiting connectée !");
+        Wsocket?.send(JSON.stringify({ username: user }));
     };
     Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket erreur :", event);};
+        console.error("❌ WebSocket waiting erreur :", user);};
     Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket fermée :", event);};
+        console.warn("⚠️ WebSocket waiting fermée :", user);};
     Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
-            Wsocket.close();
+            Wsocket?.close();
             player_id = data.player_id;
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2);
@@ -50,11 +53,16 @@ async function play_pong() {
 }
 
 function Disconnect_from_game() {
-
+    if (!Wsocket && !socket && !lobbyKey)
+        return;
+    console.log("deco");
+    Wsocket?.close();
     socket?.close();
     socket = null;
     lobbyKey = null;
+    disp = true;
 }
+
 
 
 function initializeGame(user1: string, user2: string): void {

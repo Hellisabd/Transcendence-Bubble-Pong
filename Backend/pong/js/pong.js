@@ -23,6 +23,12 @@ fastify.register(async function (fastify) {
     fastify.get("/ws/pong/waiting", { websocket: true }, (connection, req) => { 
         clientsWaiting.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
+        connection.socket.on("close", () => {
+            clientsWaiting.clear();
+            waitingClient = {};
+            i = 0;
+            console.log("Connexion WebSocket Waiting fermée.");
+        });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
             if (i == 0) {
@@ -47,8 +53,8 @@ fastify.register(async function (fastify) {
                         paddles: { player1: { name: username1, y: 200 }, player2: { name: username2, y: 200 } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false }, player2: { up: false, down: false } },
-                        ballSpeed: {ballSpeedX: 1.6, ballSpeedY: 1.6},
-                        speed: Math.sqrt(1.6 * 1.6 + 1.6 * 1.6),
+                        ballSpeed: {ballSpeedX: 3.2, ballSpeedY: 3.2},
+                        speed: Math.sqrt(3.2 * 3.2 + 3.2 * 3.2),
                         playerReady: {player1: false, player2: false},
                         gameinterval: null
                     }
@@ -78,7 +84,6 @@ fastify.register(async function (fastify) {
                 connection.socket.send(JSON.stringify({disconnect: true}));
             }
             const lobbyKey = data.lobbyKey;
-            console.log(`lobby key in launching game : ${lobbyKey}`);
             if (!lobbies[lobbyKey]) {
                 console.log("❌ Lobby not found !");
                 return ;
@@ -107,11 +112,11 @@ function resetBall(lobbyKey) {
     gameState.ball.x = arena_width / 2;
     gameState.ball.y = arena_height / 2;
     gameState.ballSpeed.ballSpeedX /= 2;
-    if (gameState.ballSpeed.ballSpeedX < 1.6)
-        gameState.ballSpeed.ballSpeedX = 1.6;
+    if (gameState.ballSpeed.ballSpeedX < 3.2)
+        gameState.ballSpeed.ballSpeedX = 3.2;
     gameState.ballSpeed.ballSpeedY /= 2;
-    if (gameState.ballSpeed.ballSpeedY < 1.6)
-        gameState.ballSpeed.ballSpeedY = 1.6;
+    if (gameState.ballSpeed.ballSpeedY < 3.2)
+        gameState.ballSpeed.ballSpeedY = 3.2;
     gameState.speed = Math.sqrt(gameState.ballSpeed.ballSpeedX * gameState.ballSpeed.ballSpeedX + gameState.ballSpeed.ballSpeedY * gameState.ballSpeed.ballSpeedY);
     let angle;
     if (Math.random() < 0.5) {
@@ -149,13 +154,13 @@ function update(lobbyKey) {
         gameState.ballSpeed.ballSpeedY = -gameState.ballSpeed.ballSpeedY;
     if (gameState.ball.x - ballRadius < paddleWidth && gameState.ball.y > gameState.paddles.player1.y && gameState.ball.y < gameState.paddles.player1.y + paddleHeight) {
         gameState.ballSpeed.ballSpeedX = -gameState.ballSpeed.ballSpeedX * 1.1;
-        if (gameState.ballSpeed.ballSpeedX > 15)
-            gameState.ballSpeed.ballSpeedX = 15;
+        if (gameState.ballSpeed.ballSpeedX > 20)
+            gameState.ballSpeed.ballSpeedX = 20;
     }  
     if (gameState.ball.x + ballRadius > arena_width - paddleWidth && gameState.ball.y > gameState.paddles.player2.y && gameState.ball.y < gameState.paddles.player2.y + paddleHeight) {
         gameState.ballSpeed.ballSpeedX = -gameState.ballSpeed.ballSpeedX * 1.1;
-        if (gameState.ballSpeed.ballSpeedX < -15)
-            gameState.ballSpeed.ballSpeedX = -15;
+        if (gameState.ballSpeed.ballSpeedX < -20)
+            gameState.ballSpeed.ballSpeedX = -20;
     }
     if (gameState.ball.x - ballRadius < 0) {
         gameState.score.player2++;
@@ -174,8 +179,8 @@ function new_game(lobbyKey) {
 
     gameState.score.player1 = 0;
     gameState.score.player2 = 0;
-    gameState.ballSpeed.ballSpeedX = 1.6;
-    gameState.ballSpeed.ballSpeedY = 1.6;
+    gameState.ballSpeed.ballSpeedX = 3.2;
+    gameState.ballSpeed.ballSpeedY = 3.2;
     move = 5;
     resetBall(lobbyKey);
 }
@@ -188,8 +193,8 @@ function check_score(lobbyKey) {
     if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
         gameState.playerReady.player1 = false;
         gameState.playerReady.player2 = false;
-        gameState.ballSpeed.ballSpeedX = 1.6
-        gameState.ballSpeed.ballSpeedY = 1.6
+        gameState.ballSpeed.ballSpeedX = 3.2
+        gameState.ballSpeed.ballSpeedY = 3.2
         lobbies[lobbyKey].players.forEach(client => {
               client.socket.send(JSON.stringify({ start: "stop" }));
         });
@@ -321,13 +326,11 @@ function startGameLoop(lobbyKey) {
         return ;
     }
     lobbies[lobbyKey].gameinterval = setInterval(() =>  {
-        if (!lobbies[lobbyKey] || lobbies[lobbyKey].players.length === 0) {
+        if (lobbies[lobbyKey] && lobbies[lobbyKey].players.length === 0 && lobbies[lobbyKey].gameinterval) {
             console.log(`🛑 Arrêt de la partie : ${lobbyKey} (Lobby vide)`);
-            if (lobbies[lobbyKey]?.gameinterval) {
-                clearInterval(lobbies[lobbyKey]?.gameinterval);
-                lobbies[lobbyKey].gameinterval = null;
-            }
-            delete lobbies[lobbyKey];
+            clearInterval(lobbies[lobbyKey]?.gameinterval);
+            lobbies[lobbyKey].gameinterval = null;
+            lobbies[lobbyKey] = null;
             return;
         }
         gameLoop(lobbyKey)

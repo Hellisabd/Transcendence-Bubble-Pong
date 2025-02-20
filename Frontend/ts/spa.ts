@@ -28,8 +28,9 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
     const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
-    if (username.length > 0)
+    if (username.length > 0) {
         afficheUser = true;
+    }
     if (!loged && !afficheUser) {
         console.log("passe dans recur");
         navigateTo("login");
@@ -37,13 +38,13 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     const userDiv = document.getElementById("user") as HTMLDivElement;
-
+    
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
-
+    
     let url: string = page == "index" ? "/" : `/${page}`;
-
+    
     try {
         const response: Response = await fetch(url, {
             credentials: "include",
@@ -52,12 +53,12 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        
         const html: string = await response.text();
-
+        
         const tempDiv: HTMLDivElement = document.createElement("div");
         tempDiv.innerHTML = html;
-
+        
         // ✅ Mise à jour du contenu principal
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
@@ -73,8 +74,11 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
+        console.log("deco spa");
         Disconnect_from_game();
-
+        if (page === "waiting_room")
+            play_pong();
+        
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
     }
