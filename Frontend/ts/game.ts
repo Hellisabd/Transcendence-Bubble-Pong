@@ -6,6 +6,7 @@ let lobbyKey: string | null = null;
 
 let socket: WebSocket | null = null;
 
+let disp: boolean;
 
 async function get_user(): Promise<string> {
     try {
@@ -89,7 +90,7 @@ function initializeGame(user1: string, user2: string): void {
                 player2: { name: user2, y: 200 }
             },
             score: { player1: 0, player2: 0 },
-            game: { player1: 0, player2: 0 }
+            playerReady: { player1: false, player2: false }
         };
 
         socket.onmessage = (event) => {
@@ -97,6 +98,10 @@ function initializeGame(user1: string, user2: string): void {
             if (gs.disconnect == true) {
                 socket?.close();
             }
+            if (gs.start == "start")
+                disp = false;
+            else if (gs.start == "stop")
+                disp = true;
             if (gs.lobbyKey === lobbyKey) {
                 gameState = gs.gameState;
                 drawGame();
@@ -113,10 +118,10 @@ function initializeGame(user1: string, user2: string): void {
                     message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
                 if (event.key === " ") {
                     message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-                    if (player_id == 1)
-                        gameState.game.player1 = 1;
-                    if (player_id == 2)
-                        gameState.game.player2 = 1;
+                    // if (player_id == 1)
+                    //     gameState.playerReady.player1 = true;
+                    // if (player_id == 2)
+                    //     gameState.playerReady.player2 = true;
                 }
 
                 if (message) {
@@ -156,7 +161,7 @@ function initializeGame(user1: string, user2: string): void {
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
-            if (gameState.game.player1 == 0 || gameState.game.player2 == 0) {
+            if (disp == true) {
                 ctx.font = "30px Arial";
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";

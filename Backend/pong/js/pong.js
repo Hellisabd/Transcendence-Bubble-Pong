@@ -5,17 +5,9 @@ let i = 0;
 
 let lobbies = {};
 
-const clients = new Set();
-
 const clientsWaiting = new Set();
 
-// let playerReady = new Set();
-
 let waitingClient = {}
-
-let waiting_room = [];
-
-let players = {}
 
 let move = 5;
 const arena_height = 500;
@@ -38,12 +30,12 @@ fastify.register(async function (fastify) {
                 username1 = data.username;
                 i++;
             } else if (i == 1) {
+                if (data.username == username1)
+                    return ;
                 waitingClient[1] = data.username;
                 username2 = data.username;
                 i++;
             }
-            // console.log("waitingClient.length: ");
-            // console.log(waitingClient.length);
             if (i == 2) {
                 i = 0;
                 const lobbyKey = `${username1}${username2}`;
@@ -54,7 +46,6 @@ fastify.register(async function (fastify) {
                         ball: { x: 500, y: 250 },
                         paddles: { player1: { name: username1, y: 200 }, player2: { name: username2, y: 200 } },
                         score: { player1: 0, player2: 0 },
-                        game: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false }, player2: { up: false, down: false } },
                         ballSpeed: {ballSpeedX: 1.6, ballSpeedY: 1.6},
                         speed: Math.sqrt(1.6 * 1.6 + 1.6 * 1.6),
@@ -195,10 +186,13 @@ function check_score(lobbyKey) {
     gameState = lobbies[lobbyKey].gameState;
 
     if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
-        gameState.game.player1 = 0;
-        gameState.game.player2 = 0;
+        gameState.playerReady.player1 = false;
+        gameState.playerReady.player2 = false;
         gameState.ballSpeed.ballSpeedX = 1.6
         gameState.ballSpeed.ballSpeedY = 1.6
+        lobbies[lobbyKey].players.forEach(client => {
+              client.socket.send(JSON.stringify({ start: "stop" }));
+        });
     }
 }
 
@@ -210,7 +204,6 @@ function gameLoop(lobbyKey) {
       update(lobbyKey);
       check_score(lobbyKey);
       lobbies[lobbyKey].players.forEach(client => {
-        console.log("sending to players");
           client.socket.send(JSON.stringify({ gameState, "lobbyKey": lobbyKey }));
       });
   }
@@ -284,41 +277,48 @@ function handleGameInput(data, lobbyKey) {
             gameState.playerReady.player2 = true;
         if (gameState.playerReady.player1 && gameState.playerReady.player2) {
             console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
+            lobbies[lobbyKey].players.forEach(client => {
+                  client.socket.send(JSON.stringify({ start: "start" }));
+            });
             startGameLoop(lobbyKey);
         }
     }
 }
 
-fastify.post("/waiting_room", async (req, reply) => {
-    const {username} = req.body;
-    if (!username) {
-        return reply.code(200).send({ success: false, error: "Username manquant" });
-    } if (waiting_room.includes(username) && waiting_room.length == 2) {
-        const username1 = waiting_room[0];
-        const username2 = waiting_room[1];
-        waiting_room.splice(0, waiting_room.length);
-        return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
-    } else {
-        if (!waiting_room.includes(username))
-            waiting_room.push(username);
-        if (waiting_room.length < 2) {
-            return reply.code(200).send({ success: true, message: "Match not ready" });
-        } else {
-            const username1 = waiting_room[0];
-            const username2 = waiting_room[1];
-            console.log(`username1::::: ${username1} username2 :::::: ${username2}`);
-            for (let i = 0; waiting_room.length > i; i++) {
-                console.log(`user:::: ${waiting_room[i]}`);
-            }
-            return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
-        }
-    }
-})
+// fastify.post("/waiting_room", async (req, reply) => {
+//     const {username} = req.body;
+//     if (!username) {
+//         return reply.code(200).send({ success: false, error: "Username manquant" });
+//     } if (waiting_room.includes(username) && waiting_room.length == 2) {
+//         const username1 = waiting_room[0];
+//         const username2 = waiting_room[1];
+//         waiting_room.splice(0, waiting_room.length);
+//         return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
+//     } else {
+//         if (!waiting_room.includes(username))
+//             waiting_room.push(username);
+//         if (waiting_room.length < 2) {
+//             return reply.code(200).send({ success: true, message: "Match not ready" });
+//         } else {
+//             const username1 = waiting_room[0];
+//             const username2 = waiting_room[1];
+//             console.log(`username1::::: ${username1} username2 :::::: ${username2}`);
+//             for (let i = 0; waiting_room.length > i; i++) {
+//                 console.log(`user:::: ${waiting_room[i]}`);
+//             }
+//             return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
+//         }
+//     }
+// })
 
 function startGameLoop(lobbyKey) {
     if (!lobbies[lobbyKey]) {
         console.log("wrong lobbyKey");
         return;
+    }
+    if (lobbies[lobbyKey].gameinterval) {
+        new_game(lobbyKey);
+        return ;
     }
     lobbies[lobbyKey].gameinterval = setInterval(() =>  {
         if (!lobbies[lobbyKey] || lobbies[lobbyKey].players.length === 0) {
