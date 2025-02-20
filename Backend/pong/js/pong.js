@@ -48,6 +48,7 @@ fastify.register(async function (fastify) {
                 console.log("lobby: ", lobbyKey);
                 lobbies[lobbyKey] = {
                     players: [],
+                    socketOrder: [],
                     gameState: {
                         ball: { x: 500, y: 250 },
                         paddles: { player1: { name: username1, y: 200 }, player2: { name: username2, y: 200 } },
@@ -90,6 +91,7 @@ fastify.register(async function (fastify) {
             }
             const lobby = lobbies[lobbyKey];
             if (!lobby.players.includes(connection)) {
+                lobby.socketOrder.push(data.myuser);
                 lobby.players.push(connection);
             }
             if (data.move || data.playerReady) {
@@ -195,9 +197,14 @@ function check_score(lobbyKey) {
         gameState.playerReady.player2 = false;
         gameState.ballSpeed.ballSpeedX = 3.2
         gameState.ballSpeed.ballSpeedY = 3.2
-        lobbies[lobbyKey].players.forEach(client => {
-              client.socket.send(JSON.stringify({ start: "stop" }));
-        });
+        if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
+                lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: true}));
+                lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: false}));
+        }
+        else {
+            lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: false}));
+            lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: true}));
+        }
     }
 }
 
@@ -289,32 +296,6 @@ function handleGameInput(data, lobbyKey) {
         }
     }
 }
-
-// fastify.post("/waiting_room", async (req, reply) => {
-//     const {username} = req.body;
-//     if (!username) {
-//         return reply.code(200).send({ success: false, error: "Username manquant" });
-//     } if (waiting_room.includes(username) && waiting_room.length == 2) {
-//         const username1 = waiting_room[0];
-//         const username2 = waiting_room[1];
-//         waiting_room.splice(0, waiting_room.length);
-//         return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
-//     } else {
-//         if (!waiting_room.includes(username))
-//             waiting_room.push(username);
-//         if (waiting_room.length < 2) {
-//             return reply.code(200).send({ success: true, message: "Match not ready" });
-//         } else {
-//             const username1 = waiting_room[0];
-//             const username2 = waiting_room[1];
-//             console.log(`username1::::: ${username1} username2 :::::: ${username2}`);
-//             for (let i = 0; waiting_room.length > i; i++) {
-//                 console.log(`user:::: ${waiting_room[i]}`);
-//             }
-//             return reply.code(200).send({ success: true, "username1": username1, "username2": username2 });
-//         }
-//     }
-// })
 
 function startGameLoop(lobbyKey) {
     if (!lobbies[lobbyKey]) {

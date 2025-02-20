@@ -8,6 +8,7 @@ let socket: WebSocket | null = null;
 let Wsocket: WebSocket | null = null;
 
 let disp: boolean = true;
+let win: number = 0;
 
 async function get_user(): Promise<string> {
     try {
@@ -47,7 +48,7 @@ async function play_pong() {
             Wsocket?.close();
             player_id = data.player_id;
             lobbyKey = data.lobbyKey;
-            initializeGame(data.player1, data.player2);
+            initializeGame(data.player1, data.player2, user);
         }
     };
 }
@@ -61,11 +62,10 @@ function Disconnect_from_game() {
     socket = null;
     lobbyKey = null;
     disp = true;
+    win = 0;
 }
 
-
-
-function initializeGame(user1: string, user2: string): void {
+function initializeGame(user1: string, user2: string, myuser: string): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
@@ -80,7 +80,7 @@ function initializeGame(user1: string, user2: string): void {
             return ;
         socket.onopen = () => {
             console.log("✅ WebSocket connectée !");
-            socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey}));
+            socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
         socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
@@ -114,6 +114,14 @@ function initializeGame(user1: string, user2: string): void {
                 gameState = gs.gameState;
                 drawGame();
             }
+            if (gs.winner == true) {
+                win = 1;
+                draw_winner();
+            }
+            if (gs.winner == false) {
+                win = 2;
+                draw_winner();
+            }
         };
 
         document.addEventListener("keydown", (event) => {
@@ -125,11 +133,8 @@ function initializeGame(user1: string, user2: string): void {
                 if (event.key === "ArrowDown")
                     message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
                 if (event.key === " ") {
+                    win = 0;
                     message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-                    // if (player_id == 1)
-                    //     gameState.playerReady.player1 = true;
-                    // if (player_id == 2)
-                    //     gameState.playerReady.player2 = true;
                 }
 
                 if (message) {
@@ -169,6 +174,7 @@ function initializeGame(user1: string, user2: string): void {
             ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
 
             draw_score();
+            draw_winner();
             if (disp == true) {
                 ctx.font = "30px Arial";
                 ctx.fillStyle = "white";
@@ -178,7 +184,6 @@ function initializeGame(user1: string, user2: string): void {
             }
         }
         requestAnimationFrame(drawGame);
-
 
         function draw_score(): void {
             if (!ctx) {
@@ -193,6 +198,27 @@ function initializeGame(user1: string, user2: string): void {
             ctx.fillStyle = "#00009c";
             ctx.fillText(String(gameState.score.player2), canvas.width / 2 + 50, 40);
             ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
+        }
+
+        function draw_winner(): void {
+            if (!ctx) {
+                return ;
+            }
+            console.log(win);
+            if (win == 1) {
+                ctx.textAlign = "start";
+                ctx.textBaseline = "alphabetic";
+                ctx.font = "40px Arial";
+                ctx.fillStyle = "#008100";
+                ctx.fillText(String("YOU WIN!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+            }
+            if (win == 2) {
+                ctx.textAlign = "start";
+                ctx.textBaseline = "alphabetic";
+                ctx.font = "40px Arial";
+                ctx.fillStyle = "#810000";
+                ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+            }
         }
     } 
     else {
