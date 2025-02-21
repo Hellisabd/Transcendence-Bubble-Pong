@@ -15,7 +15,7 @@ COPY ./Frontend usr/share/nginx/html
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y
 RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/nginx/ssl/transcendence.key -subj "/C=FR/ST=Alsace/L=Mulhouse/O=42/OU=42/CN=transcendence"
-RUN chown -R nginx:nginx /etc/nginx/ssl
+RUN chown -R nginx:nginx_new_group /etc/nginx/ssl
 RUN chmod -R 644 /etc/nginx/ssl/*
 RUN mkdir -p /var/cache/nginx/client_temp
 RUN chown -R nginx:nginx_new_group /var
