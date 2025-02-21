@@ -2,10 +2,13 @@ console.log("game.js chargé");
 
 let player_id = 0;
 
+let inTournament:boolean = false;
+
 let lobbyKey: string | null = null;
 
 let socket: WebSocket | null = null;
 let Wsocket: WebSocket | null = null;
+let Tsocket: WebSocket | null = null;
 
 let disp: boolean = true;
 let win: number = 0;
@@ -28,12 +31,11 @@ async function get_user(): Promise<string> {
 }
 
 async function play_pong() {
-    console.log("deco pong");
     Disconnect_from_game();
     const user = await get_user();
 
-    const sock_name = window.location.host
-    Wsocket = new WebSocket("wss://" + sock_name + "/ws/pong/waiting");
+    const sock_name = window.location.host;
+    Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
         console.log("✅ WebSocket waiting connectée !");
         Wsocket?.send(JSON.stringify({ username: user }));
@@ -53,8 +55,55 @@ async function play_pong() {
     };
 }
 
+async function pong_tournament() {
+    Disconnect_from_game();
+    const user = await get_user();
+
+    inTournament = true;
+    const sock_name = window.location.host;
+    Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
+    Tsocket.onopen = () => {
+        console.log("✅ WebSocket tournament connectée !");
+        Tsocket?.send(JSON.stringify({ username: user, init: true }));
+    };
+    Tsocket.onerror = (event) => {
+        console.error("❌ WebSocket tournament erreur :", user);};
+    Tsocket.onclose = (event) => {
+        console.warn("⚠️ WebSocket tournament fermée :", user);};
+    Tsocket.onmessage = (event) => {
+        let data = JSON.parse(event.data);
+        if (data.end_tournament) {
+            Tsocket?.close();
+            navigateTo("end_tournament");
+        }
+        console.log("success: ", data.success);
+        if (data.success == true) {
+            player_id = data.player_id;
+            lobbyKey = data.lobbyKey;
+            console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
+            initializeGame(data.player1, data.player2, user);
+        }
+    };
+}
+
+async function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
+    if (intournament) {
+        console.log("endgame");
+        Tsocket?.send(JSON.stringify({ username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
+        socket?.close();
+    }
+    else {
+        console.log("updating normal match in db");
+        // const response: Response = await fetch("update_db", {
+        //     credentials: "include",
+        //     headers: { "Content-Type": "text/html" }
+        // });
+    }
+    win = 0;
+}
+
 function Disconnect_from_game() {
-    if (!Wsocket && !socket && !lobbyKey)
+    if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     console.log("deco");
     Wsocket?.close();
@@ -65,7 +114,7 @@ function Disconnect_from_game() {
     win = 0;
 }
 
-function initializeGame(user1: string, user2: string, myuser: string): void {
+function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
@@ -85,7 +134,12 @@ function initializeGame(user1: string, user2: string, myuser: string): void {
         socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
         socket.onclose = (event) => {
-            console.warn("⚠️ WebSocket fermée :", event);};
+            socket = null;
+            lobbyKey = null;
+            disp = true;
+            win = 0;
+            console.warn("⚠️ WebSocket fermée :", event);
+        };
         
         const paddleWidth = 20;
         const paddleHeight = 100;
@@ -118,7 +172,7 @@ function initializeGame(user1: string, user2: string, myuser: string): void {
                 win = 1;
                 draw_winner();
             }
-            if (gs.winner == false) {
+            else if (gs.winner == false) {
                 win = 2;
                 draw_winner();
             }
@@ -204,7 +258,6 @@ function initializeGame(user1: string, user2: string, myuser: string): void {
             if (!ctx) {
                 return ;
             }
-            console.log(win);
             if (win == 1) {
                 ctx.textAlign = "start";
                 ctx.textBaseline = "alphabetic";
@@ -218,6 +271,14 @@ function initializeGame(user1: string, user2: string, myuser: string): void {
                 ctx.font = "40px Arial";
                 ctx.fillStyle = "#810000";
                 ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+            }
+            if (player_id == 1 && win != 0) {
+                console.log(player_id);
+                end_game(win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, inTournament);
+            }
+            else if (player_id == 2 && win != 0) {
+                console.log(player_id);
+                end_game(win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, inTournament);
             }
         }
     } 

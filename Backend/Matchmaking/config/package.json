@@ -1,0 +1,13 @@
+{
+	"name": "matchmaking",
+	"version": "1.0.0",
+	"main": "matchmaking.js",
+	"scripts": {
+	  "start": "node Backend/js/matchmaking.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.0.0",
+	  "@fastify/websocket": "^7.2.0",
+	  "axios": "^1.7.9"
+	}
+  }

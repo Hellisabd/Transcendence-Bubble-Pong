@@ -18,64 +18,50 @@ const ballRadius = 10;
 
 
 fastify.register(async function (fastify) {
-    let username1 = 0;
-    let username2 = 0;
-    fastify.get("/ws/pong/waiting", { websocket: true }, (connection, req) => { 
-        clientsWaiting.add(connection);
-        console.log("Nouvelle connexion WebSocket sur Waiting !");
-        connection.socket.on("close", () => {
-            clientsWaiting.clear();
-            waitingClient = {};
-            i = 0;
-            console.log("Connexion WebSocket Waiting fermée.");
-        });
-        connection.socket.on("message", (message) => {
-            const data = JSON.parse(message.toString());
-            if (i == 0) {
-                waitingClient[0] = data.username;
-                username1 = data.username;
-                i++;
-            } else if (i == 1) {
-                if (data.username == username1)
-                    return ;
-                waitingClient[1] = data.username;
-                username2 = data.username;
-                i++;
-            }
-            if (i == 2) {
-                i = 0;
-                const lobbyKey = `${username1}${username2}`;
-                console.log("lobby: ", lobbyKey);
-                lobbies[lobbyKey] = {
-                    players: [],
-                    socketOrder: [],
-                    gameState: {
-                        ball: { x: 500, y: 250 },
-                        paddles: { player1: { name: username1, y: 200 }, player2: { name: username2, y: 200 } },
-                        score: { player1: 0, player2: 0 },
-                        moving: { player1: { up: false, down: false }, player2: { up: false, down: false } },
-                        ballSpeed: {ballSpeedX: 3.2, ballSpeedY: 3.2},
-                        speed: Math.sqrt(3.2 * 3.2 + 3.2 * 3.2),
-                        playerReady: {player1: false, player2: false},
-                        gameinterval: null
-                    }
-                }
-                clientsWaiting.forEach(clientsWaiting => {
-                    i++;
-                    clientsWaiting.socket.send(JSON.stringify({ 
-                        success: true,
-                        player1: lobbies[lobbyKey].gameState.paddles.player1.name,
-                        player2: lobbies[lobbyKey].gameState.paddles.player2.name,
-                        player_id: i,
-                        "lobbyKey": lobbyKey
-                    }));
-                });
-                clientsWaiting.clear();
-                waitingClient = {};
-                i = 0;
-            }
-        });
-    })
+    // let username1 = 0;
+    // let username2 = 0;
+    // fastify.get("/ws/pong/waiting", { websocket: true }, (connection, req) => { 
+    //     clientsWaiting.add(connection);
+    //     console.log("Nouvelle connexion WebSocket sur Waiting !");
+    //     connection.socket.on("close", () => {
+    //         clientsWaiting.clear();
+    //         waitingClient = {};
+    //         i = 0;
+    //         console.log("Connexion WebSocket Waiting fermée.");
+    //     });
+    //     connection.socket.on("message", (message) => {
+    //         const data = JSON.parse(message.toString());
+    //         if (i == 0) {
+    //             waitingClient[0] = data.username;
+    //             username1 = data.username;
+    //             i++;
+    //         } else if (i == 1) {
+    //             if (data.username == username1)
+    //                 return ;
+    //             waitingClient[1] = data.username;
+    //             username2 = data.username;
+    //             i++;
+    //         }
+    //         if (i == 2) {
+    //             i = 0;
+    //             const lobbyKey = `${username1}${username2}`;
+    //             console.log("lobby: ", lobbyKey);
+    //             clientsWaiting.forEach(clientsWaiting => {
+    //                 i++;
+    //                 clientsWaiting.socket.send(JSON.stringify({ 
+    //                     success: true,
+    //                     player1: username1,
+    //                     player2: username2,
+    //                     player_id: i,
+    //                     "lobbyKey": lobbyKey
+    //                 }));
+    //             });
+    //             clientsWaiting.clear();
+    //             waitingClient = {};
+    //             i = 0;
+    //         }
+    //     });
+    // })
     fastify.get("/ws/pong", { websocket: true }, (connection, req) => {
         console.log("Nouvelle connexion WebSocket !");
         
@@ -86,8 +72,20 @@ fastify.register(async function (fastify) {
             }
             const lobbyKey = data.lobbyKey;
             if (!lobbies[lobbyKey]) {
-                console.log("❌ Lobby not found !");
-                return ;
+                lobbies[lobbyKey] = {
+                    players: [],
+                    socketOrder: [],
+                    gameState: {
+                        ball: { x: 500, y: 250 },
+                        paddles: { player1: { name: data.username1, y: 200 }, player2: { name: data.username2, y: 200 } },
+                        score: { player1: 0, player2: 0 },
+                        moving: { player1: { up: false, down: false }, player2: { up: false, down: false } },
+                        ballSpeed: {ballSpeedX: 3.2, ballSpeedY: 3.2},
+                        speed: Math.sqrt(3.2 * 3.2 + 3.2 * 3.2),
+                        playerReady: {player1: false, player2: false},
+                        gameinterval: null
+                    }
+                }
             }
             const lobby = lobbies[lobbyKey];
             if (!lobby.players.includes(connection)) {
@@ -192,12 +190,12 @@ function check_score(lobbyKey) {
         return ;
     gameState = lobbies[lobbyKey].gameState;
 
-    if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
+    if (gameState.score.player1 == 1 || gameState.score.player2 == 1) {
         gameState.playerReady.player1 = false;
         gameState.playerReady.player2 = false;
         gameState.ballSpeed.ballSpeedX = 3.2
         gameState.ballSpeed.ballSpeedY = 3.2
-        if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
+        if ((gameState.score.player1 == 1 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 1 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
                 lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: true}));
                 lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: false}));
         }

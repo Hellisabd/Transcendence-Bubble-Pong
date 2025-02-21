@@ -23,12 +23,12 @@ async function set_user(): Promise<void> {
 async function navigateTo(page: string, addHistory: boolean = true): Promise<void> {
     console.log("Navigating to:", page);
     let afficheUser = false;
-    const username: string = await get_user(); 
+    const username: string | null = await get_user(); 
     console.log(`✅ Utilisateur récupéré : ${username}`);
     const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
-    if (username.length > 0) {
+    if (username && username.length > 0) {
         afficheUser = true;
     }
     if (!loged && !afficheUser) {
@@ -78,6 +78,8 @@ async function navigateTo(page: string, addHistory: boolean = true): Promise<voi
         Disconnect_from_game();
         if (page === "waiting_room")
             play_pong();
+        if (page === "pong_tournament")
+            pong_tournament();
         
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);

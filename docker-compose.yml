@@ -80,6 +80,25 @@ services:
     ports:
       - "5000:5000"
 
+  matchmaking:
+    build:
+      context: .
+      dockerfile: ./Backend/Matchmaking/Dockerfile 
+      args: 
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    volumes:
+      - ./Backend/Matchmaking:/usr/src/app/Backend
+    networks:
+      - spa-network
+      - pong-network
+    container_name: matchmaking
+    env_file:
+      - .env
+    restart: "no"
+    ports:
+      - "4020:4020"
+
 networks:
   spa-network:
     driver: bridge

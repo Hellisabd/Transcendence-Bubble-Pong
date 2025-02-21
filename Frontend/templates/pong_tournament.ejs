@@ -10,15 +10,16 @@
 <body>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("pong_game"); // Appelle la fonction au chargement de la page
+      navigateTo("pong_tournament"); // Appelle la fonction au chargement de la page
     });
   </script>
   <div id="user" style="display: none;"></div>
   <div id="content">
     <button class="btn" onclick="navigateTo('index')">HOME</button>
-    <button class="btn" onclick="logout(1)">Logout</button>
-    <button class="btn" onclick="navigateTo('waiting_room')">PLAY</button>
-    <button class="btn" onclick="navigateTo('pong_tournament')">Tournament</button>
+    <br>
+    <br>
+    <br>
+    <canvas id="pongCanvas" width="1000" height="500"></canvas>
   </div>
   <%- include('scripts.ejs') %>
 </body>
