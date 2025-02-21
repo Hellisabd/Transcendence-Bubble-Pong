@@ -98,9 +98,13 @@ fastify.register(async function (fastify) {
                     console.log("end tournament");
                     history[data.username] = data.history;
                     count_game = 0;
+                    end_lobby = 0;
                     for (let i = 0; i < 4; i++) {
                         tournamentQueue[tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true}));
                     }
+                    history = {};
+                    tournamentQueue = {};
+                    tournamentsUsernames = [];
                 }
             }
         });
