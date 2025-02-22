@@ -57,6 +57,7 @@ async function create_account(req, reply) {
     }
 }
 
+
 async function get_user(token) {
     return usersession[token] || null;
 }
@@ -80,26 +81,34 @@ async function update_history(req, reply) {
 async function get_history(req, reply) {
     console.log("lol");
     const token = req.cookies.session;
-        if (!token) {
-            return reply.status(401).send({ success: false, message: "Token manquant" });
-        }
+    if (!token) {
+        return reply.status(401).send({ success: false, message: "Token manquant" });
+    }
+    
+    const username = await get_user(token);
+    if (!username) {
+        return reply.status(401).send({ success: false, message: "Utilisateur non authentifié" });
+    }
+    
+    console.log("Envoi de la requête à /get_history pour :", username);
+    
+    const response = await axios.post("http://users:5000/get_history",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
+    console.log("Réponse reçue :", response.data);
+    const finalFile = ejs.render(historyTemplate, {history: response.data.history}); 
+    console.log(finalFile);
+    reply.send(finalFile);
+}
 
-        const username = await get_user(token);
-        if (!username) {
-            return reply.status(401).send({ success: false, message: "Utilisateur non authentifié" });
-        }
+async function end_tournament(req, reply) {
+    const {classement} = req.body;
+    const end_tournamentTemplate = fs.readFileSync("Frontend/templates/end_tournament.ejs", "utf8");
+    const finalFile = ejs.render(end_tournamentTemplate, {classement: classement});
 
-        console.log("Envoi de la requête à /get_history pour :", username);
-
-        const response = await axios.post("http://users:5000/get_history",
-            { username },  // ✅ Envoie le JSON correctement
-            { headers: { "Content-Type": "application/json" } }
-        );
-        const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-        console.log("Réponse reçue :", response.data);
-        const finalFile = ejs.render(historyTemplate, {history: response.data.history}); 
-        console.log(finalFile);
-        reply.send(finalFile);
+    reply.send(finalFile);
 }
 
 async function waiting_room(req, reply) {
@@ -108,4 +117,4 @@ async function waiting_room(req, reply) {
 }
 
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament };

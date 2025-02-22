@@ -72,9 +72,14 @@ async function pong_tournament() {
         console.warn("⚠️ WebSocket tournament fermée :", user);};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-        if (data.end_tournament) {
+        if (data.end_tournament && data.classementDecroissant) {
             Tsocket?.close();
-            navigateTo("end_tournament");
+            fetch("/end_tournament", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ classement: data.classementDecroissant})
+            });
+            inTournament = false;
         }
         console.log("success: ", data.success);
         if (data.success == true) {

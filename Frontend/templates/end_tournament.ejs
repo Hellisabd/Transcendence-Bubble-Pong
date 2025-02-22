@@ -3,7 +3,7 @@
 <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Pong Game</title>
+      <title>Pong Game - Fin du Tournoi</title>
       <link rel="stylesheet" href="/Frontend/css/style.css">
       <link rel="stylesheet" href="/Frontend/css/btn.css">
 </head>
@@ -16,11 +16,29 @@
   <div id="user" style="display: none;"></div>
   <div id="content">
     <button class="btn" onclick="navigateTo('index')">HOME</button>
-    <br>
-    <br>
-    <br>
-    <p> END TOURNAMENT </p>
+    <br><br><br>
+    <h1>🏆 Classement du Tournoi 🏆</h1>
+
+    <% if (classement.length > 0) { %>
+      <table border="1">
+        <tr>
+          <th>Position</th>
+          <th>Joueur</th>
+          <th>Score</th>
+        </tr>
+        <% classement.forEach((player, index) => { %>
+          <tr>
+            <td><%= index + 1 %> 🏅</td>
+            <td><%= player.username %></td>
+            <td><%= player.score %></td>
+          </tr>
+        <% }) %>
+      </table>
+    <% } else { %>
+      <p>Aucun classement disponible.</p>
+    <% } %>
+
+    <%- include('/usr/src/app/Frontend/templates/scripts.ejs') %>
   </div>
-  <%- include('scripts.ejs') %>
 </body>
 </html>

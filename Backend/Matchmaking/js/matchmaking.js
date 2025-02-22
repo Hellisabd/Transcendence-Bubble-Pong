@@ -118,6 +118,7 @@ fastify.register(async function (fastify) {
                     count_game = 0;
                     end_lobby = 0;
                     for (let i = 0; i < 4; i++) {
+                        console.log("sending trucs par clients pour la fin du tournoi");
                         tournamentQueue[tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: classements}));
                         axios.post("http://users:5000/update_history", 
                             {

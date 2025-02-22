@@ -11,7 +11,7 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history } = require("./proxy");
+const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -75,6 +75,8 @@ fastify.post("/modify_user", modify_user);
 fastify.post("/update_history", update_history);
 
 fastify.get("/history", get_history);
+
+fastify.post("/end_tournament", end_tournament);
 
 fastify.post("/waiting_room", waiting_room);
 
