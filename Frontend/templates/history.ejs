@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Pong Game</title>
+      <link rel="stylesheet" href="/Frontend/css/style.css">
+      <link rel="stylesheet" href="/Frontend/css/btn.css">
+</head>
+<body>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      navigateTo("history"); // Appelle la fonction au chargement de la page
+    });
+  </script>
+  <div id="user" style="display: none;"></div>
+  
+  <h1>Historique des matchs</h1>
+  <div id="content">
+  <% if (history.length === 0) { %>
+	<p>Aucun match trouvé.</p>
+	<% } else { %>
+		<table border="1">
+			<tr>
+				<th>Joueur 1</th>
+				<th>Joueur 2</th>
+				<th>Score</th>
+				<th>Gagnant</th>
+				<th>Date</th>
+			</tr>
+
+			<% history.forEach(match => { %>
+				<tr>
+					<td><%= match.player1_username %></td>
+					<td><%= match.player2_username %></td>
+					<td><%= match.player1_score %> - <%= match.player2_score %></td>
+					<td><%= match.winner_username %></td>
+					<td><%= match.created_at %></td>
+				</tr>
+			<% }) %>
+		</table>
+	<% } %>
+  <%- include('/usr/src/app/Frontend/templates/scripts.ejs') %>
+  </div>
+</body>
+</html>

@@ -1,9 +1,12 @@
 const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
+const axios = require("axios"); // Pour faire des requêtes HTTP
 
 let i = 0;
 
 let waitingClient = {};
+
+let classements = [];
 
 let history = {};
 
@@ -67,9 +70,14 @@ fastify.register(async function (fastify) {
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
             if (data.init) {
+                if (tournamentsUsernames.includes(data.username)) {
+                    console.log("user already in tournament");
+                    return ;
+                }
                 tournamentQueue[data.username] = connection;
+                classements.push({username: data.username, score: 0});
                 tournamentsUsernames.push(data.username);
-                console.log("pusshing : ", data.username);
+                console.log("pushing : ", data.username);
                 if (tournamentsUsernames.length == 4) {
                     console.log("Launch tournament : game 1");
                     count_game++;
@@ -77,34 +85,56 @@ fastify.register(async function (fastify) {
                 }
             }
             if (data.endgame) {
+                let finalclassement = {};
                 end_lobby++;
-                console.log("data: ", data);
-                if (count_game == 1 && end_lobby == 4) {
-                    history[data.username] = data.history;
-                    console.log("game 2");
-
-                    launchTournament(tournamentsUsernames[0], tournamentsUsernames[2], tournamentsUsernames[1], tournamentsUsernames[3])
-                    count_game++;
-                    end_lobby = 0; 
-                } 
-                else if (end_lobby == 4 && count_game == 2) {
-                    console.log("game 3");
-                    history[data.username] = data.history;
-                    launchTournament(tournamentsUsernames[0], tournamentsUsernames[3], tournamentsUsernames[1], tournamentsUsernames[2])
-                    end_lobby = 0;
-                    count_game++;
+                history[data.username] = data.history;
+                if (data.history.win == 1) {
+                    for (let i = 0; i < 4; i++) {
+                        if (data.username == classements[i].username) {
+                            classements[i].score += 1;
+                            break ;
+                        }
+                    }
                 }
-                else if (count_game == 3 && end_lobby == 4) {
+                console.log("data: ", data);
+                // if (count_game == 1 && end_lobby == 4) {
+                //     history[data.username] = data.history;
+                //     console.log("game 2");
+
+                //     launchTournament(tournamentsUsernames[0], tournamentsUsernames[2], tournamentsUsernames[1], tournamentsUsernames[3])
+                //     count_game++;
+                //     end_lobby = 0; 
+                // } 
+                // else if (end_lobby == 4 && count_game == 2) {
+                //     console.log("game 3");
+                //     history[data.username] = data.history;
+                //     launchTournament(tournamentsUsernames[0], tournamentsUsernames[3], tournamentsUsernames[1], tournamentsUsernames[2])
+                //     end_lobby = 0;
+                //     count_game++;
+                // }
+                if (count_game == 1 && end_lobby == 4) {
+                    classements.sort((a, b) => b.score - a.score);
                     console.log("end tournament");
-                    history[data.username] = data.history;
                     count_game = 0;
                     end_lobby = 0;
                     for (let i = 0; i < 4; i++) {
-                        tournamentQueue[tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true}));
+                        tournamentQueue[tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: classements}));
+                        axios.post("http://users:5000/update_history", 
+                            {
+                                history: history[tournamentsUsernames[i]],
+                                tournament: true
+                            },
+                            {
+                                headers: {
+                                    "Content-Type": "application/json"
+                                }
+                            }
+                        );
                     }
                     history = {};
                     tournamentQueue = {};
                     tournamentsUsernames = [];
+                    classements = [];
                 }
             }
         });

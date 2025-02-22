@@ -86,18 +86,19 @@ async function pong_tournament() {
     };
 }
 
-async function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
+function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
     if (intournament) {
         console.log("endgame");
         Tsocket?.send(JSON.stringify({ username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
         socket?.close();
     }
     else {
-        console.log("updating normal match in db");
-        // const response: Response = await fetch("update_db", {
-        //     credentials: "include",
-        //     headers: { "Content-Type": "text/html" }
-        // });
+        console.log("update normal game history"); 
+        fetch("/update_history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ history:{"win": win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore}})
+        });
     }
     win = 0;
 }

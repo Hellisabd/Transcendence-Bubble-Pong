@@ -16,7 +16,8 @@ const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const { request } = require("http");
 
 const SALT_ROUNDS = 10;
 
@@ -47,9 +48,22 @@ console.log(`📌 Base de données utilisée : ${dbFile}`);
 db.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL
+  )
+`).run();
+
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS match_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player1_username TEXT NOT NULL,
+    player2_username TEXT NOT NULL,
+    winner_username TEXT NOT NULL,
+    looser_username TEXT NOT NULL,
+    player1_score INTEGER NOT NULL DEFAULT 0,
+    player2_score INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
 
@@ -129,6 +143,57 @@ fastify.post('/logout', async (request, reply) => {
   reply
     .clearCookie('session', { path: '/' })
     .send({ success: true, message: 'Déconnecté' });
+});
+
+fastify.post("/get_history", async (request, reply) => {
+    const {username} = request.body;
+    const history = await db.prepare(`
+      SELECT * FROM match_history
+      WHERE player1_username = ?
+      OR player2_username = ?
+      ORDER BY created_at DESC;
+    `).all(username, username);
+    reply.send(JSON.stringify({history: history}));
+});
+
+fastify.post("/update_history", async (request, reply) => {
+  const {history} = request.body;
+  console.log("📩 Requête reçue - History:", history);
+  const player1 = history.myusername;
+  const player2 = history.otherusername;
+  const score_player1 = history.myscore;
+  const score_player2 = history.otherscore;
+  if (score_player1 != 1 && score_player2 != 1) {
+    return;
+  }
+  let winner;
+  let looser;
+  if (score_player1 > score_player2) {
+    winner = player1;
+    looser = player2;
+  }
+  else {
+    looser = player1;
+    winner = player2;
+  }
+  const recentMatch = await db.prepare(`
+    SELECT created_at FROM match_history 
+    WHERE ((player1_username = ? AND player2_username = ?) 
+        OR (player1_username = ? AND player2_username = ?))
+    AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
+    ORDER BY created_at DESC
+    LIMIT 1
+  `).get(player2, player1, player1, player2);
+  if (recentMatch) {
+    console.log("match deja enregistrer");
+    return ;
+  }
+
+  await db.prepare(`INSERT INTO match_history 
+            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
+            VALUES (?, ?, ?, ?, ?, ?)`)
+            .run(player1, player2, winner, looser, score_player1, score_player2);
+  console.log("Match enregistre");
 });
 
 // 🔹 Route POST pour créer un compte
