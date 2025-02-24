@@ -40,8 +40,13 @@ build :
 clean :
 	docker-compose down
 
+
 fclean : 
 	docker-compose down --volumes --remove-orphans
+
+hardclean: 
+	docker rm -f $(docker ps -aq)
+	docker rmi -f $(docker images -aq)
 
 git	: fclean
 	@git add . > /dev/null 2>&1
