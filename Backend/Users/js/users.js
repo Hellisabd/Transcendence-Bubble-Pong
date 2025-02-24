@@ -67,19 +67,6 @@ db.prepare(`
 `).run();
 
 db.prepare(`
-  CREATE TABLE IF NOT EXISTS match_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player1_username TEXT NOT NULL,
-    player2_username TEXT NOT NULL,
-    winner_username TEXT NOT NULL,
-    looser_username TEXT NOT NULL,
-    player1_score INTEGER NOT NULL DEFAULT 0,
-    player2_score INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )
-`).run();
-
-db.prepare(`
   CREATE TABLE IF NOT EXISTS tournament_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     player1_username TEXT NOT NULL,
@@ -131,29 +118,106 @@ fastify.post("/update_history_tournament", async (request, reply) => {
               );
 });
 
+fastify.post("/pending_request", async (request, reply) => {
+    const {username} = request.body;
+    const user_id = await db.prepare(`
+      SELECT id FROM users
+      WHERE username = ?
+      `).get(username)?.id;
+    if (!user_id) {
+      return reply.send(JSON.stringify({success: false, message: "user not found in db"}));
+    }
+    const pending_request = await db.prepare(`
+      SELECT * FROM friends
+      WHERE friend_id = ? AND status = 'pending'
+      `).run(user_id);
+    console.log(pending_request);
+});
+
+fastify.post("/get_friends", async (request, reply) => {
+  const {username} = request.body;
+  const user = await db.prepare(`
+    SELECT id FROM users
+    WHERE username = ?
+    `).get(username);
+  if (!user) {
+    return reply.send(JSON.stringify({success: false, message: "user not found in db"}));
+  }
+  const user_id = user.id;
+  let friends = [];
+  const friend1 = await db.prepare(`
+    SELECT friend_id FROM friends
+    WHERE (user_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friend2 = await db.prepare(`
+    SELECT user_id FROM friends
+    WHERE (friend_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friendIds = friend1.map(f => f.friend_id).concat(friend2.map(f => f.user_id));
+  for (let i = 0; i < friendIds.length; i++) {
+    const friendUsername = await db.prepare(`
+      SELECT username FROM users
+      WHERE id = ?
+      `).get(friendIds[i]);
+    if (friendUsername) {
+      friends.push(friendUsername);
+    }
+  }
+    const databaseContent = await db.prepare(`
+        SELECT * FROM friends
+        `).all();
+      console.log("database friend:::", JSON.stringify(databaseContent));
+    return reply.send(JSON.stringify({success: true, friends: friends}));
+});
+
 fastify.post("/add_friend", async (request, reply) => {
   const {user_sending, user_to_add} = request.body;
   const user_sending_id = await db.prepare(`
     SELECT id FROM users
     WHERE username = ?
-    `).get(user_sending);
+    `).get(user_sending)?.id;
     const user_to_add_id = await db.prepare(`
       SELECT id FROM users
       WHERE username = ?
-      `).get(user_to_add);
+      `).get(user_to_add)?.id;
     if (!user_sending_id) {
       return reply.send(JSON.stringify({success: false, message: "can't find you in database"}));
     }
     if (!user_to_add_id) {
       return reply.send(JSON.stringify({success: false, message: "This username does not exist"}));
     }
+    console.log(`user_sending_id: ${user_sending_id}, user_to_add_id: ${user_to_add_id}`);
     const exisitingFriendship = db.prepare(`
       SELECT * FROM friends
       WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
       `).get(user_sending_id, user_to_add_id, user_to_add_id, user_sending_id);
-    if (exisitingFriendship) {
+    if (exisitingFriendship && exisitingFriendship.status != "pending") {
+      // const databaseContent = await db.prepare(`
+      //   SELECT * FROM friends
+      //   `).all();
+      // console.log("database friend:::", JSON.stringify(databaseContent));
       return reply.send(JSON.stringify({success: false, message: "You are already friend"}));
     }
+    const pending = db.prepare(`
+      SELECT * FROM friends
+      WHERE (user_id = ? AND friend_id = ?)
+      `).get(user_to_add_id, user_sending_id);
+      if (pending && pending.status == "pending") {
+        db.prepare(`
+          UPDATE friends
+          SET status = 'accepted'
+          WHERE (user_id = ? AND friend_id = ?)
+          `).run( user_to_add_id, user_sending_id);
+          const databaseContent = await db.prepare(`
+            SELECT * FROM friends
+            `).all();
+          console.log(`database friend::: ${databaseContent}`);
+          return reply.send(JSON.stringify({success: true, message: "This user already sent u an invitation you are now friends!"}));
+      }
+      else if (!pending && exisitingFriendship) {
+        return reply.send(JSON.stringify({success: false, message: "You already invited this user"}));
+      }
+
     db.prepare(`
       INSERT INTO friends (user_id, friend_id, status)
       VALUES (?, ?, 'pending')

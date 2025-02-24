@@ -11,7 +11,7 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend } = require("./proxy");
+const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -70,11 +70,15 @@ fastify.get("/logout", async (req, reply) => {
 
 fastify.post("/create_account", create_account);
 
+fastify.post("/pending_request", pending_request);
+
 fastify.post("/modify_user", modify_user);
 
 fastify.post("/update_history", update_history);
 
 fastify.get("/history", get_history);
+
+fastify.post("/get_friends", get_friends);
 
 fastify.post("/end_tournament", end_tournament);
 
@@ -86,7 +90,7 @@ fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
   if (page[page.length - 1] == '/')
     page = page.substring(0, page.length - 1)
-  if (page == '' || page == "end_tournament")
+  if (page == '' || page == "end_tournament") // siamais on redirige end_tournament ici
     page = 'index'
   let filePath = "Frontend/templates/" + page + ".ejs"
   let fileName =  page + ".ejs"

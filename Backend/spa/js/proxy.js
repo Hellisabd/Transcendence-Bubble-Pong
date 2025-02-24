@@ -4,7 +4,7 @@ const fastifyCookie = require("@fastify/cookie");
 const ejs = require("ejs");
 const fs = require("fs");
 
-let usersession = {}
+let usersession = new Map();
 
 fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET,
@@ -23,11 +23,11 @@ async function log(req, reply) {
     if (result.success) {
         console.log(response.data);
         const {token , username, domain} = response.data;
-        if (Object.values(usersession).includes(username)) {
+        if ([...usersession.values()].some(user => user.username === username)) {
             return reply.send({succes: false, message: `You are already loged`});
         }
         console.log(`domain::: ${domain}`);
-        usersession[token] = username;
+        usersession.set(token, {username: username, status: "online"});
         return reply
         .setCookie("session", token, {
             path: "/",
@@ -63,11 +63,13 @@ async function create_account(req, reply) {
 
 
 async function get_user(token) {
-    return usersession[token] || null;
+    if (usersession.get(token))
+        return usersession.get(token).username || null;
 }
 
 async function logout(token, reply) {
-    delete usersession[token];
+    if (usersession.get(token))
+        delete usersession.get(token);
 }
 
 async function modify_user(req, reply) {
@@ -83,7 +85,6 @@ async function update_history(req, reply) {
 }
 
 async function get_history(req, reply) {
-    console.log("lol");
     const token = req.cookies.session;
     if (!token) {
         return reply.status(401).send({ success: false, message: "Token manquant" });
@@ -121,6 +122,12 @@ async function waiting_room(req, reply) {
     reply.send(response.data);
 }
 
+async function update_status(req, reply) {
+    const token = req.cookies.session;
+    const {status} = req.body;
+    usersession[token].status = status;
+
+}
 
 async function add_friend(req, reply) {
     const response = await axios.post("http://users:5000/add_friend", req.body, {
@@ -129,4 +136,33 @@ async function add_friend(req, reply) {
     reply.send(response.data);
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend };
+async function pending_request(req, reply) {
+    const response = await axios.post("http://users:5000/pending_request", req.body, {
+        withCredentials: true
+    });
+    reply.send(response.data);
+}
+
+async function get_friends(req, reply) {
+    console.log("passe dans online users");
+    const {username}  = req.body;
+    const response = await axios.post("http://users:5000/get_friends",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    console.log("retour de get_friends: ", response.data);
+    let friends = response.data.friends;
+    console.log(`friends:: ${friends} length : ${friends.length}`);
+    let friends_and_status = [];
+    for (let i = 0; i < friends.length; i++) {
+        if ([...usersession.values()].some(user => user.username === friends[i].username)) {
+            friends_and_status.push({username: friends[i].username, status: "online"});
+        }
+        else
+            friends_and_status.push({username: friends[i].username, status: "offline"});
+    }
+    console.log(`friends_and_status::: ${friends_and_status}`)
+    return reply.send(JSON.stringify({succes: true, friends: friends_and_status}));
+}
+
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends };

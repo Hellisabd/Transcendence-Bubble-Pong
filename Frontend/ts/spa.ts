@@ -23,14 +23,17 @@ async function set_user(): Promise<void> {
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
     console.log("Navigating to:", page);
     let afficheUser = false;
-    const username: string | null = await get_user(); 
+    const username: string | null = await get_user();
     console.log(`✅ Utilisateur récupéré : ${username}`);
-    const loging: boolean = page == "login";
+    const loging: boolean = page == "login"; 
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
     if (username && username.length > 0) {
         afficheUser = true;
         set_up_friend_list(username);
+        if (page == "login"){
+            page = "index";
+        }
     }
     if (!loged && !afficheUser) {
         console.log("passe dans recur");
@@ -92,6 +95,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             play_pong();
         if (page === "pong_tournament")
             pong_tournament();
+        if (url === "/social") {
+            // pending_request();
+            display_friends();
+        }
         
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
