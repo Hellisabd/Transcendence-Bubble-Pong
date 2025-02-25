@@ -22,7 +22,7 @@ const { request } = require("http");
 const SALT_ROUNDS = 10;
 
 fastify.register(cors, {
-  origin: "http://spa:3000",
+  origin: "http://spa:7000",
   credential: true
 });
 
@@ -111,7 +111,7 @@ fastify.post("/modify_user", async (request, reply) => {
     return reply.code(400).send({ success: false, error: "Champs manquants" });
   }
   try {
-    const newpassword = await bcrypt.hash(password, SALT_ROUNDS); 
+    const newpassword = await bcrypt.hash(password, SALT_ROUNDS);
     const stmt = db.prepare("UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?");
     const result = stmt.run(newusername, email, newpassword, username);
     console.log("ici");
@@ -177,8 +177,8 @@ fastify.post("/update_history", async (request, reply) => {
     winner = player2;
   }
   const recentMatch = await db.prepare(`
-    SELECT created_at FROM match_history 
-    WHERE ((player1_username = ? AND player2_username = ?) 
+    SELECT created_at FROM match_history
+    WHERE ((player1_username = ? AND player2_username = ?)
         OR (player1_username = ? AND player2_username = ?))
     AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
     ORDER BY created_at DESC
@@ -189,7 +189,7 @@ fastify.post("/update_history", async (request, reply) => {
     return ;
   }
 
-  await db.prepare(`INSERT INTO match_history 
+  await db.prepare(`INSERT INTO match_history
             (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
             VALUES (?, ?, ?, ?, ?, ?)`)
             .run(player1, player2, winner, looser, score_player1, score_player2);

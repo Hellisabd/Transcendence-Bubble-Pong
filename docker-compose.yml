@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./Backend/nginx/Dockerfile
-      args: 
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     ports:
@@ -18,13 +18,14 @@ services:
     networks:
       - pong-network
       - spa-network
+      - prom-network
     container_name: nginx
 
   spa:
     build:
       context: .
       dockerfile: ./Backend/spa/Dockerfile
-      args: 
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
@@ -41,13 +42,13 @@ services:
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      - "7000:7000"
 
   pong:
     build:
       context: .
-      dockerfile: ./Backend/pong/Dockerfile 
-      args: 
+      dockerfile: ./Backend/pong/Dockerfile
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
@@ -66,7 +67,7 @@ services:
     build:
       context: .
       dockerfile: ./Backend/Users/Dockerfile
-      args: 
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
@@ -83,8 +84,8 @@ services:
   matchmaking:
     build:
       context: .
-      dockerfile: ./Backend/Matchmaking/Dockerfile 
-      args: 
+      dockerfile: ./Backend/Matchmaking/Dockerfile
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
@@ -99,10 +100,50 @@ services:
     ports:
       - "4020:4020"
 
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    volumes:
+      - ./Backend/monitoring/Prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - nginx-exporter
+    networks:
+      - prom-network
+    env_file:
+      - .env
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - prom-network
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    ports:
+      - "9113:9113"
+    networks:
+      - prom-network
+    container_name: nginx-exporter
+    depends_on:
+      - nginx
+    command:
+      - "--nginx.scrape-uri=http://nginx:8000/stub_status"
+
 networks:
   spa-network:
     driver: bridge
   pong-network:
+    driver: bridge
+  prom-network:
     driver: bridge
 
 volumes:
