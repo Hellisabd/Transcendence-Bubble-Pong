@@ -24,10 +24,11 @@ async function log(req, reply) {
         console.log(response.data);
         const {token , username, domain} = response.data;
         if ([...usersession.values()].some(user => user.username === username)) {
-            return reply.send({succes: false, message: `You are already loged`});
+            return reply.send({success: false, message: `You are already loged`});
         }
         console.log(`domain::: ${domain}`);
-        usersession.set(token, {username: username, status: "online"});
+        usersession.set(token, {username: username, status: 'online'});
+        send_to_friend(username, token);
         return reply
         .setCookie("session", token, {
             path: "/",
@@ -61,6 +62,11 @@ async function create_account(req, reply) {
     }
 }
 
+let users_connection = [];
+
+async function Websocket_handling(username, connection) {
+    users_connection[username] = connection;
+}
 
 async function get_user(token) {
     if (usersession.get(token))
@@ -68,8 +74,12 @@ async function get_user(token) {
 }
 
 async function logout(token, reply) {
-    if (usersession.get(token))
-        delete usersession.get(token);
+    let username = await get_user(token);
+    if (usersession.has(token)) {
+        usersession.delete(token);
+        console.log("passe dans logout", usersession.get(token));
+        send_to_friend(username);
+    }
 }
 
 async function modify_user(req, reply) {
@@ -122,11 +132,44 @@ async function waiting_room(req, reply) {
     reply.send(response.data);
 }
 
+async function display_friends(username, connection) {
+    console.log(`username: ${username}`);
+    const data = await get_friends(username);
+    const friends = data.friends;
+    if (!friends) {
+        return ;
+    }
+    for (let i = 0; i < friends.length; i++) {
+        connection.socket.send(JSON.stringify(friends[i]));
+    }
+}
+
+
+async function send_to_friend(username, token) {
+    let status = null;
+    if (!usersession.has(token)) {
+        status = "offline";
+    }  
+    const response = await get_friends(username);
+    if (!response.success) {
+        return ;
+    }
+    let tab_of_friends = response.friends;
+    for (let i = 0; i < tab_of_friends.length; i++) {
+        if (tab_of_friends[i].status != "offline" && status == null) {
+            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
+        }
+        else if (tab_of_friends[i].status != "offline") {
+            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: status}));
+        }
+    }
+}
+
 async function update_status(req, reply) {
     const token = req.cookies.session;
     const {status} = req.body;
-    usersession[token].status = status;
-
+    usersession.get(token).status = status;
+    send_to_friend(usersession.get(token).username, token);
 }
 
 async function add_friend(req, reply) {
@@ -143,26 +186,28 @@ async function pending_request(req, reply) {
     reply.send(response.data);
 }
 
-async function get_friends(req, reply) {
+async function get_friends(username) {
     console.log("passe dans online users");
-    const {username}  = req.body;
     const response = await axios.post("http://users:5000/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
     console.log("retour de get_friends: ", response.data);
     let friends = response.data.friends;
+    if (!friends) {
+        return response.data;
+    }
     console.log(`friends:: ${friends} length : ${friends.length}`);
     let friends_and_status = [];
     for (let i = 0; i < friends.length; i++) {
         if ([...usersession.values()].some(user => user.username === friends[i].username)) {
-            friends_and_status.push({username: friends[i].username, status: "online"});
+            friends_and_status.push({username: friends[i].username, status:[...usersession.values()].find(user => user.username === friends[i].username)?.status});
         }
         else
             friends_and_status.push({username: friends[i].username, status: "offline"});
     }
     console.log(`friends_and_status::: ${friends_and_status}`)
-    return reply.send(JSON.stringify({succes: true, friends: friends_and_status}));
+    return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends };

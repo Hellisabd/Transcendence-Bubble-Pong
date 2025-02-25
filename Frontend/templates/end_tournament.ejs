@@ -11,6 +11,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("end_tournament"); // Appelle la fonction au chargement de la page
+      set_up_friend_list();
     });
   </script>
   <div id="user" style="display: none;"></div>
@@ -39,6 +40,7 @@
     <% } %>
 
     <%- include('/usr/src/app/Frontend/templates/scripts.ejs') %>
+    <canvas id="friends_list" width="300" height="500"></canvas>
   </div>
 </body>
 </html>

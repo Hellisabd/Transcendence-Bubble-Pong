@@ -37,6 +37,7 @@ async function login(event: Event): Promise<void> {
         if (result.success) {
             alert(JSON.stringify(result));
             navigateTo("", true, null);
+            set_up_friend_list(await get_user());
         } else {
             alert(JSON.stringify(result));
         }
@@ -83,6 +84,7 @@ async function logout(print: boolean): Promise<void> {
         alert("Déconnexion!");
         navigateTo("", true, null);
     }
+    close_users_socket();
 }
 
 async function modify_user(event: Event): Promise<void> {

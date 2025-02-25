@@ -16,8 +16,8 @@ const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
+const jwt = require("jsonwebtoken");
 const SALT_ROUNDS = 10;
 
 fastify.register(cors, {
@@ -37,7 +37,6 @@ if (!fs.existsSync(dbDir)) {
   console.log("📌 Création du dossier dataBase...");
   fs.mkdirSync(dbDir, { recursive: true });
 }
-
 
 // 📌 Initialiser la base SQLite
 const db = new Database(dbFile);

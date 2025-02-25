@@ -11,18 +11,19 @@ const fastify = require("fastify")({
   },
 });
 
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends } = require("./proxy");
+fastify.register(require("@fastify/websocket"));
+const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
 const view = require('@fastify/view');
 const fs = require('fs');
-const WebSocket = require("ws");
+// const WebSocket = require("ws");
 const axios = require("axios"); // Pour faire des requêtes HTTP
 const fastifyCookie = require("@fastify/cookie");
 
-let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
-pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
+// let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
+// pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
 console.log(`on est la:::: ${__dirname}`)
 
 fastify.register(cors, {
@@ -68,6 +69,18 @@ fastify.get("/logout", async (req, reply) => {
 .send({ success: true, message: "Déconnexion réussie" });
 })
 
+fastify.register(async function (fastify) {
+  fastify.get("/ws/spa/friends", {websocket: true}, (connection, req) => {
+    console.log("Nouvelle connexion Social WebSocket !");
+    connection.socket.on("message", (message) => {
+      const data = JSON.parse(message.toString());
+      Websocket_handling(data.username, connection);
+      send_to_friend();
+      display_friends(data.username, connection);
+    })
+  });
+});
+
 fastify.post("/create_account", create_account);
 
 fastify.post("/pending_request", pending_request);
@@ -77,6 +90,8 @@ fastify.post("/modify_user", modify_user);
 fastify.post("/update_history", update_history);
 
 fastify.get("/history", get_history);
+
+fastify.post("/update_status", update_status);
 
 fastify.post("/get_friends", get_friends);
 

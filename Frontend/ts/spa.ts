@@ -1,5 +1,8 @@
 console.log("Script spa.ts chargé !");
 
+declare function display_friends();
+
+
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
 }
@@ -30,8 +33,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     const loged: boolean = creating || loging;
     if (username && username.length > 0) {
         afficheUser = true;
-        set_up_friend_list(username);
-        if (page == "login"){
+        if (page == "login" || page == "create_account"){
             page = "index";
         }
     }
@@ -95,10 +97,11 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             play_pong();
         if (page === "pong_tournament")
             pong_tournament();
-        if (url === "/social") {
-            // pending_request();
-            display_friends();
-        }
+        // if (url === "/social") {
+        //     // pending_request();
+        //     display_friends();
+        // }
+        display_friends();
         
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);

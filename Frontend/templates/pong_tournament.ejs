@@ -11,6 +11,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("pong_tournament"); // Appelle la fonction au chargement de la page
+      set_up_friend_list();
     });
   </script>
   <div id="user" style="display: none;"></div>
@@ -20,6 +21,7 @@
     <br>
     <br>
     <canvas id="pongCanvas" width="1000" height="500"></canvas>
+    <canvas id="friends_list" width="300" height="500"></canvas>
   </div>
   <%- include('scripts.ejs') %>
 </body>

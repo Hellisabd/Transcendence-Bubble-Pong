@@ -1,9 +1,10 @@
-
 console.log("game.js chargé");
 
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
+declare function set_up_friend_list(user: string | null)
 
+let mystatus = "online";
 
 let player_id = 0;
 
@@ -41,6 +42,12 @@ async function play_pong() {
     Disconnect_from_game();
     const user = await get_user();
 
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({"status": "inqueue"})
+    });
+    mystatus = "inqueue";
     const sock_name = window.location.host;
     Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
@@ -65,7 +72,12 @@ async function play_pong() {
 async function pong_tournament() {
     Disconnect_from_game();
     const user = await get_user();
-
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({"status": "inqueue"})
+    });
+    mystatus = "inqueue";
     inTournament = true;
     const sock_name = window.location.host;
     Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
@@ -127,6 +139,14 @@ function Disconnect_from_game() {
     socket?.close();
     Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
     Tsocket?.close();
+    if (mystatus != "online") {
+        fetch("/update_status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({"status": "online"})
+        });
+        mystatus = "online";
+    }
     socket = null;
     lobbyKey = null;
     id_tournament = 0;
@@ -138,6 +158,12 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({"status": "ingame"})
+    });
+    mystatus = "ingame";
     if (canvas) {
         const ctx = canvas.getContext("2d");
         if (!ctx) {
