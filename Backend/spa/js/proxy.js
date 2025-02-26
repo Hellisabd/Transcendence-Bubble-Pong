@@ -77,7 +77,6 @@ async function logout(token, reply) {
     let username = await get_user(token);
     if (usersession.has(token)) {
         usersession.delete(token);
-        console.log("passe dans logout", usersession.get(token));
         send_to_friend(username);
     }
 }
@@ -192,17 +191,14 @@ async function pending_request(req, reply) {
 }
 
 async function get_friends(username) {
-    console.log("passe dans online users");
     const response = await axios.post("http://users:5000/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    console.log("retour de get_friends: ", response.data);
     let friends = response.data.friends;
     if (!friends) {
         return response.data;
     }
-    console.log(`friends:: ${friends} length : ${friends.length}`);
     let friends_and_status = [];
     for (let i = 0; i < friends.length; i++) {
         if ([...usersession.values()].some(user => user.username === friends[i].username)) {
@@ -211,7 +207,6 @@ async function get_friends(username) {
         else
             friends_and_status.push({username: friends[i].username, status: "offline"});
     }
-    console.log(`friends_and_status::: ${friends_and_status}`)
     return ({success: true, friends: friends_and_status});
 }
 

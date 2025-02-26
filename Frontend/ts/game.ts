@@ -2,7 +2,6 @@ console.log("game.js chargé");
 
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
-declare function set_up_friend_list(user: string | null)
 
 let mystatus = "online";
 
@@ -114,10 +113,8 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 }
 
 function Disconnect_from_game() {
-    console.log("on deco");
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
-    console.log("deco");
     Wsocket?.close();
     socket?.close();
     Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));

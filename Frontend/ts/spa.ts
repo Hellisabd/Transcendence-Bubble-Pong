@@ -1,10 +1,10 @@
 console.log("Script spa.ts chargé !");
 
-declare function display_friends();
-declare function play_pong();
-declare function pong_tournament();
-declare function play_game2();
-declare function game2_tournament();
+declare function display_friends(): void;
+declare function play_pong(): void;
+declare function pong_tournament(): void;
+declare function play_game2(): void;
+declare function game2_tournament(): void;
 
 
 if (window.location.pathname === "/") {
@@ -95,8 +95,8 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
-        console.log("deco spa");
         Disconnect_from_game();
+        game2_Disconnect_from_game();
         if (page === "waiting_room")
             play_pong();
         if (page === "pong_tournament")

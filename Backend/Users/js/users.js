@@ -165,7 +165,6 @@ fastify.post("/get_friends", async (request, reply) => {
     const databaseContent = await db.prepare(`
         SELECT * FROM friends
         `).all();
-      console.log("database friend:::", JSON.stringify(databaseContent));
     return reply.send(JSON.stringify({success: true, friends: friends}));
 });
 
@@ -194,7 +193,6 @@ fastify.post("/add_friend", async (request, reply) => {
       // const databaseContent = await db.prepare(`
       //   SELECT * FROM friends
       //   `).all();
-      // console.log("database friend:::", JSON.stringify(databaseContent));
       return reply.send(JSON.stringify({success: false, message: "You are already friend"}));
     }
     const pending = db.prepare(`
@@ -210,7 +208,6 @@ fastify.post("/add_friend", async (request, reply) => {
           const databaseContent = await db.prepare(`
             SELECT * FROM friends
             `).all();
-          console.log(`database friend::: ${databaseContent}`);
           return reply.send(JSON.stringify({success: true, message: "This user already sent u an invitation you are now friends!"}));
       }
       else if (!pending && exisitingFriendship) {

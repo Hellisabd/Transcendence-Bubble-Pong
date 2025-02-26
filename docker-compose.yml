@@ -67,7 +67,7 @@ services:
   game2:
     build:
       context: .
-      dockerfile: ./Backend/pong/Dockerfile 
+      dockerfile: ./Backend/game2/Dockerfile 
       args: 
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
