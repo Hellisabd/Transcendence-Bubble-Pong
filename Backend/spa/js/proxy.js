@@ -147,6 +147,9 @@ async function logout(token, reply) {
 async function modify_user(req, reply) {
     console.log("envoie au container user depuis spa dans modify user");
     const response = await axios.post("http://users:5000/modify_user", req.body);
+    if (response.data.new_file_name && response.data.old_file) {
+        //modifier le file + mettre le retour du nouveau filename et dde l ancien file name dans le container user
+    }
     return reply.send(response.data);
 }
   
