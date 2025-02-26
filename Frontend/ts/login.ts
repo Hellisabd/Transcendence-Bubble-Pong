@@ -103,29 +103,29 @@ async function logout(print: boolean): Promise<void> {
 }
 
 async function uploadProfileImage() {
-    const username = await get_user();
-    const fileInput = document.getElementById('profileImage') as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    if (file) {
-        const formData = new FormData();
-        formData.append('profileImage', file);
-        
-    try {
-        const response = await fetch('/update_avatar', {
-            method: 'POST',
-            body: formData,
-          });
-        const data = await response.json();
+        const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+        const file = fileInput?.files?.[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profileImage', file);
+            
+        try {
+            const response = await fetch('/update_avatar', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
 
-      if (data.success) {
-        alert('Image uploaded successfully!');
-        console.log('Server response:', data);
-      } else {
-        console.log('Upload failed:', data);
-        alert('Failed to upload image.');
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
+        if (data.success) {
+            alert('Image uploaded successfully!');
+            console.log('Server response:', data);
+        } else {
+            console.log('Upload failed:', data);
+            alert('Failed to upload image.');
+        }
+        } catch (error) {
+        console.error('Error uploading image:', error);
+        }
     }
 }
 
@@ -169,5 +169,4 @@ async function modify_user(event: Event): Promise<void> {
             alert("Erreur lors de la modification.");
         }
     }
-}
 }

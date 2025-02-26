@@ -16,6 +16,7 @@ let usersession = new Map();
 
 async function get_avatar(request, reply) {
     const {username} = request.body;
+    console.log("username dans get_avatar", username);
     const response = await axios.post("http://users:5000/get_avatar",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
