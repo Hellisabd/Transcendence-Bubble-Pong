@@ -74,6 +74,9 @@ async function add_friend(event: Event): Promise<void> {
 
 	console.log("passe dans addfriend");
 	const friend_username = (document.getElementById("friend_username") as HTMLInputElement).value;
+	if (!sanitizeInput(friend_username)) {
+        return alert("Be carefull i can bite");
+    }
 	const myusername = await get_user();
 	if (myusername == friend_username) {
 		alert("Prends un Curly");

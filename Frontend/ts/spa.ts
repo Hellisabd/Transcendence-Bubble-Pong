@@ -2,7 +2,6 @@ console.log("Script spa.ts chargé !");
 
 declare function display_friends();
 
-
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
 }

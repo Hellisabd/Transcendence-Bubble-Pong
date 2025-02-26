@@ -9,6 +9,13 @@ type ModifyUserResponse = {
     success: boolean;
 };
 
+function sanitizeInput(input) {
+    if (typeof input !== "string") return false;
+    if (input.length > 50) return false; // Empêche les inputs trop longs
+    if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
+    return input;
+}
+
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -18,6 +25,10 @@ async function login(event: Event): Promise<void> {
     
     const email = (document.getElementById("email") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
+
+    if (!sanitizeInput(email) || !sanitizeInput(password)) {
+        return alert("Be carefull i can bite");
+    }
     
     try {
         let domain =  window.location.host.substring(0, window.location.host.indexOf(':'));
@@ -55,6 +66,10 @@ async function create_account(event: Event): Promise<void> {
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
     
+    if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(username)) {
+        return alert("Be carefull i can bite");
+    }
+
     const response = await fetch("/create_account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -98,6 +113,10 @@ async function modify_user(event: Event): Promise<void> {
     console.log(`password: ${password}`);
     console.log(`email: ${email}`);
     
+    if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(newusername)) {
+        return alert("Be carefull i can bite");
+    }
+
     const username = await get_user(); 
     console.log(`oldusername: ${username}`);
     
