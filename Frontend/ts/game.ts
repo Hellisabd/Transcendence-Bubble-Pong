@@ -69,6 +69,33 @@ async function play_pong() {
     };
 }
 
+function display_order (player1: string, player2: string, player3: string, player4: string) {
+    console.log(`${player1}, ${player2}, ${player3}, ${player4}`);
+    const canvas = document.getElementById("tournament_order") as HTMLCanvasElement;
+    if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return ;
+        }
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		console.log("passe dans display order");
+        let i = 0;
+        ctx.textAlign = "start";
+        ctx.textBaseline = "alphabetic";
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(String("Game 1 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player2), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player3 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String("Game 2 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player3), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player2 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String("Game 3 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player2 + "   vs   " + player3), 0, 20 + (i++ * 30));
+    }
+}
+
 async function pong_tournament() {
     Disconnect_from_game();
     const user = await get_user();
@@ -109,6 +136,10 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             initializeGame(data.player1, data.player2, user);
+        }
+        if (data.tournament_order) {
+            console.log(`passe dans display_order order : ${data.tournament_order}`)
+            display_order(data.tournament_order[0], data.tournament_order[1], data.tournament_order[2], data.tournament_order[3]);
         }
     };
 }

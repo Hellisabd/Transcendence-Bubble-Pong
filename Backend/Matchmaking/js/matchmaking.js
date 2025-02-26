@@ -252,13 +252,25 @@ function launchTournament(user1, user2, user3, user4, id_tournament_key_from_pla
             username2 = user4;
         }
         if (currentTournament.tournamentQueue[users[i]]) {
-            currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
+            if (currentTournament.count_game == 1){
+                currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
                     success: true, 
                     player1: username1,
                     player2: username2,
                     player_id: i % 2 + 1, // for format 0 or 1
-                    "lobbyKey": lobbyKey
+                    "lobbyKey": lobbyKey,
+                    tournament_order: users
                 }));
+            }
+            else {
+                currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
+                        success: true, 
+                        player1: username1,
+                        player2: username2,
+                        player_id: i % 2 + 1, // for format 0 or 1
+                        "lobbyKey": lobbyKey
+                    }));
+            }
         }
     }
 }
