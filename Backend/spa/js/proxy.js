@@ -132,6 +132,11 @@ async function waiting_room(req, reply) {
     reply.send(response.data);
 }
 
+async function game2_waiting_room(req, reply) {
+    const response = await axios.post("http://game2:4002/game2_waiting_room", req.body);
+    reply.send(response.data);
+}
+
 async function display_friends(username, connection) {
     console.log(`username: ${username}`);
     const data = await get_friends(username);
@@ -210,4 +215,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, game2_waiting_room };

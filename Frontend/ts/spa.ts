@@ -1,6 +1,10 @@
 console.log("Script spa.ts chargé !");
 
 declare function display_friends();
+declare function play_pong();
+declare function pong_tournament();
+declare function play_game2();
+declare function game2_tournament();
 
 
 if (window.location.pathname === "/") {
@@ -97,10 +101,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             play_pong();
         if (page === "pong_tournament")
             pong_tournament();
-        // if (url === "/social") {
-        //     // pending_request();
-        //     display_friends();
-        // }
+        if (page === "game2_waiting_room")
+            play_game2();
+        if (page === "game2_tournament")
+            game2_tournament();
         display_friends();
         
     } catch (error) {

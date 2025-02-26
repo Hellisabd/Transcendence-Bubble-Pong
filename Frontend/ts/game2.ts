@@ -1,4 +1,4 @@
-console.log("game.js chargé");
+console.log("game2.js chargé");
 
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
@@ -21,7 +21,7 @@ let Tsocket: WebSocket | null = null;
 let disp: boolean = true;
 let win: number = 0;
 
-async function play_pong() {
+async function play_game2() {
     Disconnect_from_game();
     const user = await get_user();
 
@@ -32,7 +32,7 @@ async function play_pong() {
     });
     mystatus = "inqueue";
     const sock_name = window.location.host;
-    Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
+    Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/game2");
     Wsocket.onopen = () => {
         console.log("✅ WebSocket waiting connectée !");
         Wsocket?.send(JSON.stringify({ username: user }));
@@ -52,7 +52,7 @@ async function play_pong() {
     };
 }
 
-async function pong_tournament() {
+async function game2_tournament() {
     Disconnect_from_game();
     const user = await get_user();
     fetch("/update_status", {
@@ -63,7 +63,7 @@ async function pong_tournament() {
     mystatus = "inqueue";
     inTournament = true;
     const sock_name = window.location.host;
-    Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
+    Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/game2_tournament");
     Tsocket.onopen = () => {
         console.log("✅ WebSocket tournament connectée !");
         Tsocket?.send(JSON.stringify({ username: user, init: true }));
@@ -139,7 +139,7 @@ function Disconnect_from_game() {
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
+    const canvas = document.getElementById("game2Canvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
@@ -153,7 +153,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             return ;
         }
         const sock_name = window.location.host
-        socket = new WebSocket("wss://" + sock_name + "/ws/pong");
+        socket = new WebSocket("wss://" + sock_name + "/ws/game2");
         if (!socket)
             return ;
         socket.onopen = () => {
