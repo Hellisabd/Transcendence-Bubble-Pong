@@ -3,8 +3,69 @@ const axios = require("axios");
 const fastifyCookie = require("@fastify/cookie");
 const ejs = require("ejs");
 const fs = require("fs");
+const { pipeline } = require('stream');
+const util = require('util');
+const path = require('path');
+const pump = util.promisify(pipeline);
+
+fastify.register(require('@fastify/multipart'), {
+  attachFieldsToBody: true,
+});
 
 let usersession = new Map();
+
+async function get_avatar(request, reply) {
+    const {username} = request.body;
+    const response = await axios.post("http://users:5000/get_avatar",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return reply.send(response.data.avatar_name);
+}
+
+async function update_avatar(req, reply) {
+    try {
+        console.log("passe dans update avatr");
+      const token = req.cookies.session; 
+      const username = await get_user(token);
+  
+      if (!username) {
+        return reply.send({ success: false, message: 'Utilisateur non authentifié' });
+      }
+  
+      const data = await req.file();
+      if (!data) {
+        return reply.send({ success: false, message: "Aucun fichier reçu." });
+      }
+  
+      const fileExtension = path.extname(data.filename);
+      const filePath = '/usr/src/app/Frontend/avatar';
+      const filename = `${username}${fileExtension}`;
+      const fullPath = path.join(filePath, filename);
+  
+      // Vérifiez que le dossier d'avatar existe
+      if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath, { recursive: true });
+      }
+  
+      await pump(data.file, fs.createWriteStream(fullPath));
+      const response = await axios.post("http://users:5000/update_avatar",
+        { username: username , avatar_name: filename },
+        { headers: { "Content-Type": "application/json" } }
+    );
+    if (response.data.success) {
+        console.log(`Fichier téléchargé avec succès : ${fullPath}`);
+        reply.send({ success: true, message: "Avatar mis à jour avec succès." });
+    }
+    else {
+        console.log("data.succes is false");
+        reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
+    }
+    } catch (error) {
+      console.error("Erreur lors de l'upload de l'avatar :", error);
+      reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
+    }
+  };
 
 fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET,
@@ -83,11 +144,11 @@ async function logout(token, reply) {
 }
 
 async function modify_user(req, reply) {
-    const response = await axios.post("http://users:5000/modify_user", req.body, {
-        withCredentials: true
-    });
-    reply.send(response.data);
+    console.log("envoie au container user depuis spa dans modify user");
+    const response = await axios.post("http://users:5000/modify_user", req.body);
+    return reply.send(response.data);
 }
+  
 
 async function update_history(req, reply) {
     const response = await axios.post("http://users:5000/update_history", req.body);
@@ -210,4 +271,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, get_avatar, update_avatar };

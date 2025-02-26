@@ -30,6 +30,8 @@ RUN npm install
 RUN npm install ejs
 RUN npm install -g typescript
 RUN npm install pino-pretty
+RUN npm install formidable
+RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 
 USER spa

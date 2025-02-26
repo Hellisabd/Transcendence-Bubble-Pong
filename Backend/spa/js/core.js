@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends } = require("./proxy");
+const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, get_avatar, update_avatar } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -21,6 +21,9 @@ const fs = require('fs');
 // const WebSocket = require("ws");
 const axios = require("axios"); // Pour faire des requêtes HTTP
 const fastifyCookie = require("@fastify/cookie");
+const multipart = require('@fastify/multipart');
+
+fastify.register(multipart);
 
 // let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
 // pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
@@ -83,6 +86,8 @@ fastify.register(async function (fastify) {
 
 fastify.post("/create_account", create_account);
 
+fastify.post("/update_avatar", update_avatar);
+
 fastify.post("/pending_request", pending_request);
 
 fastify.post("/modify_user", modify_user);
@@ -100,6 +105,8 @@ fastify.post("/end_tournament", end_tournament);
 fastify.post("/waiting_room", waiting_room);
 
 fastify.post("/add_friend", add_friend);
+
+fastify.post("/get_avatar", get_avatar);
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page

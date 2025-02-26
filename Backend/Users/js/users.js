@@ -48,7 +48,8 @@ db.prepare(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    avatar_name TEXT DEFAULT 'default.jpg'
   )
 `).run();
 
@@ -260,21 +261,48 @@ fastify.post("/login", async (request, reply) => {
 
 
 fastify.post("/modify_user", async (request, reply) => {
+  console.log("Passe dans modify_user route");
+
   const { email, password, newusername, username } = request.body;
+  console.log("Données reçues :", { email, password, newusername, username });
+
   if (!email || !password || !newusername || !username) {
+    console.error("Champs manquants :", { email, password, newusername, username });
     return reply.code(400).send({ success: false, error: "Champs manquants" });
   }
+
   try {
-    const newpassword = await bcrypt.hash(password, SALT_ROUNDS); 
-    const stmt = db.prepare("UPDATE users SET username = ?, email = ?, password = ? WHERE username = ?");
-    const result = stmt.run(newusername, email, newpassword, username);
-    if (result.changes > 0) {
-      return reply.send({succes: true});
+    console.log("Recherche de l'avatar dans la base de données pour l'utilisateur :", username);
+    let filename = await db.prepare("SELECT avatar_name FROM users WHERE username = ?").get(username);
+    console.log("Avatar trouvé :", filename);
+
+    if (filename && filename.avatar_name !== 'default.jpg') {
+      const extension = filename.avatar_name.split('.').pop();
+      filename = newusername + '.' + extension;
     } else {
-      return reply.send({success: false});
+      filename = filename.avatar_name;
+      console.log("Aucun avatar spécifique trouvé ou avatar par défaut utilisé.");
+    }
+
+    console.log("Génération du hash du mot de passe");
+    const newpassword = await bcrypt.hash(password, SALT_ROUNDS);
+    console.log("Hash du mot de passe généré avec succès");
+
+    console.log("Mise à jour de la base de données avec les nouvelles informations", newusername, email, newpassword, filename, username);
+    const result = await db.prepare("UPDATE users SET username = ?, email = ?, password = ?, avatar_name = ? WHERE username = ?")
+                            .run(newusername, email, newpassword, filename, username);
+    console.log("Résultat de la mise à jour :", result);
+
+    if (result.changes > 0) {
+      console.log("Changements effectués avec succès");
+      return reply.send({ success: true });
+    } else {
+      console.warn("Aucun changement effectué dans la base de données");
+      return reply.send({ success: false });
     }
   } catch (error) {
-    return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+    console.error("Erreur lors de l'exécution de la requête :", error);
+    return reply.send({ success: false, error: "Erreur interne du serveur" });
   }
 });
 
@@ -282,13 +310,13 @@ fastify.get("/me", async (request, reply) => {
   try {
     const token = request.cookies.session;
     if (!token) {
-      return reply.code(402).send({success: false, error: "Non autorise"});
+      return reply.send({success: false, error: "Non autorise"});
     }
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return reply.send({ success: true, user : decoded});
   } catch {
-    return reply.code(401).send({ success: false, error: "Token invalide" });
+    return reply.send({ success: false, error: "Token invalide" });
   }
 });
 
@@ -434,4 +462,32 @@ fastify.post("/create_account", async (request, reply) => {
     console.error("❌ Erreur lors de la création du compte :", error.message);
     return reply.code(500).send({ error: "Erreur interne du serveur" });
   }
+});
+
+fastify.post("/get_avatar",  async (request, reply) => {
+    const {username} = request.body;
+    console.log(`userrrrrname::::::: ${username}`);
+    if (!username)
+      return reply.send({success: false});
+    const avatar_name = await db.prepare(`
+      SELECT avatar_name from users
+      WHERE username = ?
+      `).get(username);
+    return reply.send({success: true, avatar_name: avatar_name});
+});
+
+fastify.post("/update_avatar",  async (request, reply) => {
+  const {avatar_name, username} = request.body;
+  console.log("avatar:", avatar_name);
+  console.log("username:", username);
+  if (!avatar_name || !username)
+    return reply.send({success: false});
+  const result = await db.prepare(`
+    UPDATE users SET avatar_name = ?
+    WHERE username = ?
+    `).run(avatar_name, username);
+    if (result.changes > 0)
+      return reply.send({success: true, avatar_name: avatar_name});
+    console.log("ici");
+    return reply.send({success: false});
 });

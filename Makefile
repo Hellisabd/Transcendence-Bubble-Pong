@@ -36,6 +36,7 @@ users :
 build :
 	docker-compose down
 	docker-compose build
+	docker-compose up
 
 clean :
 	docker-compose down
@@ -47,6 +48,7 @@ fclean :
 hardclean:
 	@if [ -n "$$(docker ps -aq)" ]; then docker rm -f $$(docker ps -aq); fi
 	@if [ -n "$$(docker images -aq)" ]; then docker rmi -f $$(docker images -aq); fi
+	docker-compose down --volumes --remove-orphans
 
 
 git	: fclean

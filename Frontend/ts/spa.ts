@@ -84,7 +84,15 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         // ✅ Attendre la valeur correcte de `get_user()`
         if (afficheUser) {
-            userDiv.innerHTML = `prout: ${username}`;
+            const response = await fetch("/get_avatar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: username})
+            });
+            const response_avatar = await response.json();
+            const avatar_name = await response_avatar.avatar_name;
+            userDiv.innerHTML = `prout: ${username}
+            <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
             userDiv.style.display = "block";
         }
         if (addHistory) {
