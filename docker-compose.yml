@@ -105,6 +105,11 @@ services:
     image: prom/prometheus:latest
     volumes:
       - ./Backend/monitoring/Prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prom-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.path=/prometheus"
     ports:
       - "9090:9090"
     depends_on:
@@ -113,12 +118,16 @@ services:
       - prom-network
     env_file:
       - .env
+    restart: unless-stopped
+
 
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
@@ -148,3 +157,5 @@ networks:
 
 volumes:
   sqlite_data:
+  grafana:
+  prom-data:
