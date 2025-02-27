@@ -27,7 +27,6 @@ fastify.register(multipart);
 
 // let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
 // pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
-console.log(`on est la:::: ${__dirname}`)
 
 fastify.register(cors, {
   origin: "http://k1r4p7:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
@@ -116,7 +115,6 @@ fastify.get('/:page', async (request, reply) => {
     page = 'index'
   let filePath = "Frontend/templates/" + page + ".ejs"
   let fileName =  page + ".ejs"
-  console.log(`file path: ${filePath}`)
   if (page.includes('..') || path.isAbsolute(page)) {
     return reply.code(400).send('Requête invalide');
   }

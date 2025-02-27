@@ -21,7 +21,6 @@ declare function get_user(): Promise<string | null>;
 
 async function login(event: Event): Promise<void> {
     event.preventDefault();
-    console.log("login appelé");
     
     const email = (document.getElementById("email") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
@@ -38,12 +37,7 @@ async function login(event: Event): Promise<void> {
             body: JSON.stringify({ email, password, "domain": domain })
         });
 
-        console.log(`email: ${email}`);
-        console.log(`password: ${password}`);
-        console.log("domain:", domain);
-        
         const result: LoginResponse = await response.json();
-        console.log(`result::: ${result.success}`);
 
         if (result.success) {
             alert(JSON.stringify(result));
@@ -53,14 +47,12 @@ async function login(event: Event): Promise<void> {
             alert(JSON.stringify(result));
         }
     } catch (error) {
-        console.error("Erreur réseau :", error);
         alert("Erreur de connexion au serveur.");
     }
 }
 
 async function create_account(event: Event): Promise<void> {
     event.preventDefault();
-    console.log("create account appelé");
     
     const username = (document.getElementById("username") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
@@ -76,12 +68,7 @@ async function create_account(event: Event): Promise<void> {
         body: JSON.stringify({ username, password, email })
     });
     
-    console.log(`username: ${username}`);
-    console.log(`password: ${password}`);
-    console.log(`email: ${email}`);
-    
     const result: LoginResponse = await response.json();
-    console.log(`result success:: ${result.success}`);
 
     if (result.success) {
         alert("Compte créé!");
@@ -94,7 +81,6 @@ async function create_account(event: Event): Promise<void> {
 async function logout(print: boolean): Promise<void> {
     await fetch("/logout", { method: "GET" });
     
-    console.log(`print: ${print}`);
     if (print) {
         alert("Déconnexion!");
         navigateTo("", true, null);
@@ -118,9 +104,7 @@ async function uploadProfileImage() {
 
         if (data.success) {
             alert('Image uploaded successfully!');
-            console.log('Server response:', data);
         } else {
-            console.log('Upload failed:', data);
             alert('Failed to upload image.');
         }
         } catch (error) {
@@ -136,17 +120,11 @@ async function modify_user(event: Event): Promise<void> {
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
     
-    console.log(`newusername: ${newusername}`);
-    console.log(`password: ${password}`);
-    console.log(`email: ${email}`);
-    
     if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(newusername)) {
         return alert("Be carefull i can bite");
     }
 
     const username = await get_user(); 
-    console.log(`oldusername: ${username}`);
-    
     if (!username) {
         alert("Impossible de récupérer l'utilisateur!");
 

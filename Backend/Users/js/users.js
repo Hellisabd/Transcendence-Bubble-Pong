@@ -131,7 +131,6 @@ fastify.post("/pending_request", async (request, reply) => {
       SELECT * FROM friends
       WHERE friend_id = ? AND status = 'pending'
       `).run(user_id);
-    console.log(pending_request);
 });
 
 fastify.post("/get_friends", async (request, reply) => {
@@ -186,16 +185,11 @@ fastify.post("/add_friend", async (request, reply) => {
     if (!user_to_add_id) {
       return reply.send(JSON.stringify({success: false, message: "This username does not exist"}));
     }
-    console.log(`user_sending_id: ${user_sending_id}, user_to_add_id: ${user_to_add_id}`);
     const exisitingFriendship = db.prepare(`
       SELECT * FROM friends
       WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)
       `).get(user_sending_id, user_to_add_id, user_to_add_id, user_sending_id);
     if (exisitingFriendship && exisitingFriendship.status != "pending") {
-      // const databaseContent = await db.prepare(`
-      //   SELECT * FROM friends
-      //   `).all();
-      // console.log("database friend:::", JSON.stringify(databaseContent));
       return reply.send(JSON.stringify({success: false, message: "You are already friend"}));
     }
     const pending = db.prepare(`
@@ -211,7 +205,6 @@ fastify.post("/add_friend", async (request, reply) => {
           const databaseContent = await db.prepare(`
             SELECT * FROM friends
             `).all();
-          console.log(`database friend::: ${databaseContent}`);
           return reply.send(JSON.stringify({success: true, message: "This user already sent u an invitation you are now friends!"}));
       }
       else if (!pending && exisitingFriendship) {
@@ -261,11 +254,9 @@ fastify.post("/login", async (request, reply) => {
 
 
 fastify.post("/modify_user", async (request, reply) => {
-  console.log("Passe dans modify_user route");
   let old_file_name = null;
   let new_file_name = null;
   const { email, password, newusername, username } = request.body;
-  console.log("Données reçues :", { email, password, newusername, username });
 
   if (!email || !password || !newusername || !username) {
     console.error("Champs manquants :", { email, password, newusername, username });
@@ -273,10 +264,7 @@ fastify.post("/modify_user", async (request, reply) => {
   }
 
   try {
-    console.log("Recherche de l'avatar dans la base de données pour l'utilisateur :", username);
     let filename = await db.prepare("SELECT avatar_name FROM users WHERE username = ?").get(username);
-    console.log("Avatar trouvé :", filename);
-
     if (filename && filename.avatar_name !== 'default.jpg') {
       const extension = filename.avatar_name.split('.').pop();
       old_file_name = filename.avatar_name;
@@ -284,27 +272,18 @@ fastify.post("/modify_user", async (request, reply) => {
       new_file_name = filename;
     } else {
       filename = filename.avatar_name;
-      console.log("Aucun avatar spécifique trouvé ou avatar par défaut utilisé.");
     }
 
-    console.log("Génération du hash du mot de passe");
     const newpassword = await bcrypt.hash(password, SALT_ROUNDS);
-    console.log("Hash du mot de passe généré avec succès");
 
-    console.log("Mise à jour de la base de données avec les nouvelles informations", newusername, email, newpassword, filename, username);
     const result = await db.prepare("UPDATE users SET username = ?, email = ?, password = ?, avatar_name = ? WHERE username = ?")
                             .run(newusername, email, newpassword, filename, username);
-    console.log("Résultat de la mise à jour :", result);
-
     if (result.changes > 0) {
-      console.log("Changements effectués avec succès");
       return reply.send({ success: true , old_file_name: old_file_name, new_file_name: new_file_name});
     } else {
-      console.warn("Aucun changement effectué dans la base de données");
       return reply.send({ success: false });
     }
   } catch (error) {
-    console.error("Erreur lors de l'exécution de la requête :", error);
     return reply.send({ success: false, error: "Erreur interne du serveur" });
   }
 });
@@ -347,7 +326,6 @@ fastify.post("/get_history", async (request, reply) => {
       ORDER BY created_at DESC;
       `).all(username, username, username, username);
 
-    console.log("history_tournament: ", history_tournament);
     reply.send(JSON.stringify({history: history, history_tournament: history_tournament}));
   });
   
@@ -384,7 +362,6 @@ fastify.post("/get_history", async (request, reply) => {
     `).get(player2, player1, player1, player2);
 
     if (recentMatch) {
-      console.log("Match déjà enregistré");
       continue;
     }
 
@@ -427,7 +404,6 @@ fastify.post("/update_history", async (request, reply) => {
     LIMIT 1
   `).get(player2, player1, player1, player2);
   if (recentMatch) {
-    console.log("match deja enregistrer");
     return ;
   }
 
@@ -435,7 +411,6 @@ fastify.post("/update_history", async (request, reply) => {
             (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
             VALUES (?, ?, ?, ?, ?, ?)`)
             .run(player1, player2, winner, looser, score_player1, score_player2);
-  console.log("Match enregistre");
 });
 
 // 🔹 Route POST pour créer un compte
@@ -469,7 +444,6 @@ fastify.post("/create_account", async (request, reply) => {
 
 fastify.post("/get_avatar",  async (request, reply) => {
     const {username} = request.body;
-    console.log(`userrrrrname::::::: ${username}`);
     if (!username)
       return reply.send({success: false});
     const avatar_name = await db.prepare(`
@@ -481,8 +455,6 @@ fastify.post("/get_avatar",  async (request, reply) => {
 
 fastify.post("/update_avatar",  async (request, reply) => {
   const {avatar_name, username} = request.body;
-  console.log("avatar:", avatar_name);
-  console.log("username:", username);
   if (!avatar_name || !username)
     return reply.send({success: false});
   const result = await db.prepare(`
@@ -491,6 +463,5 @@ fastify.post("/update_avatar",  async (request, reply) => {
     `).run(avatar_name, username);
     if (result.changes > 0)
       return reply.send({success: true, avatar_name: avatar_name});
-    console.log("ici");
     return reply.send({success: false});
 });

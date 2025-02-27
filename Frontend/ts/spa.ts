@@ -10,7 +10,6 @@ async function set_user(): Promise<void> {
     const userDiv = document.getElementById("user") as HTMLDivElement;
     
     const username =  await get_user();
-    console.log(`✅ Utilisateur récupéré : ${username}`);
     
     if (username) {
         userDiv.innerHTML = `👤 ${username}`;
@@ -23,10 +22,8 @@ async function set_user(): Promise<void> {
 
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-    console.log("Navigating to:", page);
     let afficheUser = false;
     const username: string | null = await get_user();
-    console.log(`✅ Utilisateur récupéré : ${username}`);
     const loging: boolean = page == "login"; 
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
@@ -37,7 +34,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
     }
     if (!loged && !afficheUser) {
-        console.log("passe dans recur");
         navigateTo("login", true, null);
         return ;
     }
@@ -53,7 +49,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     try {
         let response: Response | null = null;
         if (url === "/end_tournament") {
-            console.log("ask for end tournament");
             response = await fetch("/end_tournament", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -98,7 +93,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
-        console.log("deco spa");
         Disconnect_from_game();
         if (page === "waiting_room")
             play_pong();
@@ -134,7 +128,6 @@ async function get_user(): Promise<string> {
 // Gestion de l'historique
 window.onpopstate = function(event: PopStateEvent): void {
     if (event.state) {
-		console.log("Navigating back/forward to:", event.state.page);
         navigateTo(event.state.page, false, null);
 	};
 }
