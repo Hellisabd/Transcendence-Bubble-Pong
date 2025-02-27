@@ -146,7 +146,7 @@ services:
     depends_on:
       - nginx
     command:
-      - "--nginx.scrape-uri=http://nginx:8000/stub_status"
+      - "--nginx.scrape-uri=https://nginx:8000/stub_status"
 
 networks:
   spa-network:
