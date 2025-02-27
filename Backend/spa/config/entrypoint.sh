@@ -2,7 +2,10 @@
 
 npx tsc
 
+chown -R spa:spa /usr/src/app/Frontend/avatar
+
 npm start &
+
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/ts; do
     echo "Changement détecté ! Redémarrage du service..."
