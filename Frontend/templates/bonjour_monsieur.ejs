@@ -11,6 +11,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
           navigateTo("bonjour_monsieur"); // Appelle la fonction au chargement de la page
+          set_up_friend_list();
         });
       </script>
     <div id="user" style="display: none;"></div>
@@ -18,7 +19,8 @@
         <h1>Bonjour Monsieur</h1>
         <button class="btn" onclick="navigateTo('index')">HOME</button>
         <button class="btn" onclick="logout(1)">Logout</button>
-    </div>
+        <canvas id="friends_list" width="300" height="500"></canvas>
+      </div>
     <%- include('scripts.ejs') %>
 </body>
 </html>

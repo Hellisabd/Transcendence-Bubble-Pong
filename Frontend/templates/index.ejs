@@ -11,6 +11,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("index"); // Appelle la fonction au chargement de la page
+      set_up_friend_list();
     });
   </script>
   <div id="user" style="display: none;"></div>
@@ -22,8 +23,10 @@
     <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
     <button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
     <button class="btn" onclick="navigateTo('history')">History</button>
+    <button class="btn" onclick="navigateTo('social')">Social</button>
     <button class="btn" onclick="logout(1)">Logout</button>
     <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
+    <canvas id="friends_list" width="300" height="500"></canvas>
   </div>
   <%- include('scripts.ejs') %>
 </body>

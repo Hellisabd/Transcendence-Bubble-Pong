@@ -14,7 +14,7 @@ WHITE = \033[0;97m
 
 RM	= @rm -rf
 
-all :
+all : 
 	@if ! grep -q "127.0.0.1 transcendence" /etc/hosts; then \
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
@@ -43,6 +43,12 @@ clean :
 
 fclean :
 	docker-compose down --volumes --remove-orphans
+
+hardclean:
+	@if [ -n "$$(docker ps -aq)" ]; then docker rm -f $$(docker ps -aq); fi
+	@if [ -n "$$(docker images -aq)" ]; then docker rmi -f $$(docker images -aq); fi
+	docker-compose down --volumes --remove-orphans
+
 
 git	: fclean
 	@git add . > /dev/null 2>&1

@@ -30,12 +30,16 @@ RUN npm install
 RUN npm install ejs
 RUN npm install -g typescript
 RUN npm install pino-pretty
+RUN npm install formidable
+RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 RUN npm install -g tailwindcss@^3.3.0
 RUN npm install tailwindcss@^3.3.0
 
+USER spa
+
 # Exposer le port utilisé par spa
-EXPOSE 3000
+EXPOSE 7000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]

@@ -11,6 +11,7 @@
 	  "@fastify/view": "^7.2.0",
 	  "better-sqlite3": "^9.0.0",
 	  "jsonwebtoken": "^9.0.2",
+	  "@fastify/websocket": "^7.2.0",
 	  "@fastify/cors": "^8.0.0",
 	  "@fastify/cookie": "^7.0.0"
 	}
