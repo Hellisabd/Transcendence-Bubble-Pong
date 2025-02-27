@@ -44,9 +44,9 @@ clean :
 fclean : 
 	docker-compose down --volumes --remove-orphans
 
-hardclean: 
-	docker rm -f $(docker ps -aq)
-	docker rmi -f $(docker images -aq)
+hardclean:
+	@if [ -n "$$(docker ps -aq)" ]; then docker rm -f $$(docker ps -aq); fi
+	@if [ -n "$$(docker images -aq)" ]; then docker rmi -f $$(docker images -aq); fi
 
 git	: fclean
 	@git add . > /dev/null 2>&1

@@ -4,9 +4,11 @@ fastify.register(require("@fastify/websocket"));
 let lobbies = {};
 
 let move = Math.PI / 50;
+let paddle_width = Math.PI * 0.08;
 const arena_height = 700;
 const arena_width = 700;
 const ballRadius = 10;
+const arena_radius = 350;
 
 fastify.register(async function (fastify) {
     fastify.get("/ws/game2", { websocket: true }, (connection, req) => {
@@ -23,7 +25,7 @@ fastify.register(async function (fastify) {
                     players: [],
                     socketOrder: [],
                     gameState: {
-                        ball: { x: 500, y: 250 },
+                        ball: { x: 200, y: 400 , oldpos: {x: 350, y: 350} },
                         paddles: { player1: { name: data.username1, angle: Math.PI }, player2: { name: data.username2, angle: 0 } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false, right: false, left: false }, player2: { up: false, down: false, right: false, left: false } },
@@ -54,8 +56,7 @@ function resetBall(lobbyKey) {
     if (!lobbies[lobbyKey])
         return ;
     gameState = lobbies[lobbyKey].gameState;
-    gameState.ball.x = arena_width / 2;
-    gameState.ball.y = arena_height / 2;
+    randBallPos(gameState);
     gameState.ballSpeed.ballSpeedX /= 2;
     if (gameState.ballSpeed.ballSpeedX < 3.2)
         gameState.ballSpeed.ballSpeedX = 3.2;
@@ -80,162 +81,25 @@ function update(lobbyKey) {
     }
     let gameState = lobbies[lobbyKey].gameState;
 
-    //PLAYER 1
-    if ((gameState.paddles.player1.angle >= 0 && gameState.paddles.player1.angle <= Math.PI / 2) || (gameState.paddles.player1.angle <= - Math.PI * 3 / 2 && gameState.paddles.player1.angle >= - Math.PI * 2)){
-        if (gameState.moving.player1.up) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.down) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.right) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.left) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-    }
-
-    if ((gameState.paddles.player1.angle >= Math.PI / 2 && gameState.paddles.player1.angle <= Math.PI) || (gameState.paddles.player1.angle <= - Math.PI && gameState.paddles.player1.angle >= - Math.PI * 3 / 2)) {
-        if (gameState.moving.player1.up) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.down) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.right) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.left) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-    }
-
-    if ((gameState.paddles.player1.angle >= Math.PI && gameState.paddles.player1.angle <= Math.PI * 3 / 2) || (gameState.paddles.player1.angle <= - Math.PI / 2 && gameState.paddles.player1.angle >= - Math.PI)) {
-        if (gameState.moving.player1.up) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.down) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.right) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.left) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-    }
-
-    if ((gameState.paddles.player1.angle >= Math.PI * 3 / 2 && gameState.paddles.player1.angle <= Math.PI * 2) || (gameState.paddles.player1.angle <= 0 && gameState.paddles.player1.angle >= - Math.PI / 2)) {
-        if (gameState.moving.player1.up) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.down) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.right) {
-            gameState.paddles.player1.angle += move;
-            if (gameState.paddles.player1.angle > 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-        if (gameState.moving.player1.left) {
-            gameState.paddles.player1.angle -= move;
-            if (gameState.paddles.player1.angle < - 2 * Math.PI)
-                gameState.paddles.player1.angle = 0;
-        }
-    }
-
-    //PLAYER 2
-    if (gameState.paddles.player2.angle >= 0 && gameState.paddles.player2.angle <= Math.PI / 2) {
-        if (gameState.moving.player2.up) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.down) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.right) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.left) {
-            gameState.paddles.player2.angle += move;
-        }
-    }
-
-    if (gameState.paddles.player2.angle >= Math.PI / 2 && gameState.paddles.player2.angle <= Math.PI) {
-        if (gameState.moving.player2.up) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.down) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.right) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.left) {
-            gameState.paddles.player2.angle += move;
-        }
-    }
-
-    if (gameState.paddles.player2.angle >= Math.PI && gameState.paddles.player2.angle <= Math.PI * 3 / 2) {
-        if (gameState.moving.player2.up) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.down) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.right) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.left) {
-            gameState.paddles.player2.angle -= move;
-        }
-    }
-
-    if (gameState.paddles.player2.angle >= Math.PI * 3 / 2 && gameState.paddles.player2.angle <= Math.PI * 2) {
-        if (gameState.moving.player2.up) {
-            gameState.paddles.player2.angle -= move;
-        }
-        if (gameState.moving.player2.down) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.right) {
-            gameState.paddles.player2.angle += move;
-        }
-        if (gameState.moving.player2.left) {
-            gameState.paddles.player2.angle -= move;
-        }
-    }
+    move_paddle(gameState.paddles.player1, gameState.moving.player1, gameState.paddles.player2);
+    move_paddle(gameState.paddles.player2, gameState.moving.player2, gameState.paddles.player1);
 
     gameState.ball.x += gameState.ballSpeed.ballSpeedX;
     gameState.ball.y += gameState.ballSpeed.ballSpeedY;
+
+    let dx = gameState.ball.x - arena_width / 2;
+    let dy = gameState.ball.y - arena_height / 2;
+    let ball_dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (ball_dist + ballRadius + 5 > arena_radius) {
+        let normalX = dx / ball_dist;
+        let normalY = dy / ball_dist;
+    
+        let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+    
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+    }
 
     // if (gameState.ball.y + ballRadius > arena_height || gameState.ball.y - ballRadius < 0)
     //     gameState.ballSpeed.ballSpeedY = -gameState.ballSpeed.ballSpeedY;
@@ -259,6 +123,31 @@ function update(lobbyKey) {
     // }
 }
 
+function circular_distance(a, b) {
+    return Math.min(Math.abs(a - b), 2 * Math.PI - Math.abs(a - b));
+}
+
+function move_paddle(paddle, movement, opponent) {
+    let min_distance = paddle_width * 2;
+    let new_angle = paddle.angle;
+
+    if (movement.up || movement.left) {
+        new_angle -= move;
+        if (circular_distance(new_angle, opponent.angle) < min_distance) {
+            new_angle = (opponent.angle + min_distance) % (2 * Math.PI);
+        }
+    }
+
+    if (movement.down || movement.right) {
+        new_angle += move;
+        if (circular_distance(new_angle, opponent.angle) < min_distance) {
+            new_angle = (opponent.angle - min_distance + 2 * Math.PI) % (2 * Math.PI);
+        }
+    }
+
+    paddle.angle = new_angle;
+}
+
 function new_game(lobbyKey) {
     if (!lobbies[lobbyKey])
         return ;
@@ -268,7 +157,6 @@ function new_game(lobbyKey) {
     gameState.score.player2 = 0;
     gameState.ballSpeed.ballSpeedX = 3.2;
     gameState.ballSpeed.ballSpeedY = 3.2;
-    move = 5;
     resetBall(lobbyKey);
 }
 
@@ -413,9 +301,20 @@ function handleGameInput(data, lobbyKey) {
             lobbies[lobbyKey].players.forEach(client => {
                   client.socket.send(JSON.stringify({ start: "start" }));
             });
+            randBallPos(gameState);
             startGameLoop(lobbyKey);
         }
     }
+}
+
+function randBallPos(gameState) {
+    gameState.ball.x = Math.floor(Math.random() * arena_width);
+    gameState.ball.y = Math.floor(Math.random() * arena_height);
+    let dx = gameState.ball.x - arena_width / 2;
+    let dy = gameState.ball.y - arena_height / 2;
+    let ball_dist = Math.sqrt(dx * dx + dy * dy);
+    if (ball_dist + ballRadius >= arena_radius)
+        randBallPos(gameState);
 }
 
 function startGameLoop(lobbyKey) {
