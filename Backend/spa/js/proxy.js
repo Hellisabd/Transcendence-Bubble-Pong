@@ -147,8 +147,15 @@ async function logout(token, reply) {
 async function modify_user(req, reply) {
     console.log("envoie au container user depuis spa dans modify user");
     const response = await axios.post("http://users:5000/modify_user", req.body);
-    if (response.data.new_file_name && response.data.old_file) {
-        //modifier le file + mettre le retour du nouveau filename et dde l ancien file name dans le container user
+    if (response.data.new_file_name && response.data.old_file_name &&  response.data.old_file_name != "default.jpg") {
+        const pathtoimage = "/usr/src/app/Frontend/avatar/";
+        const oldFilePath = `${pathtoimage}${response.data.old_file_name}`;
+        const newFilePath = `${pathtoimage}${response.data.new_file_name}`;
+        console.log(oldFilePath);
+        console.log(newFilePath);
+        if (fs.existsSync(oldFilePath)) { 
+            fs.renameSync(oldFilePath, newFilePath);
+        }
     }
     return reply.send(response.data);
 }

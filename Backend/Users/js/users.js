@@ -262,7 +262,8 @@ fastify.post("/login", async (request, reply) => {
 
 fastify.post("/modify_user", async (request, reply) => {
   console.log("Passe dans modify_user route");
-
+  let old_file_name = null;
+  let new_file_name = null;
   const { email, password, newusername, username } = request.body;
   console.log("Données reçues :", { email, password, newusername, username });
 
@@ -278,7 +279,9 @@ fastify.post("/modify_user", async (request, reply) => {
 
     if (filename && filename.avatar_name !== 'default.jpg') {
       const extension = filename.avatar_name.split('.').pop();
+      old_file_name = filename.avatar_name;
       filename = newusername + '.' + extension;
+      new_file_name = filename;
     } else {
       filename = filename.avatar_name;
       console.log("Aucun avatar spécifique trouvé ou avatar par défaut utilisé.");
@@ -295,7 +298,7 @@ fastify.post("/modify_user", async (request, reply) => {
 
     if (result.changes > 0) {
       console.log("Changements effectués avec succès");
-      return reply.send({ success: true });
+      return reply.send({ success: true , old_file_name: old_file_name, new_file_name: new_file_name});
     } else {
       console.warn("Aucun changement effectué dans la base de données");
       return reply.send({ success: false });
