@@ -31,8 +31,8 @@ RUN npm install ejs
 RUN npm install -g typescript
 RUN npm install pino-pretty
 RUN npm install @fastify/cookie
-
-USER spa
+RUN npm install -g tailwindcss@^3.3.0
+RUN npm install tailwindcss@^3.3.0
 
 # Exposer le port utilisé par spa
 EXPOSE 3000

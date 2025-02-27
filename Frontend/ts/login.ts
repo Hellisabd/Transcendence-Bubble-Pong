@@ -15,10 +15,10 @@ declare function get_user(): Promise<string | null>;
 async function login(event: Event): Promise<void> {
     event.preventDefault();
     console.log("login appelé");
-    
+
     const email = (document.getElementById("email") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
-    
+
     try {
         let domain =  window.location.host.substring(0, window.location.host.indexOf(':'));
         const response = await fetch("/login", {
@@ -30,7 +30,7 @@ async function login(event: Event): Promise<void> {
         console.log(`email: ${email}`);
         console.log(`password: ${password}`);
         console.log("domain:", domain);
-        
+
         const result: LoginResponse = await response.json();
         console.log(`result::: ${result.success}`);
 
@@ -49,21 +49,21 @@ async function login(event: Event): Promise<void> {
 async function create_account(event: Event): Promise<void> {
     event.preventDefault();
     console.log("create account appelé");
-    
-    const username = (document.getElementById("username") as HTMLInputElement).value;
-    const password = (document.getElementById("password") as HTMLInputElement).value;
-    const email = (document.getElementById("email") as HTMLInputElement).value;
-    
+
+    const username = (document.getElementById("name") as HTMLInputElement).value;
+    const password = (document.getElementById("password_creation") as HTMLInputElement).value;
+    const email = (document.getElementById("email_creation") as HTMLInputElement).value;
+
     const response = await fetch("/create_account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, email })
     });
-    
+
     console.log(`username: ${username}`);
     console.log(`password: ${password}`);
     console.log(`email: ${email}`);
-    
+
     const result: LoginResponse = await response.json();
     console.log(`result success:: ${result.success}`);
 
@@ -77,7 +77,7 @@ async function create_account(event: Event): Promise<void> {
 
 async function logout(print: boolean): Promise<void> {
     await fetch("/logout", { method: "GET" });
-    
+
     console.log(`print: ${print}`);
     if (print) {
         alert("Déconnexion!");
@@ -87,18 +87,18 @@ async function logout(print: boolean): Promise<void> {
 
 async function modify_user(event: Event): Promise<void> {
     event.preventDefault();
-    
+
     const newusername = (document.getElementById("username") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
-    
+
     console.log(`newusername: ${newusername}`);
     console.log(`password: ${password}`);
     console.log(`email: ${email}`);
-    
-    const username = await get_user(); 
+
+    const username = await get_user();
     console.log(`oldusername: ${username}`);
-    
+
     if (!username) {
         alert("Impossible de récupérer l'utilisateur!");
     } else {
@@ -107,9 +107,9 @@ async function modify_user(event: Event): Promise<void> {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ newusername, password, email, username })
         });
-        
+
         const result: ModifyUserResponse = await response.json();
-        
+
         if (result.success) {
             logout(false);
             alert("Modification effectuée!");
