@@ -37,7 +37,7 @@ RUN npm install @fastify/cookie
 USER spa
 
 # Exposer le port utilisé par spa
-EXPOSE 3000
+EXPOSE 7000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]

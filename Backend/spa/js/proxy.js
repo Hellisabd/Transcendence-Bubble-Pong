@@ -94,9 +94,9 @@ async function log(req, reply) {
         return reply
         .setCookie("session", token, {
             path: "/",
-            httpOnly: true,  
+            httpOnly: true,
             secure: true, // ⚠️ Mets `true` en prod (HTTPS obligatoire)
-            maxAge: 18000,  
+            maxAge: 18000,
             sameSite: "None",  // ⚠️ Indispensable pour autoriser le partage de cookies cross-origin
             domain: domain,  // ⚠️ Change en fonction de ton domaine
             partitioned: true  // ✅ Active la compatibilité avec "State Partitioning" de Firefox
@@ -110,7 +110,7 @@ async function log(req, reply) {
 async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
-        
+
         const response = await axios.post("http://users:5000/create_account", req.body, {
             withCredentials: true
         });
@@ -171,22 +171,20 @@ async function get_history(req, reply) {
     if (!token) {
         return reply.status(401).send({ success: false, message: "Token manquant" });
     }
-    
+
     const username = await get_user(token);
     if (!username) {
         return reply.view("login.ejs");        
     }
-    
+
     console.log("Envoi de la requête à /get_history pour :", username);
-    
+
     const response = await axios.post("http://users:5000/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
     const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
     console.log("Réponse reçue :", response.data);
-    const finalFile = ejs.render(historyTemplate, {history: response.data.history, tournament: response.data.history_tournament}); 
-    console.log(finalFile);
     // reply.send(finalFile);
     return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }

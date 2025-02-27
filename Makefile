@@ -41,8 +41,7 @@ build :
 clean :
 	docker-compose down
 
-
-fclean : 
+fclean :
 	docker-compose down --volumes --remove-orphans
 
 hardclean:
@@ -53,6 +52,6 @@ hardclean:
 
 git	: fclean
 	@git add . > /dev/null 2>&1
-	@@msg=$${MSG:-"$(CURRENT_DATE)"}; git commit -m "$(USER) $(CURRENT_DATE) $$msg" > /dev/null 2>&1 
+	@@msg=$${MSG:-"$(CURRENT_DATE)"}; git commit -m "$(USER) $(CURRENT_DATE) $$msg" > /dev/null 2>&1
 	@git push > /dev/null 2>&1
 	@echo "$(GREEN)(•̀ᴗ•́)و ̑̑GIT UPDATE!(•̀ᴗ•́)و ̑̑$(DEF_COLOR)"
