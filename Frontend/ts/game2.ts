@@ -168,14 +168,17 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
         };
         
         const ballRadius = 10;
+        const bonusRadius = 50;
 
         let gameState = {
             ball: { x: canvas.width / 2, y: canvas.height / 2 },
             paddles: {
-                player1: { name: user1, angle: Math.PI },
-                player2: { name: user2, angle: 0 }
+                player1: { name: user1, angle: Math.PI, size: 0.08 },
+                player2: { name: user2, angle: 0, size: 0.08 }
             },
+            goals: { player1: { angle: Math.PI, size: Math.PI / 3 }, player2: { angle: 0, size: Math.PI / 3 } },
             score: { player1: 0, player2: 0 },
+            bonus: {tag: null, x: 350, y: 350 },
             playerReady: { player1: false, player2: false }
         };
 
@@ -218,7 +221,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 }
                 if (event.key === "ArrowLeft") {
                     message = { player: game2_player_id, move: "left", "game2_lobbyKey": game2_lobbyKey };
-                }
+                } 
                 if (event.key === " ") {
                     game2_win = 0;
                     message = { playerReady: true, player: game2_player_id, "game2_lobbyKey": game2_lobbyKey };
@@ -258,6 +261,34 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
             ctx.stroke();
             ctx.closePath();
 
+            //GOAL 1
+            ctx.beginPath();
+            ctx.arc(
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width / 2 - 5,
+                gameState.goals.player1.angle - gameState.goals.player1.size / 2,
+                gameState.goals.player1.angle + gameState.goals.player1.size / 2
+            );
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = "red";
+            ctx.stroke();
+            ctx.closePath();
+
+            //GOAL 2
+            ctx.beginPath();
+            ctx.arc(
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width / 2 - 5,
+                gameState.goals.player2.angle - gameState.goals.player2.size / 2,
+                gameState.goals.player2.angle + gameState.goals.player2.size / 2
+            );
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = "blue";
+            ctx.stroke();
+            ctx.closePath();
+
             //BALL
             ctx.beginPath();
             ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
@@ -271,8 +302,8 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 canvas.width / 2,
                 canvas.height / 2,
                 canvas.width / 2 - 19,
-                gameState.paddles.player1.angle - Math.PI * 0.08,
-                gameState.paddles.player1.angle + Math.PI * 0.08
+                gameState.paddles.player1.angle - Math.PI * gameState.paddles.player1.size,
+                gameState.paddles.player1.angle + Math.PI * gameState.paddles.player1.size
             );
             ctx.strokeStyle = "red";
             ctx.lineWidth = 20
@@ -285,13 +316,29 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 canvas.width / 2,
                 canvas.height / 2,
                 canvas.width / 2 - 19,
-                gameState.paddles.player2.angle - Math.PI * 0.08,
-                gameState.paddles.player2.angle + Math.PI * 0.08
+                gameState.paddles.player2.angle - Math.PI * gameState.paddles.player2.size,
+                gameState.paddles.player2.angle + Math.PI * gameState.paddles.player2.size
             );
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 20
             ctx.stroke();
             ctx.closePath();
+
+            //BONUS
+            if (gameState.bonus.tag == 'P') {
+                ctx.beginPath();
+                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.fillStyle = "green";
+                ctx.fill();
+                ctx.closePath();
+            }
+            if (gameState.bonus.tag == 'G') {
+                ctx.beginPath();
+                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.fillStyle = "pink";
+                ctx.fill();
+                ctx.closePath();
+            }
 
             draw_score();
             draw_winner();
