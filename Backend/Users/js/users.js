@@ -61,6 +61,21 @@ db.prepare(`
     looser_username TEXT NOT NULL,
     player1_score INTEGER NOT NULL DEFAULT 0,
     player2_score INTEGER NOT NULL DEFAULT 0,
+    gametype TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`).run();
+
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS game2_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player1_username TEXT NOT NULL,
+    player2_username TEXT NOT NULL,
+    winner_username TEXT NOT NULL,
+    looser_username TEXT NOT NULL,
+    player1_score INTEGER NOT NULL DEFAULT 0,
+    player2_score INTEGER NOT NULL DEFAULT 0,
+    gametype TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
@@ -84,9 +99,34 @@ db.prepare(`
     player4_score INTEGER NOT NULL DEFAULT 0,
     player4_ranking INTEGER NOT NULL DEFAULT 0,
     
+    gametype TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-    `).run();
+`).run();
+
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS tournament_game2_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player1_username TEXT NOT NULL,
+    player1_score INTEGER NOT NULL DEFAULT 0,
+    player1_ranking INTEGER NOT NULL DEFAULT 0,
+
+    player2_username TEXT NOT NULL,
+    player2_score INTEGER NOT NULL DEFAULT 0,
+    player2_ranking INTEGER NOT NULL DEFAULT 0,
+
+    player3_username TEXT NOT NULL,
+    player3_score INTEGER NOT NULL DEFAULT 0,
+    player3_ranking INTEGER NOT NULL DEFAULT 0,
+
+    player4_username TEXT NOT NULL,
+    player4_score INTEGER NOT NULL DEFAULT 0,
+    player4_ranking INTEGER NOT NULL DEFAULT 0,
+    
+    gametype TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`).run();
 
 db.prepare(` 
   CREATE TABLE IF NOT EXISTS friends (
@@ -97,7 +137,7 @@ db.prepare(`
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(friend_id) REFERENCES users(id) ON DELETE CASCADE
     )
-    `).run();
+`).run();
     
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement} = request.body;
@@ -105,15 +145,37 @@ fastify.post("/update_history_tournament", async (request, reply) => {
             (player1_username, player1_score, player1_ranking,
             player2_username, player2_score, player2_ranking,
             player3_username, player3_score, player3_ranking,
-            player4_username, player4_score, player4_ranking)
+            player4_username, player4_score, player4_ranking,
+            gametype)
             VALUES (?, ?, ?,
               ?, ?, ?,
               ?, ?, ?,
-              ?, ?, ?)`)
+              ?, ?, ?, ?)`)
               .run(classement[0].username, classement[0].score, 1, 
                   classement[1].username, classement[1].score, 2,
                   classement[2].username, classement[2].score, 3,
                   classement[3].username, classement[3].score, 4,
+                  "pong"
+              );
+});
+
+fastify.post("/update_history_game2_tournament", async (request, reply) => {
+  const {classement} = request.body;
+  db.prepare(`INSERT INTO tournament_game2_history 
+            (player1_username, player1_score, player1_ranking,
+            player2_username, player2_score, player2_ranking,
+            player3_username, player3_score, player3_ranking,
+            player4_username, player4_score, player4_ranking,
+            gametype)
+            VALUES (?, ?, ?,
+              ?, ?, ?,
+              ?, ?, ?,
+              ?, ?, ?, ?)`)
+              .run(classement[0].username, classement[0].score, 1, 
+                  classement[1].username, classement[1].score, 2,
+                  classement[2].username, classement[2].score, 3,
+                  classement[3].username, classement[3].score, 4,
+                  "game2"
               );
 });
 
@@ -304,62 +366,120 @@ fastify.post("/get_history", async (request, reply) => {
     ORDER BY created_at DESC;
     `).all(username, username);
 
-    const history_tournament = await db.prepare(`
-      SELECT * FROM tournament_history
-      WHERE player1_username = ?
-      OR player2_username = ?
-      OR player3_username = ?
-      OR player4_username = ?
-      ORDER BY created_at DESC;
-      `).all(username, username, username, username);
+  const game2_history = await db.prepare(`
+    SELECT * FROM game2_history
+    WHERE player1_username = ?
+    OR player2_username = ?
+    ORDER BY created_at DESC;
+    `).all(username, username);
+
+  const history_tournament = await db.prepare(`
+    SELECT * FROM tournament_history
+    WHERE player1_username = ?
+    OR player2_username = ?
+    OR player3_username = ?
+    OR player4_username = ?
+    ORDER BY created_at DESC;
+    `).all(username, username, username, username);
+
+  const history_game2_tournament = await db.prepare(`
+    SELECT * FROM tournament_game2_history
+    WHERE player1_username = ?
+    OR player2_username = ?
+    OR player3_username = ?
+    OR player4_username = ?
+    ORDER BY created_at DESC;
+    `).all(username, username, username, username);
 
     console.log("history_tournament: ", history_tournament);
-    reply.send(JSON.stringify({history: history, history_tournament: history_tournament}));
-  });
+    reply.send(JSON.stringify({history: history, history_tournament: history_tournament, game2_history: game2_history, history_game2_tournament: history_game2_tournament}));
+});
   
 
 
-  async function history_for_tournament(history) {
-    for (const match of history) { 
-      const player1 = match.myusername;
-      const player2 = match.otherusername;
-      const score_player1 = match.myscore;
+async function history_for_tournament(history) {
+  for (const match of history) { 
+    const player1 = match.myusername;
+    const player2 = match.otherusername;
+    const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
-    
-    if (score_player1 !== 1 && score_player2 !== 1) {
-      return;
-    }
-
-    let winner, looser;
-    if (score_player1 > score_player2) {
-      winner = player1;
-      looser = player2;
-    } else {
-      looser = player1;
-      winner = player2;
-    }
-
-    // Vérification des matchs récents dans les 5 dernières secondes
-    const recentMatch = await db.prepare(`
-      SELECT created_at FROM match_history 
-      WHERE ((player1_username = ? AND player2_username = ?) 
-          OR (player1_username = ? AND player2_username = ?))
-      AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
-      ORDER BY created_at DESC
-      LIMIT 1
-    `).get(player2, player1, player1, player2);
-
-    if (recentMatch) {
-      console.log("Match déjà enregistré");
-      continue;
-    }
-
-    await db.prepare(`INSERT INTO match_history 
-              (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
-              VALUES (?, ?, ?, ?, ?, ?)`)
-              .run(player1, player2, winner, looser, score_player1, score_player2);
+  
+  if (score_player1 !== 3 && score_player2 !== 3) {
+    return;
   }
-}
+
+  let winner, looser;
+  if (score_player1 > score_player2) {
+    winner = player1;
+    looser = player2;
+  } else {
+    looser = player1;
+    winner = player2;
+  }
+
+  // Vérification des matchs récents dans les 5 dernières secondes
+  const recentMatch = await db.prepare(`
+    SELECT created_at FROM match_history 
+    WHERE ((player1_username = ? AND player2_username = ?) 
+        OR (player1_username = ? AND player2_username = ?))
+    AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
+    ORDER BY created_at DESC
+    LIMIT 1
+  `).get(player2, player1, player1, player2);
+
+  if (recentMatch) {
+    console.log("Match déjà enregistré");
+    continue;
+  }
+
+  await db.prepare(`INSERT INTO match_history 
+            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1, player2, winner, looser, score_player1, score_player2, "pong");
+  }
+};
+
+async function history_for_game2_tournament(history) {
+  for (const match of history) { 
+    const player1 = match.myusername;
+    const player2 = match.otherusername;
+    const score_player1 = match.myscore;
+    const score_player2 = match.otherscore;
+  
+  if (score_player1 !== 3 && score_player2 !== 3) {
+    return;
+  }
+
+  let winner, looser;
+  if (score_player1 > score_player2) {
+    winner = player1;
+    looser = player2;
+  } else {
+    looser = player1;
+    winner = player2;
+  }
+
+  // Vérification des matchs récents dans les 5 dernières secondes
+  const recentMatch = await db.prepare(`
+    SELECT created_at FROM game2_history 
+    WHERE ((player1_username = ? AND player2_username = ?) 
+        OR (player1_username = ? AND player2_username = ?))
+    AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
+    ORDER BY created_at DESC
+    LIMIT 1
+  `).get(player2, player1, player1, player2);
+
+  if (recentMatch) {
+    console.log("Match déjà enregistré");
+    continue;
+  }
+
+  await db.prepare(`INSERT INTO game2_history 
+            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1, player2, winner, looser, score_player1, score_player2, "game2");
+  }
+};
 
 fastify.post("/update_history", async (request, reply) => {
   const {history, tournament} = request.body;
@@ -371,7 +491,7 @@ fastify.post("/update_history", async (request, reply) => {
   const player2 = history.otherusername;
   const score_player1 = history.myscore;
   const score_player2 = history.otherscore;
-  if (score_player1 != 1 && score_player2 != 1) {
+  if (score_player1 != 3 && score_player2 != 3) {
     return;
   }
   let winner;
@@ -398,9 +518,53 @@ fastify.post("/update_history", async (request, reply) => {
   }
 
   await db.prepare(`INSERT INTO match_history 
-            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
-            VALUES (?, ?, ?, ?, ?, ?)`)
-            .run(player1, player2, winner, looser, score_player1, score_player2);
+            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1, player2, winner, looser, score_player1, score_player2, "pong");
+  console.log("Match enregistre");
+});
+
+fastify.post("/update_game2_history", async (request, reply) => {
+  console.log("passe dans update game2");
+  const {history, tournament} = request.body;
+  if (tournament) {
+    history_for_game2_tournament(history);
+    return ;
+  }
+  const player1 = history.myusername;
+  const player2 = history.otherusername;
+  const score_player1 = history.myscore;
+  const score_player2 = history.otherscore;
+  if (score_player1 != 3 && score_player2 != 3) {
+    return;
+  }
+  let winner;
+  let looser;
+  if (score_player1 > score_player2) {
+    winner = player1;
+    looser = player2;
+  }
+  else {
+    looser = player1;
+    winner = player2;
+  }
+  const recentMatch = await db.prepare(`
+    SELECT created_at FROM game2_history 
+    WHERE ((player1_username = ? AND player2_username = ?) 
+        OR (player1_username = ? AND player2_username = ?))
+    AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
+    ORDER BY created_at DESC
+    LIMIT 1
+  `).get(player2, player1, player1, player2);
+  if (recentMatch) {
+    console.log("match deja enregistrer");
+    return ;
+  }
+
+  await db.prepare(`INSERT INTO game2_history 
+            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1, player2, winner, looser, score_player1, score_player2, "game2");
   console.log("Match enregistre");
 });
 

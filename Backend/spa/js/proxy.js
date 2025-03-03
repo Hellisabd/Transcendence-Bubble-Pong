@@ -93,6 +93,11 @@ async function update_history(req, reply) {
     reply.send(response.data);
 }
 
+async function update_game2_history(req, reply) {
+    const response = await axios.post("http://users:5000/update_game2_history", req.body);
+    reply.send(response.data);
+}
+
 async function get_history(req, reply) {
     const token = req.cookies.session;
     if (!token) {
@@ -110,12 +115,13 @@ async function get_history(req, reply) {
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-    console.log("Réponse reçue :", response.data);
-    const finalFile = ejs.render(historyTemplate, {history: response.data.history, tournament: response.data.history_tournament}); 
-    console.log(finalFile);
+    // const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
+    // console.log("Réponse reçue :", response.data);
+    // const finalFile = ejs.render(historyTemplate, {history: response.data.history, tournament: response.data.history_tournament}); 
+    // console.log(finalFile);
     // reply.send(finalFile);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
+    console.log("game2_tab", response.data.game2_history);
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, game2_history: response.data.game2_history, history_game2_tournament: response.data.history_game2_tournament });
 }
 
 async function end_tournament(req, reply) {
@@ -210,4 +216,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, game2_waiting_room };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, update_game2_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, game2_waiting_room };

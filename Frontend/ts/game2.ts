@@ -95,15 +95,15 @@ async function game2_tournament() {
     };
 }
 
-function game2_end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  game2_inTournament: boolean) {
-    if (game2_inTournament && (myscore == 1 || otherscore == 1)) { // a changer en 3 c est le score finish
+function game2_end_game(game2_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  game2_inTournament: boolean) {
+    if (game2_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
         console.log("endgame on tournament: ", game2_id_tournament);
         game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
         game2_socket?.close();
     }
-    else if (myscore == 1 || otherscore == 1) { // a changer en 3 c est le score finish
+    else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
         console.log("update normal game history"); 
-        fetch("/update_history", {
+        fetch("/update_game2_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ history:{"win": game2_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore}})
@@ -385,14 +385,14 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 ctx.fillStyle = "#810000";
                 ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
             }
-            // if (game2_player_id == 1 && game2_win != 0) {
-            //     console.log(game2_player_id);
-            //     end_game(game2_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, game2_inTournament);
-            // }
-            // else if (game2_player_id == 2 && game2_win != 0) {
-            //     console.log(game2_player_id);
-            //     end_game(game2_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, game2_inTournament);
-            // }
+            if (game2_player_id == 1 && game2_win != 0) {
+                console.log(game2_player_id);
+                game2_end_game(game2_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, game2_inTournament);
+            }
+            else if (game2_player_id == 2 && game2_win != 0) {
+                console.log(game2_player_id);
+                game2_end_game(game2_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, game2_inTournament);
+            }
         }
     } 
     else {

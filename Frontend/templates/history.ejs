@@ -23,6 +23,7 @@
 	<% } else { %>
 		<table border="1">
 			<tr>
+				<th>Game</th>
 				<th>Joueur 1</th>
 				<th>Joueur 2</th>
 				<th>Score</th>
@@ -32,6 +33,17 @@
 
 			<% history.forEach(match => { %>
 				<tr>
+					<td><%= match.gametype %></td>
+					<td><%= match.player1_username %></td>
+					<td><%= match.player2_username %></td>
+					<td><%= match.player1_score %> - <%= match.player2_score %></td>
+					<td><%= match.winner_username %></td>
+					<td><%= match.created_at %></td>
+				</tr>
+			<% }) %>
+			<% game2_history.forEach(match => { %>
+				<tr>
+					<td><%= match.gametype %></td>
 					<td><%= match.player1_username %></td>
 					<td><%= match.player2_username %></td>
 					<td><%= match.player1_score %> - <%= match.player2_score %></td>
