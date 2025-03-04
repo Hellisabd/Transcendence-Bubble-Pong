@@ -225,6 +225,7 @@ fastify.register(async function (fastify) {
             console.error("error in websocket");
         }
     })
+// });
     fastify.get("/ws/matchmaking/game2", { websocket: true }, (connection, req) => { 
         clientsWaiting.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
@@ -372,7 +373,7 @@ fastify.register(async function (fastify) {
                             console.log("sending trucs par clients pour la fin du tournoi");
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                             console.log(currentTournament.history[currentTournament.tournamentsUsernames[i]]);
-                            axios.post("http://users:5000/update_game2_history", 
+                            axios.post("http://users:5000/update_history", 
                                 {
                                     history: currentTournament.history[currentTournament.tournamentsUsernames[i]],
                                     tournament: true
@@ -384,7 +385,7 @@ fastify.register(async function (fastify) {
                                 }
                             );
                         }
-                        axios.post("http://users:5000/update_history_game2_tournament",
+                        axios.post("http://users:5000/update_history_tournament",
                             {
                                 classement: currentTournament.classements,
                                 tournament: true

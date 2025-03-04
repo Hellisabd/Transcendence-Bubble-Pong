@@ -98,15 +98,15 @@ async function game2_tournament() {
 function game2_end_game(game2_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  game2_inTournament: boolean) {
     if (game2_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
         console.log("endgame on tournament: ", game2_id_tournament);
-        game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
+        game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}}));
         game2_socket?.close();
     }
     else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
         console.log("update normal game history"); 
-        fetch("/update_game2_history", {
+        fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ history:{"win": game2_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore}})
+            body: JSON.stringify({ history:{"win": game2_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}})
         });
     }
     game2_win = 0;

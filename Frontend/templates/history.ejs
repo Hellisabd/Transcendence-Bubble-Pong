@@ -41,16 +41,6 @@
 					<td><%= match.created_at %></td>
 				</tr>
 			<% }) %>
-			<% game2_history.forEach(match => { %>
-				<tr>
-					<td><%= match.gametype %></td>
-					<td><%= match.player1_username %></td>
-					<td><%= match.player2_username %></td>
-					<td><%= match.player1_score %> - <%= match.player2_score %></td>
-					<td><%= match.winner_username %></td>
-					<td><%= match.created_at %></td>
-				</tr>
-			<% }) %>
 		</table>
 	<% } %>
 	<h1>Tournaments</h1>
