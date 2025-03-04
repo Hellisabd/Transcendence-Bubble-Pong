@@ -64,20 +64,20 @@ async function game2_tournament() {
     const sock_name = window.location.host;
     game2_Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/game2_tournament");
     game2_Tsocket.onopen = () => {
-        console.log("✅ WebSocket tournament connectée !");
+        console.log("✅ WebSocket game2 tournament connectée !");
         game2_Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
     game2_Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket tournament erreur :", user);};
+        console.error("❌ WebSocket game2 tournament erreur :", user);};
     game2_Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket tournament fermée :", user);};
+        console.warn("⚠️ WebSocket game2 tournament fermée :", user);};
     game2_Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         console.log("game2_id_tournament in data: ", data.game2_id_tournament);
         console.log("data: ", data);
-        if (data.game2_id_tournament != undefined) {
+        if (data.id_tournament != undefined) {
             console.log("actualise game2_id_tournament");
-            game2_id_tournament = data.game2_id_tournament; 
+            game2_id_tournament = data.id_tournament; 
         }
         if (data.end_tournament && data.classementDecroissant) {
             game2_Tsocket?.close();
@@ -87,8 +87,8 @@ async function game2_tournament() {
         }
         console.log("success: ", data.success);
         if (data.success == true) {
-            game2_player_id = data.game2_player_id;
-            game2_lobbyKey = data.game2_lobbyKey;
+            game2_player_id = data.player_id;
+            game2_lobbyKey = data.lobbyKey;
             console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             game2_initializeGame(data.player1, data.player2, user);
         }
@@ -98,7 +98,7 @@ async function game2_tournament() {
 function game2_end_game(game2_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  game2_inTournament: boolean) {
     if (game2_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
         console.log("endgame on tournament: ", game2_id_tournament);
-        game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}}));
+        game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}}));
         game2_socket?.close();
     }
     else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
@@ -117,7 +117,7 @@ function game2_Disconnect_from_game() {
         return;
     game2_Wsocket?.close();
     game2_socket?.close();
-    game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
+    game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
     game2_Tsocket?.close();
     if (game2_mystatus != "online") {
         fetch("/update_status", {
@@ -245,7 +245,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                     game2_socket.send(JSON.stringify(message));
                 }
             }
-        });        
+        });
 
         function drawGame(): void {
             if (!ctx) {
@@ -402,6 +402,6 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
 
 window.addEventListener("beforeunload", () => {
     if (game2_Tsocket?.readyState === WebSocket.OPEN) {
-        game2_Tsocket?.send(JSON.stringify({ game2_id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
+        game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
     }
 });

@@ -72,6 +72,10 @@ function resetParam (lobbyKey) {
     gameState.paddles.player2.size = 0.08;
     gameState.goals.player1.size = Math.PI / 3;
     gameState.goals.player2.size = Math.PI / 3;
+    gameState.paddles.player1.angle = Math.PI;
+    gameState.paddles.player2.angle = 0;
+    gameState.goals.player1.angle = Math.PI;
+    gameState.goals.player2.angle = 0;
 }
 
 function resetBall(lobbyKey) {
@@ -375,6 +379,7 @@ function handleGameInput(data, lobbyKey) {
     }
     if (data.playerReady) {
         console.log("Registering player state");
+        console.log(data);
         if (data.player == 1) {
             console.log("player1 ready");
             gameState.playerReady.player1 = true;

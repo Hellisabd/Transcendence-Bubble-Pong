@@ -225,7 +225,6 @@ fastify.register(async function (fastify) {
             console.error("error in websocket");
         }
     })
-// });
     fastify.get("/ws/matchmaking/game2", { websocket: true }, (connection, req) => { 
         clientsWaiting.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
@@ -285,6 +284,7 @@ fastify.register(async function (fastify) {
                     old_id_tournament = id_tournament; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
+                console.log("data: ", data);
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournament;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMap.get(id_tournament_key_from_player);

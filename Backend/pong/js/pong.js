@@ -237,10 +237,13 @@ function handleGameInput(data, lobbyKey) {
     }
     if (data.playerReady) {
         console.log("Registering player state");
+        console.log(data);
         if (data.player == 1)
             gameState.playerReady.player1 = true;
         if (data.player == 2)
             gameState.playerReady.player2 = true;
+        console.log("player1: ", gameState.playerReady.player1);
+        console.log("player2: ", gameState.playerReady.player2);
         if (gameState.playerReady.player1 && gameState.playerReady.player2) {
             console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
             lobbies[lobbyKey].players.forEach(client => {
