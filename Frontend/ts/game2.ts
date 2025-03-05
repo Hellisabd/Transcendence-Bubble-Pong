@@ -173,8 +173,8 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
         let gameState = {
             ball: { x: canvas.width / 2, y: canvas.height / 2 },
             paddles: {
-                player1: { name: user1, angle: Math.PI, size: 0.08 },
-                player2: { name: user2, angle: 0, size: 0.08 }
+                player1: { name: user1, angle: Math.PI, size: Math.PI * 0.08 },
+                player2: { name: user2, angle: 0, size: Math.PI * 0.08 }
             },
             goals: { player1: { angle: Math.PI, size: Math.PI / 3 }, player2: { angle: 0, size: Math.PI / 3 } },
             score: { player1: 0, player2: 0 },
@@ -302,8 +302,8 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 canvas.width / 2,
                 canvas.height / 2,
                 canvas.width / 2 - 19,
-                gameState.paddles.player1.angle - Math.PI * gameState.paddles.player1.size,
-                gameState.paddles.player1.angle + Math.PI * gameState.paddles.player1.size
+                gameState.paddles.player1.angle - gameState.paddles.player1.size,
+                gameState.paddles.player1.angle + gameState.paddles.player1.size
             );
             ctx.strokeStyle = "red";
             ctx.lineWidth = 20
@@ -316,8 +316,8 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 canvas.width / 2,
                 canvas.height / 2,
                 canvas.width / 2 - 19,
-                gameState.paddles.player2.angle - Math.PI * gameState.paddles.player2.size,
-                gameState.paddles.player2.angle + Math.PI * gameState.paddles.player2.size
+                gameState.paddles.player2.angle - gameState.paddles.player2.size,
+                gameState.paddles.player2.angle + gameState.paddles.player2.size
             );
             ctx.strokeStyle = "blue";
             ctx.lineWidth = 20

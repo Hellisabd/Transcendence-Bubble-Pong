@@ -4,7 +4,6 @@ fastify.register(require("@fastify/websocket"));
 let lobbies = {};
 
 let move = Math.PI / 50;
-let paddle_width = Math.PI * 0.08;
 let bounce = 0;
 const paddle_thickness = 15;
 const arena_height = 700;
@@ -32,7 +31,7 @@ fastify.register(async function (fastify) {
                     socketOrder: [],
                     gameState: {
                         ball: { x: 200, y: 400 , oldpos: {x: 350, y: 350} },
-                        paddles: { player1: { name: data.username1, angle: Math.PI, size: 0.08 }, player2: { name: data.username2, angle: 0, size: 0.08 } },
+                        paddles: { player1: { name: data.username1, angle: Math.PI, size: Math.PI * 0.08 }, player2: { name: data.username2, angle: 0, size: Math.PI * 0.08 } },
                         goals: { player1: { angle: Math.PI, size: Math.PI / 3 }, player2: { angle: 0, size: Math.PI / 3 } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false, right: false, left: false }, player2: { up: false, down: false, right: false, left: false } },
@@ -68,8 +67,8 @@ function resetParam (lobbyKey) {
     bonus_bool = 0;
     gameState.bonus.tag = null;
     last_player = null;
-    gameState.paddles.player1.size = 0.08;
-    gameState.paddles.player2.size = 0.08;
+    gameState.paddles.player1.size = Math.PI * 0.08;
+    gameState.paddles.player2.size = Math.PI * 0.08;
     gameState.goals.player1.size = Math.PI / 3;
     gameState.goals.player2.size = Math.PI / 3;
     gameState.paddles.player1.angle = Math.PI;
@@ -107,12 +106,9 @@ function update(lobbyKey) {
     }
     let gameState = lobbies[lobbyKey].gameState;
 
-    move_paddle(gameState.paddles.player1, gameState.moving.player1, gameState.paddles.player2);
-    move_paddle(gameState.paddles.player2, gameState.moving.player2, gameState.paddles.player1);
-
     gameState.ball.x += gameState.ballSpeed.ballSpeedX;
     gameState.ball.y += gameState.ballSpeed.ballSpeedY;
-
+    
     let dx = gameState.ball.x - arena_width / 2;
     let dy = gameState.ball.y - arena_height / 2;
     let ball_dist = Math.sqrt(dx * dx + dy * dy);
@@ -120,7 +116,17 @@ function update(lobbyKey) {
     if (ball_angle < 0)
         ball_angle += 2 * Math.PI;
 
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player1.angle - paddle_width) && (ball_angle <= gameState.paddles.player1.angle + paddle_width)) {
+    if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player1.angle) > gameState.paddles.player1.size)
+        move_paddle(gameState.paddles.player1, gameState.moving.player1, gameState.paddles.player2);
+    if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size)
+        move_paddle(gameState.paddles.player2, gameState.moving.player2, gameState.paddles.player1);
+    else {
+        console.log(" ");
+        console.log("DIST: ", ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness);
+        console.log("ANGLE: ", circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size);
+    }
+
+    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player1.angle - gameState.paddles.player1.size) && (ball_angle <= gameState.paddles.player1.angle + gameState.paddles.player1.size)) {
         bounce++;
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
@@ -134,7 +140,7 @@ function update(lobbyKey) {
         last_player = "player1";
     }
 
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player2.angle - paddle_width) && (ball_angle <= gameState.paddles.player2.angle + paddle_width)) {
+    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player2.angle - gameState.paddles.player2.size) && (ball_angle <= gameState.paddles.player2.angle + gameState.paddles.player2.size)) {
         bounce++;
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
@@ -147,6 +153,15 @@ function update(lobbyKey) {
         gameState.goals.player2.angle = Math.random() * 2 * Math.PI;
         last_player = "player2";
     }
+
+    if (gameState.ballSpeed.ballSpeedX > 20)
+        gameState.ballSpeed.ballSpeedX = 20;
+    if (gameState.ballSpeed.ballSpeedX < -20)
+        gameState.ballSpeed.ballSpeedX = -20;
+    if (gameState.ballSpeed.ballSpeedY > 20)
+        gameState.ballSpeed.ballSpeedY = 20;
+    if (gameState.ballSpeed.ballSpeedY < -20)
+        gameState.ballSpeed.ballSpeedY = -20;
 
     if (ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
         resetBall(lobbyKey);
@@ -196,9 +211,9 @@ function bonusManager(lobbyKey) {
         if (dist_ball_bonus <= ballRadius + bonusRadius) {
             if (gameState.bonus.tag == 'P') {
                 if (last_player == "player1")
-                    gameState.paddles.player1.size = 0.12;
+                    gameState.paddles.player1.size = Math.PI * 0.12;
                 if (last_player == "player2")
-                    gameState.paddles.player2.size = 0.12;
+                    gameState.paddles.player2.size = Math.PI * 0.12;
             }
             if (gameState.bonus.tag == 'G') {
                 if (last_player == "player1")
@@ -211,13 +226,14 @@ function bonusManager(lobbyKey) {
     }
 }
 
+function circular_distance(a, b) {
+    return Math.min(Math.abs(a - b), 2 * Math.PI - Math.abs(a - b));
+}
+
 function move_paddle(paddle, movement, opponent) {
-    let min_distance = paddle_width * 2;
+    let min_distance = paddle.size + opponent.size;
     let new_angle = paddle.angle;
-    
-        function circular_distance(a, b) {
-            return Math.min(Math.abs(a - b), 2 * Math.PI - Math.abs(a - b));
-        }
+
     if (movement.up || movement.left) {
         new_angle -= move;
         if (circular_distance(new_angle, opponent.angle) < min_distance) {
