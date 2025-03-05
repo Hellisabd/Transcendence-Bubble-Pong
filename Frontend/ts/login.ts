@@ -41,7 +41,7 @@ async function login(event: Event): Promise<void> {
 
         if (result.success) {
             alert(JSON.stringify(result));
-            navigateTo("", true, null);
+            navigateTo("index", true, null);
             set_up_friend_list(await get_user());
         } else {
             alert(JSON.stringify(result));
@@ -142,5 +142,41 @@ async function modify_user(event: Event): Promise<void> {
         } else {
             alert("Erreur lors de la modification.");
         }
+    }
+}
+
+
+
+
+
+
+
+function fadeOutCard(page: 'create_account' | 'login'): void {
+    if (page === 'create_account') {
+        showRegister();
+    } else {
+        showLogin();
+    }
+}
+
+function showLogin(): void {
+    const regis = document.getElementById('register');
+    const login = document.getElementById('login');
+
+    if (regis && login) {
+        login.classList.remove('hidden');
+        login.classList.add('animate-leftFadeIn');
+        regis.classList.add('hidden');
+    }
+}
+
+function showRegister(): void {
+    const regis = document.getElementById('register');
+    const login = document.getElementById('login');
+
+    if (regis && login) {
+        login.classList.add('hidden');
+        regis.classList.remove('hidden');
+        regis.classList.add('animate-rightFadeIn');
     }
 }

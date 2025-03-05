@@ -8,11 +8,14 @@ if (window.location.pathname === "/") {
 
 async function set_user(): Promise<void> {
     const userDiv = document.getElementById("user") as HTMLDivElement;
-    
+
     const username =  await get_user();
-    
+
     if (username) {
         userDiv.innerHTML = `👤 ${username}`;
+		userDiv.classList.add("text-white");
+		userDiv.classList.add("color-purple-800");
+
         userDiv.style.display = "block";
     } else {
         userDiv.innerHTML = "";
@@ -22,9 +25,10 @@ async function set_user(): Promise<void> {
 
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-    let afficheUser = false;
+	console.log(`🚀 Changement de page: ${page}`);
+	let afficheUser = false;
     const username: string | null = await get_user();
-    const loging: boolean = page == "login"; 
+    const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
     if (username && username.length > 0) {
@@ -39,13 +43,13 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     const userDiv = document.getElementById("user") as HTMLDivElement;
-    
+
     // Vider le contenu actuel
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
-    
+
     let url: string = page == "index" ? "/" : `/${page}`;
-    
+
     try {
         let response: Response | null = null;
         if (url === "/end_tournament") {
@@ -64,12 +68,12 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        
+
         const html: string = await response.text();
-        
+
         const tempDiv: HTMLDivElement = document.createElement("div");
         tempDiv.innerHTML = html;
-        
+
         // ✅ Mise à jour du contenu principal
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
@@ -103,7 +107,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         //     display_friends();
         // }
         display_friends();
-        
+
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
     }
@@ -118,7 +122,7 @@ async function get_user(): Promise<string> {
         if (!response.ok)
             return "";
         const data: {success: boolean; username?: string} = await response.json();
-        return data.success ? data.username ?? "" : ""; 
+        return data.success ? data.username ?? "" : "";
     } catch (error) {
         alert("Erreur cant get user");
         return "";

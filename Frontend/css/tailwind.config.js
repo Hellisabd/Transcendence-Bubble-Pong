@@ -2,8 +2,10 @@
 module.exports = {
 	content: [
 	  "./Frontend/templates/**/*.ejs",
+	  "./Frontend/ts/**/*.js",
 	  "./Frontend/ts/**/*.ts",
 	  "./Frontend/css/**/*.css",
+	  "./Frontend/css/**/*.js",
 	],
 	theme: {
 	  extend: {

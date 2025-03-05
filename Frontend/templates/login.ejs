@@ -10,85 +10,67 @@
 		}
 	</style>
 </head>
+	<script >
+		document.addEventListener("DOMContentLoaded", function() {
+			navigateTo("login"); // Appelle la fonction au chargement de la page
+			showLogin(); // Appelle la fonction au chargement de la page
+		});
+	</script>
 	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 flex items-center justify-center min-h-screen">
-		<script>
-			document.addEventListener("DOMContentLoaded", function() {
-				showLogin(); // Appelle la fonction au chargement de la page
-			});
-			function fadeOutCard(page) {
-				if (page === 'create_account') {
-					showRegister();
-				} else {
-					showLogin();
-				}
-			}
-			function showLogin() {
-				const regis = document.getElementById('register');
-				const login = document.getElementById('login');
-				login.classList.remove('hidden');
-				login.classList.add('animate-leftFadeIn');
-				regis.classList.add('hidden');
-			}
-
-			function showRegister() {
-				const regis = document.getElementById('register');
-				const login = document.getElementById('login');
-				login.classList.add('hidden');
-				regis.classList.remove('hidden');
-				regis.classList.add('animate-rightFadeIn');
-			}
-		</script>
-		<div id="content" class="bg-gradient-to-r from-purple-600 to-indigo-700 shadow-xl border-indigo-400 border-4 shadow-indigo-500 p-8 rounded-3xl card-height w-full max-w-md transition-all transform hover:shadow-2xl hover:shadow-indigo-600">
-			<div id="login">
-				<h2 class="text-4xl font-semibold mb-8 text-center text-neutral-200">Connexion</h2>
-				<form onsubmit="login(event)" class="space-y-6">
-					<div class="relative">
-						<label for="email" class="block text-sm font-medium text-neutral-200">Email :</label>
-						<input type="text" id="email" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-					</div>
-					<div class="relative">
-						<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
-						<input type="password" id="password" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-					</div>
-					<div class="flex justify-center">
-						<button type="submit" class="w-48 py-3 px-4 bg-green-600 border-2 border-neutral-200/0 hover:border-neutral-200 hover:bg-indigo-700 text-neutral-200 rounded-lg shadow-lg font-semibold text-lg transition-all hover:scale-105">
-							Se connecter
+		<div id="user" style="display: none;"></div>
+		<div id="content">
+			<div class="bg-gradient-to-r from-purple-600 to-indigo-700 shadow-xl border-indigo-400 border-4 shadow-indigo-500 p-8 rounded-3xl card-height w-screen max-w-md transition-all transform hover:shadow-2xl hover:shadow-indigo-600">
+				<div id="login">
+					<h2 class="text-4xl font-semibold mb-8 text-center text-neutral-200">Connexion</h2>
+					<form onsubmit="login(event)" class="space-y-6">
+						<div class="relative">
+							<label for="email" class="block text-sm font-medium text-neutral-200">Email :</label>
+							<input type="text" id="email" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+						</div>
+						<div class="relative">
+							<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
+							<input type="password" id="password" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+						</div>
+						<div class="flex justify-center">
+							<button type="submit" class="w-48 py-3 px-4 bg-green-600 border-2 border-neutral-200/0 hover:border-neutral-200 hover:bg-indigo-700 text-neutral-200 rounded-lg shadow-lg font-semibold text-lg transition-all hover:scale-105">
+								Se connecter
+							</button>
+						</div>
+					</form>
+					<div class="mt-6 text-right">
+						<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('create_account')">
+							Créer un compte >
 						</button>
 					</div>
-				</form>
-				<div class="mt-6 text-right">
-					<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('create_account')">
-						Créer un compte >
-					</button>
 				</div>
-			</div>
 
 
-			<div id="register" class="hidden">
-				<h2 class="text-4xl font-semibold mb-8 text-center text-neutral-200">Créer un compte</h2>
-				<form onsubmit="create_account(event)" class="space-y-6">
-					<div class="relative">
-						<label for="name" class="block text-sm font-medium text-neutral-200">Nom :</label>
-						<input type="text" id="name" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-					</div>
-					<div class="relative">
-						<label for="email" class="block text-sm font-medium text-neutral-200">Email :</label>
-						<input type="email" id="email_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-					</div>
-					<div class="relative">
-						<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
-						<input type="password" id="password_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
-					</div>
-					<div class="flex justify-center">
-						<button type="submit" class="w-48 py-3 px-4 bg-green-600 border-2 border-neutral-200/0 hover:border-neutral-200 hover:bg-indigo-700 text-neutral-200 rounded-lg shadow-lg font-semibold text-lg transition-all hover:scale-105">
-							S'inscrire
+				<div id="register" class="hidden">
+					<h2 class="text-4xl font-semibold mb-8 text-center text-neutral-200">Créer un compte</h2>
+					<form onsubmit="create_account(event)" class="space-y-6">
+						<div class="relative">
+							<label for="name" class="block text-sm font-medium text-neutral-200">Nom :</label>
+							<input type="text" id="name" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+						</div>
+						<div class="relative">
+							<label for="email" class="block text-sm font-medium text-neutral-200">Email :</label>
+							<input type="email" id="email_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+						</div>
+						<div class="relative">
+							<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
+							<input type="password" id="password_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+						</div>
+						<div class="flex justify-center">
+							<button type="submit" class="w-48 py-3 px-4 bg-green-600 border-2 border-neutral-200/0 hover:border-neutral-200 hover:bg-indigo-700 text-neutral-200 rounded-lg shadow-lg font-semibold text-lg transition-all hover:scale-105">
+								S'inscrire
+							</button>
+						</div>
+					</form>
+					<div class="mt-6 text-right">
+						<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('login')">
+							Déjà un compte ? Se connecter >
 						</button>
 					</div>
-				</form>
-				<div class="mt-6 text-right">
-					<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('login')">
-						Déjà un compte ? Se connecter >
-					</button>
 				</div>
 			</div>
 		</div>
