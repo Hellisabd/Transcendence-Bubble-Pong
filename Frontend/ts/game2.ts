@@ -20,6 +20,9 @@ let game2_Tsocket: WebSocket | null = null;
 let game2_disp: boolean = true;
 let game2_win: number = 0;
 
+let bonus_glowing: number = 0;
+let up_down: boolean = true;
+
 async function play_game2() {
     game2_Disconnect_from_game();
     const user = await get_user();
@@ -222,7 +225,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 if (event.key === "ArrowLeft") {
                     message = { player: game2_player_id, move: "left", "game2_lobbyKey": game2_lobbyKey };
                 } 
-                if (event.key === " ") {
+                if (event.key === " " && game2_disp == true) {
                     game2_win = 0;
                     message = { playerReady: true, player: game2_player_id, "game2_lobbyKey": game2_lobbyKey };
                 }
@@ -292,9 +295,12 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
             //BALL
             ctx.beginPath();
             ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFFF00";
-            ctx.fill();
+            ctx.strokeStyle = "yellow";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //PADDLE 1
             ctx.beginPath();
@@ -306,9 +312,12 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 gameState.paddles.player1.angle + gameState.paddles.player1.size
             );
             ctx.strokeStyle = "red";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.strokeStyle;
             ctx.lineWidth = 20
             ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //PADDLE 2
             ctx.beginPath();
@@ -320,24 +329,57 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 gameState.paddles.player2.angle + gameState.paddles.player2.size
             );
             ctx.strokeStyle = "blue";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.strokeStyle;
             ctx.lineWidth = 20
             ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //BONUS
             if (gameState.bonus.tag == 'P') {
                 ctx.beginPath();
                 ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
-                ctx.fillStyle = "green";
-                ctx.fill();
+                ctx.strokeStyle = "#00E100";
+                if (up_down == true) {
+                    bonus_glowing++;
+                    if (bonus_glowing == 150)
+                        up_down = false;
+                }
+                if (up_down == false) {
+                    bonus_glowing--;
+                    if (bonus_glowing == 0)
+                        up_down = true;
+                }     
+                console.log(bonus_glowing);
+                ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
+                ctx.shadowColor = ctx.strokeStyle;
+                ctx.lineWidth = 20;
+                ctx.stroke();
                 ctx.closePath();
+                ctx.shadowBlur = 0;
             }
             if (gameState.bonus.tag == 'G') {
                 ctx.beginPath();
                 ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
-                ctx.fillStyle = "pink";
-                ctx.fill();
+                ctx.strokeStyle = "#FC00C6";
+                if (up_down == true) {
+                    bonus_glowing++;
+                    if (bonus_glowing == 150)
+                        up_down = false;
+                }
+                if (up_down == false) {
+                    bonus_glowing--;
+                    if (bonus_glowing == 0)
+                        up_down = true;
+                }     
+                console.log(bonus_glowing);
+                ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
+                ctx.shadowColor = ctx.strokeStyle;
+                ctx.lineWidth = 20;
+                ctx.stroke();
                 ctx.closePath();
+                ctx.shadowBlur = 0;
             }
 
             draw_score();
