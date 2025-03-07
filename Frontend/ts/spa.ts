@@ -42,9 +42,11 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         return ;
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
-    const userDiv = document.getElementById("user") as HTMLDivElement;
+    let userDiv = document.getElementById("user") as HTMLDivElement;
 
     // Vider le contenu actuel
+    if (!userDiv)
+        userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
 
@@ -72,6 +74,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         const html: string = await response.text();
 
         const tempDiv: HTMLDivElement = document.createElement("div");
+        let bodyClass: string = "";
+        if (-1 != html.indexOf("body class=\""))
+            bodyClass = html.substring(html.indexOf("body class=\"") + 12, html.indexOf(">", html.indexOf("body class=\"")) - 1);
+        document.body.className = bodyClass;
         tempDiv.innerHTML = html;
 
         // ✅ Mise à jour du contenu principal
