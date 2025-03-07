@@ -39,7 +39,9 @@ fastify.register(async function (fastify) {
                         speed: Math.sqrt(3.2 * 3.2 + 3.2 * 3.2),
                         playerReady: {player1: false, player2: false},
                         bonus: {tag: null, x: 350, y: 350 },
-                        gameinterval: null
+                        gameinterval: null,
+                        lastBounce: Date.now(),
+                        bounceInterval : 500
                     }
                 }
             }
@@ -75,6 +77,7 @@ function resetParam (lobbyKey) {
     gameState.paddles.player2.angle = 0;
     gameState.goals.player1.angle = Math.PI;
     gameState.goals.player2.angle = 0;
+    gameState.lastBounce = Date.now();
 }
 
 function resetBall(lobbyKey) {
@@ -82,12 +85,8 @@ function resetBall(lobbyKey) {
         return ;
     gameState = lobbies[lobbyKey].gameState;
     randBallPos(gameState);
-    gameState.ballSpeed.ballSpeedX /= 2;
-    if (gameState.ballSpeed.ballSpeedX < 3.2)
-        gameState.ballSpeed.ballSpeedX = 3.2;
-    gameState.ballSpeed.ballSpeedY /= 2;
-    if (gameState.ballSpeed.ballSpeedY < 3.2)
-        gameState.ballSpeed.ballSpeedY = 3.2;
+    gameState.ballSpeed.ballSpeedX = 3.2;
+    gameState.ballSpeed.ballSpeedY = 3.2;
     gameState.speed = Math.sqrt(gameState.ballSpeed.ballSpeedX * gameState.ballSpeed.ballSpeedX + gameState.ballSpeed.ballSpeedY * gameState.ballSpeed.ballSpeedY);
     let angle;
     if (Math.random() < 0.5) {
@@ -116,52 +115,56 @@ function update(lobbyKey) {
     if (ball_angle < 0)
         ball_angle += 2 * Math.PI;
 
-    if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player1.angle) > gameState.paddles.player1.size)
+    // if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player1.angle) > gameState.paddles.player1.size)
         move_paddle(gameState.paddles.player1, gameState.moving.player1, gameState.paddles.player2);
-    if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size)
+    // if ((ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness) && circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size)
         move_paddle(gameState.paddles.player2, gameState.moving.player2, gameState.paddles.player1);
-    else {
-        console.log(" ");
-        console.log("DIST: ", ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness);
-        console.log("ANGLE: ", circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size);
-    }
+    // else {
+        // console.log(" ");
+        // console.log("DIST: ", ball_dist + ballRadius + paddle_thickness < arena_radius - paddle_thickness);
+        // console.log("ANGLE: ", circular_distance(ball_angle, gameState.paddles.player2.angle) > gameState.paddles.player2.size);
+    // }
 
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player1.angle - gameState.paddles.player1.size) && (ball_angle <= gameState.paddles.player1.angle + gameState.paddles.player1.size)) {
+    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player1.angle - gameState.paddles.player1.size) && (ball_angle <= gameState.paddles.player1.angle + gameState.paddles.player1.size) && Date.now() > gameState.lastBounce) {
+        console.log("PADDLE1!!");
+        gameState.lastBounce = Date.now() + gameState.bounceInterval;
         bounce++;
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
     
         let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
     
-        gameState.ballSpeed.ballSpeedX -= 2.1 * dotProduct * normalX;
-        gameState.ballSpeed.ballSpeedY -= 2.1 * dotProduct * normalY;
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
 
         gameState.goals.player1.angle = Math.random() * 2 * Math.PI;
         last_player = "player1";
     }
 
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player2.angle - gameState.paddles.player2.size) && (ball_angle <= gameState.paddles.player2.angle + gameState.paddles.player2.size)) {
+    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player2.angle - gameState.paddles.player2.size) && (ball_angle <= gameState.paddles.player2.angle + gameState.paddles.player2.size) && Date.now() > gameState.lastBounce) {
+        console.log("PADDLE2!!");
+        gameState.lastBounce = Date.now() + gameState.bounceInterval;
         bounce++;
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
     
         let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
     
-        gameState.ballSpeed.ballSpeedX -= 2.1 * dotProduct * normalX;
-        gameState.ballSpeed.ballSpeedY -= 2.1 * dotProduct * normalY;
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
 
         gameState.goals.player2.angle = Math.random() * 2 * Math.PI;
         last_player = "player2";
     }
 
-    if (gameState.ballSpeed.ballSpeedX > 20)
-        gameState.ballSpeed.ballSpeedX = 20;
-    if (gameState.ballSpeed.ballSpeedX < -20)
-        gameState.ballSpeed.ballSpeedX = -20;
-    if (gameState.ballSpeed.ballSpeedY > 20)
-        gameState.ballSpeed.ballSpeedY = 20;
-    if (gameState.ballSpeed.ballSpeedY < -20)
-        gameState.ballSpeed.ballSpeedY = -20;
+    if (gameState.ballSpeed.ballSpeedX > 10)
+        gameState.ballSpeed.ballSpeedX = 10;
+    if (gameState.ballSpeed.ballSpeedX < -10)
+        gameState.ballSpeed.ballSpeedX = -10;
+    if (gameState.ballSpeed.ballSpeedY > 10)
+        gameState.ballSpeed.ballSpeedY = 10;
+    if (gameState.ballSpeed.ballSpeedY < -10)
+        gameState.ballSpeed.ballSpeedY = -10;
 
     if (ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
         resetBall(lobbyKey);
@@ -177,15 +180,17 @@ function update(lobbyKey) {
         console.log("GOAAAAAAAAL!!");
     }
 
-    else if (ball_dist + ballRadius + 5 > arena_radius) {
+    else if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > gameState.lastBounce ) {
         bounce++;
+        gameState.lastBounce = Date.now() + gameState.bounceInterval;
+        console.log("WALL!!");
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
     
         let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
     
-        gameState.ballSpeed.ballSpeedX -= 2.1 * dotProduct * normalX;
-        gameState.ballSpeed.ballSpeedY -= 2.1 * dotProduct * normalY;
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
     }
     bonusManager(lobbyKey);
 }
