@@ -6,7 +6,8 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SPA Demo</title>
 </head>
-	<body>
+
+	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
 
 	<div id="content">
 		<nav class="bg-gray-800">
@@ -30,7 +31,7 @@
 					<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
 						<div class="flex shrink-0 items-center">
 							<img class="h-8 w-auto"
-								src="/Frontend/avatar/logo.webp"
+								src="/Frontend/assets/logo.webp"
 								alt="Your Company">
 						</div>
 						<div class="hidden sm:ml-6 sm:block">
@@ -52,7 +53,7 @@
 								<button id="user-menu-button" type="button"
 									class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
 									<span class="sr-only">Open user menu</span>
-									<img class="size-8 rounded-full" src="./Frontend/avatar/default.jpg" alt="">
+									<img id="avatar" class="size-8 rounded-full" alt="">
 								</button>
 							</div>
 							<!-- Dropdown menu -->
@@ -92,36 +93,6 @@
 		<!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
 		<canvas id="friends_list" width="300" height="500"></canvas>
 	</div>
-		<script>
-			document.addEventListener("DOMContentLoaded", function () {
-				const mobileMenuButton = document.getElementById("mobile-menu-button");
-				const mobileMenu = document.getElementById("mobile-menu");
-				const menuIconOpen = document.getElementById("menu-icon-open");
-				const menuIconClose = document.getElementById("menu-icon-close");
-				const userMenuButton = document.getElementById("user-menu-button");
-				const userMenu = document.getElementById("user-menu");
-
-				if (!mobileMenuButton || !mobileMenu || !menuIconOpen || !menuIconClose || !userMenuButton || !userMenu) {
-					console.error("Un ou plusieurs éléments n'ont pas été trouvés !");
-					return;
-				}
-
-				// Toggle mobile menu
-				mobileMenuButton.addEventListener("click", function () {
-					console.log("Mobile menu button clicked");
-					mobileMenu.classList.toggle("hidden");
-					menuIconOpen.classList.toggle("hidden");
-					menuIconClose.classList.toggle("hidden");
-				});
-
-				// Toggle user menu
-				userMenuButton.addEventListener("click", function () {
-					console.log("User menu button clicked");
-					userMenu.classList.toggle("hidden");
-				});
-			});
-			navigateTo("index"); // Appelle la fonction au chargement de la page
-		</script>
 		<%- include('scripts.ejs') %>
 	</body>
 </html>

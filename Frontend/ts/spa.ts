@@ -6,28 +6,30 @@ if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
 }
 
-async function set_user(): Promise<void> {
-    const userDiv = document.getElementById("user") as HTMLDivElement;
+async function set_user(contentDiv: HTMLDivElement, username: string | null): Promise<void> {
+	if (!username)
+		return;
 
-    const username =  await get_user();
-
-    if (username) {
-        userDiv.innerHTML = `👤 ${username}`;
-		userDiv.classList.add("text-white");
-		userDiv.classList.add("color-purple-800");
-
-        userDiv.style.display = "block";
-    } else {
-        userDiv.innerHTML = "";
-        userDiv.style.display = "none";
-    }
+	const userDiv = contentDiv.querySelector("#user") as HTMLDivElement;
+	const avatarElement = contentDiv.querySelector("#avatar") as HTMLImageElement;
+	console.log(`👤 ${username}`);
+	userDiv.innerHTML = `👤 ${username}`;
+	userDiv.classList.add("text-white");
+	const response = await fetch("/get_avatar", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: username})
+	});
+	const response_avatar = await response.json();
+	const avatar_name = await response_avatar.avatar_name;
+	avatarElement.src = `./Frontend/avatar/${avatar_name}`;
 }
 
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
 	console.log(`🚀 Changement de page: ${page}`);
 	let afficheUser = false;
-    const username: string | null = await get_user();
+	const username = await get_user();
     const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
@@ -88,18 +90,19 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
         // ✅ Attendre la valeur correcte de `get_user()`
-        if (afficheUser) {
-            const response = await fetch("/get_avatar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: username})
-            });
-            const response_avatar = await response.json();
-            const avatar_name = await response_avatar.avatar_name;
-            userDiv.innerHTML = `prout: ${username}
-            <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
-            userDiv.style.display = "block";
-        }
+        // if (afficheUser) {
+        //     const response = await fetch("/get_avatar", {
+        //         method: "POST",
+        //         headers: { "Content-Type": "application/json" },
+        //         body: JSON.stringify({ username: username})
+        //     });
+        //     const response_avatar = await response.json();
+        //     const avatar_name = await response_avatar.avatar_name;
+        //     userDiv.innerHTML = `${username}
+        //     <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
+        //     userDiv.style.display = "";
+        // }
+		set_user(contentDiv, username);
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
@@ -119,21 +122,20 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     }
 }
 
-async function get_user(): Promise<string> {
-    try {
-        const response = await fetch("/get_user", {
-            method: "GET",
-            credentials: "include",
-        })
-        if (!response.ok)
-            return "";
-        const data: {success: boolean; username?: string} = await response.json();
-        return data.success ? data.username ?? "" : "";
-    } catch (error) {
-        alert("Erreur cant get user");
-        return "";
-    }
+async function get_user(): Promise<string | null> {
+	const response = await fetch("/get_user", {
+		method: "GET",
+		credentials: "include",
+	})
+	if (!response.ok)
+		return null;
+	const data: {success: boolean; username?: string} = await response.json();
+	return data.success ? data.username ?? null : null;
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+	navigateTo(window.location.pathname.substring(1), false, null);
+});
 
 // Gestion de l'historique
 window.onpopstate = function(event: PopStateEvent): void {
@@ -141,5 +143,3 @@ window.onpopstate = function(event: PopStateEvent): void {
         navigateTo(event.state.page, false, null);
 	};
 }
-
-set_user();
