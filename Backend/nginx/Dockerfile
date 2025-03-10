@@ -9,7 +9,6 @@ RUN getent group nginx_new_group || groupadd -g ${GROUP_ID} nginx_new_group
 RUN getent passwd nginx || useradd -m -u ${USER_ID} -g nginx_new_group nginx
 
 COPY ./Backend/nginx/config/conf.d/nginx.conf /etc/nginx/nginx.conf
-COPY ./Frontend usr/share/nginx/html
 
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y

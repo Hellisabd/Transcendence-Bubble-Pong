@@ -61,7 +61,6 @@ fastify.register(async function (fastify) {
             if (i == 2) {
                 i = 0;
                 const lobbyKey = `${username1}${username2}`;
-                console.log("lobby: ", lobbyKey); 
                 clientsWaiting.forEach(clientsWaiting => {
                     i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
@@ -96,7 +95,6 @@ fastify.register(async function (fastify) {
                 }
                 const data = JSON.parse(message.toString());
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournament;
-                console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMap.get(id_tournament_key_from_player);
                 if (!currentTournament) {
                     console.error(`Tournoi ${id_tournament_key_from_player} introuvable`);
@@ -104,14 +102,11 @@ fastify.register(async function (fastify) {
                 }
                 if (data.disconnect) {
                     if (currentTournament.tournamentsUsernames.length < 4) { 
-                        console.log("a player in queue as left");
                         for (let i = 0; i < currentTournament.tournamentsUsernames.length; i++) {
                             if (connection == currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]]) {
-                                console.log("suppressing user: ", currentTournament.tournamentsUsernames[i]);
                                 delete currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]];
                                 const index = currentTournament.classements.findIndex(player => player.username === currentTournament.tournamentsUsernames[i])
                                 currentTournament.tournamentsUsernames.splice(i, 1);
-                                console.log(`users in tournament: ${currentTournament.tournamentsUsernames}`);
                                 if (index !== -1)
                                     currentTournament.classements.splice(index, 1);
                                 return ;
@@ -135,11 +130,8 @@ fastify.register(async function (fastify) {
                     currentTournament.classements.push({username: data.username, score: 0});
                     currentTournament.tournamentsUsernames.push(data.username);
                     currentTournament.history[data.username] = [];
-                    console.log("pushing : ", data.username);
                     if (currentTournament.tournamentsUsernames.length == 4) {
-                        console.log("Launch tournament : game 1");
                         for (let i = 0; i < 4; i++) {
-                            console.log("sending tournament id to: ", currentTournament.tournamentsUsernames[i]);
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({ succes: true, id_tournament: id_tournament}));
                         }
                         id_tournament++;
@@ -150,9 +142,6 @@ fastify.register(async function (fastify) {
                 if (data.endgame) {
                     id_tournament_key_from_player = data.id_tournament_key_from_player;
                     currentTournament.end_lobby++;
-                    console.log("avant de push history: ", data.history);
-                    console.log("avant de push username: ", data.username);
-                    console.log("avant de push back history: ", currentTournament.history[data.username]);
                     currentTournament.history[data.username].push(data.history);
                     if (data.history.win == 2) {
                         for (let i = 0; i < 4; i++) {
@@ -162,27 +151,21 @@ fastify.register(async function (fastify) {
                             }
                         }
                     }
-                    console.log("data: ", data);
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
-                        console.log("game 2"); 
     
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player)
                         currentTournament.count_game++;
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
-                        console.log("game 3");
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], id_tournament_key_from_player)
                         currentTournament.end_lobby = 0;
                         currentTournament.count_game++; 
                     }
                     else if (currentTournament.count_game == 3 && currentTournament.end_lobby == 4) {
                         currentTournament.classements.sort((a, b) => b.score - a.score);
-                        console.log("end tournament");
                         for (let i = 0; i < 4; i++) {
-                            console.log("sending trucs par clients pour la fin du tournoi");
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
-                            console.log(currentTournament.history[currentTournament.tournamentsUsernames[i]]);
                             axios.post("http://users:5000/update_history", 
                                 {
                                     history: currentTournament.history[currentTournament.tournamentsUsernames[i]],
@@ -429,7 +412,6 @@ function launchTournament(user1, user2, user3, user4, id_tournament_key_from_pla
     let username2 = null;
     const lobbyKeypart1 = `${user1}${user2}`;
     const lobbyKeypart2 = `${user3}${user4}`;
-    console.log(`Nombre de joueurs en attente: ${Object.keys(currentTournament.tournamentQueue).length}`);
     for (let i = 0; i < users.length; i++) {
         if (i <= 1) {
             lobbyKey = lobbyKeypart1;
@@ -442,13 +424,25 @@ function launchTournament(user1, user2, user3, user4, id_tournament_key_from_pla
             username2 = user4;
         }
         if (currentTournament.tournamentQueue[users[i]]) {
-            currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
+            if (currentTournament.count_game == 1){
+                currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
                     success: true, 
                     player1: username1,
                     player2: username2,
                     player_id: i % 2 + 1, // for format 0 or 1
-                    "lobbyKey": lobbyKey
+                    "lobbyKey": lobbyKey,
+                    tournament_order: users
                 }));
+            }
+            else {
+                currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
+                        success: true, 
+                        player1: username1,
+                        player2: username2,
+                        player_id: i % 2 + 1, // for format 0 or 1
+                        "lobbyKey": lobbyKey
+                    }));
+            }
         }
     }
 }

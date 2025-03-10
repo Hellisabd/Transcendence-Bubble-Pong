@@ -30,12 +30,14 @@ RUN npm install
 RUN npm install ejs
 RUN npm install -g typescript
 RUN npm install pino-pretty
+RUN npm install formidable
+RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 
 USER spa
 
 # Exposer le port utilisé par spa
-EXPOSE 3000
+EXPOSE 7000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]

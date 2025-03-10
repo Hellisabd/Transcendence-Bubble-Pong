@@ -256,7 +256,6 @@ function handleGameInput(data, lobbyKey) {
 
 function startGameLoop(lobbyKey) {
     if (!lobbies[lobbyKey]) {
-        console.log("wrong lobbyKey");
         return;
     }
     if (lobbies[lobbyKey].gameinterval) {

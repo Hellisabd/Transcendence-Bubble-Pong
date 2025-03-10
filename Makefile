@@ -14,7 +14,7 @@ WHITE = \033[0;97m
 
 RM	= @rm -rf
 
-all :
+all : 
 	@if ! grep -q "127.0.0.1 transcendence" /etc/hosts; then \
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
@@ -36,20 +36,21 @@ users :
 build :
 	docker-compose down
 	docker-compose build
+	docker-compose up
 
 clean :
 	docker-compose down
 
-
-fclean : 
+fclean :
 	docker-compose down --volumes --remove-orphans
 
 hardclean:
 	@if [ -n "$$(docker ps -aq)" ]; then docker rm -f $$(docker ps -aq); fi
 	@if [ -n "$$(docker images -aq)" ]; then docker rmi -f $$(docker images -aq); fi
+	docker-compose down --volumes --remove-orphans
 
 git	: fclean
 	@git add . > /dev/null 2>&1
-	@@msg=$${MSG:-"$(CURRENT_DATE)"}; git commit -m "$(USER) $(CURRENT_DATE) $$msg" > /dev/null 2>&1 
+	@@msg=$${MSG:-"$(CURRENT_DATE)"}; git commit -m "$(USER) $(CURRENT_DATE) $$msg" > /dev/null 2>&1
 	@git push > /dev/null 2>&1
 	@echo "$(GREEN)(•̀ᴗ•́)و ̑̑GIT UPDATE!(•̀ᴗ•́)و ̑̑$(DEF_COLOR)"

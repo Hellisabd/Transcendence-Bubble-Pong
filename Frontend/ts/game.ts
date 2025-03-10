@@ -51,6 +51,31 @@ async function play_pong() {
     };
 }
 
+function display_order (player1: string, player2: string, player3: string, player4: string) {
+    const canvas = document.getElementById("tournament_order") as HTMLCanvasElement;
+    if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return ;
+        }
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let i = 0;
+        ctx.textAlign = "start";
+        ctx.textBaseline = "alphabetic";
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(String("Game 1 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player2), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player3 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String("Game 2 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player3), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player2 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String("Game 3 :"), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player1 + "   vs   " + player4), 0, 20 + (i++ * 30));
+        ctx.fillText(String(player2 + "   vs   " + player3), 0, 20 + (i++ * 30));
+    }
+}
+
 async function pong_tournament() {
     Disconnect_from_game();
     const user = await get_user();
@@ -73,10 +98,7 @@ async function pong_tournament() {
         console.warn("⚠️ WebSocket tournament fermée :", user);};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-        console.log("id_tournament in data: ", data.id_tournament);
-        console.log("data: ", data);
         if (data.id_tournament != undefined) {
-            console.log("actualise id_tournament");
             id_tournament = data.id_tournament; 
         }
         if (data.end_tournament && data.classementDecroissant) {
@@ -85,24 +107,23 @@ async function pong_tournament() {
             inTournament = false;
             return ;
         }
-        console.log("success: ", data.success);
         if (data.success == true) {
             player_id = data.player_id;
             lobbyKey = data.lobbyKey;
-            console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             initializeGame(data.player1, data.player2, user);
+        }
+        if (data.tournament_order) {
+            display_order(data.tournament_order[0], data.tournament_order[1], data.tournament_order[2], data.tournament_order[3]);
         }
     };
 }
 
 function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
-    if (intournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
-        console.log("endgame on tournament: ", id_tournament);
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "pong"}}));
+    if (intournament && (myscore == 1 || otherscore == 1)) { // a changer en 3 c est le score finish
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
         socket?.close();
     }
-    else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
-        console.log("update normal game history"); 
+    else if (myscore == 1 || otherscore == 1) { // a changer en 3 c est le score finish
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -137,7 +158,6 @@ function Disconnect_from_game() {
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
-	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -300,11 +320,9 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                 ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
             }
             if (player_id == 1 && win != 0) {
-                console.log(player_id);
                 end_game(win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, inTournament);
             }
             else if (player_id == 2 && win != 0) {
-                console.log(player_id);
                 end_game(win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, inTournament);
             }
         }

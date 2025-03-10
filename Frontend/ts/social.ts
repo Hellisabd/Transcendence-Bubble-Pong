@@ -15,7 +15,6 @@ async function display_friends() {
             return ;
         }
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		console.log("passe dans display friends");
 		for (let i = 0; i < friends.length; i++) {
 			ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
@@ -37,6 +36,27 @@ async function display_friends() {
 	}
 }
 
+async function display_pending(user: string[]) {
+	console.log("user tab:", user);
+	console.log("user tab:", user);
+	const canvas = document.getElementById("pending_request") as HTMLCanvasElement;
+	if (canvas) {
+		const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return ;
+        }
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (let i = 0; i < user.length; i++) {
+			ctx.textAlign = "start";
+            ctx.textBaseline = "alphabetic";
+            ctx.font = "20px Arial";
+			ctx.fillStyle = "#0080FF";
+            ctx.fillText(String(user[i]), 0, 20 + (i * 30));
+            ctx.fillText(String("Invited you"), 200, 20 + (i * 30));
+		}
+	}
+}
+
 async function set_up_friend_list(user: string | null) {
 	if (!user) {
 		user = await get_user();
@@ -53,14 +73,19 @@ async function set_up_friend_list(user: string | null) {
         console.warn("⚠️ WebSocket users fermée :", user);};
 	socialSocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-		console.log("data::: ", data);
 		const index = friends.findIndex(friend => friend.username == data.username);
 		if (index == -1)
 			friends.push({username: data.username, status: data.status});
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
-        display_friends();
+		if (data.success == true && data.user_inviting) {
+			console.log("lol?");
+			display_pending(data.user_inviting);
+		}
+		else 
+			console.log("pas lol?");
+		display_friends();
     };
 }
 
@@ -72,8 +97,10 @@ function close_users_socket() {
 async function add_friend(event: Event): Promise<void> {
     event.preventDefault();
 
-	console.log("passe dans addfriend");
 	const friend_username = (document.getElementById("friend_username") as HTMLInputElement).value;
+	if (!sanitizeInput(friend_username)) {
+        return alert("Be carefull i can bite");
+    }
 	const myusername = await get_user();
 	if (myusername == friend_username) {
 		alert("Prends un Curly");
@@ -96,4 +123,7 @@ async function pending_request(): Promise<void> {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username: myusername})
 	});
+	const result = await response.json();
+	console.log("result in pending: ", result);
+	display_pending(result.user_inviting);
 }

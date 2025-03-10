@@ -6,33 +6,38 @@
         <link rel="stylesheet" href="/Frontend/css/btn.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Modify User</title>
-</head>
-<body>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-          navigateTo("modify_user"); // Appelle la fonction au chargement de la page
-          set_up_friend_list();
-        });
-      </script>
-    <div id="user" style="display: none;"></div>
-    <div id="content">
-        <h2>Modify User</h2>
-        <form onsubmit="modify_user(event)">
-            <label for="email">Adresse Email :</label>
-            <input type="text" id="email" required>
-            <br>
-            <label for="username">Nom d'utilisateur :</label>
-            <input type="text" id="username" required>
-            <br>
-            <label for="password">Mot de passe :</label>
-            <input type="password" id="password" required>
-            <br>
-            <button type="submit">modifier informations</button>
-        </form>
-        <button class="btn" onclick="logout(1)">Logout</button>
-        <button class="btn" onclick="navigateTo('index')">HOME</button>
-        <canvas id="friends_list" width="300" height="500"></canvas>
-    </div>
-	<%- include('scripts.ejs') %>
-</body>
+    </head>
+    <body>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              navigateTo("modify_user"); // Appelle la fonction au chargement de la page
+              set_up_friend_list();
+            });
+        </script>
+        <div id="user" style="display: none;"></div>
+        <div id="content">
+            <h2>Modify User</h2>
+            <form id="modifyUserForm" onsubmit="modify_user(event)">
+                <label for="email">Adresse Email :</label>
+                <input type="text" id="email" name="email" required>
+                <br>
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" id="username" name="username" required>
+                <br>
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <button type="submit">Modifier Informations</button>
+            </form>
+            <div id="upload-section">
+                <h3>Upload Profile Picture</h3>
+                <input type="file" id="profileImage" accept="image/*">
+                <button onclick="uploadProfileImage()">Upload Image</button>
+            </div>
+            <button class="btn" onclick="logout(1)">Logout</button>
+            <button class="btn" onclick="navigateTo('index')">HOME</button>
+            <canvas id="friends_list" width="300" height="500"></canvas>
+        </div>
+        <%- include('scripts.ejs') %>
+    </body>
 </html>
