@@ -11,7 +11,7 @@ const arena_width = 700;
 const ballRadius = 10;
 const bonusRadius = 50;
 const arena_radius = 350;
-const bonus = "PG";
+const bonus = "PPPGGGS";
 let bonus_bool = 0;
 let last_player = null;
 
@@ -32,7 +32,7 @@ fastify.register(async function (fastify) {
                     gameState: {
                         ball: { x: 200, y: 400 , oldpos: {x: 350, y: 350} },
                         paddles: { player1: { name: data.username1, angle: Math.PI, size: Math.PI * 0.08 }, player2: { name: data.username2, angle: 0, size: Math.PI * 0.08 } },
-                        goals: { player1: { angle: Math.PI, size: Math.PI / 3 }, player2: { angle: 0, size: Math.PI / 3 } },
+                        goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false, right: false, left: false }, player2: { up: false, down: false, right: false, left: false } },
                         ballSpeed: {ballSpeedX: 3.2, ballSpeedY: 3.2},
@@ -73,6 +73,8 @@ function resetParam (lobbyKey) {
     gameState.paddles.player2.size = Math.PI * 0.08;
     gameState.goals.player1.size = Math.PI / 3;
     gameState.goals.player2.size = Math.PI / 3;
+    gameState.goals.player1.protected = false;
+    gameState.goals.player2.protected = false;
     gameState.paddles.player1.angle = Math.PI;
     gameState.paddles.player2.angle = 0;
     gameState.goals.player1.angle = Math.PI;
@@ -161,18 +163,42 @@ function update(lobbyKey) {
     if (gameState.ballSpeed.ballSpeedY < -10)
         gameState.ballSpeed.ballSpeedY = -10;
 
-    if (ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
+    if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
         resetBall(lobbyKey);
         gameState.score.player2++;
         resetParam(lobbyKey);
         console.log("GOAAAAAAAAL!!");
     }
 
-    else if (ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player2.angle - gameState.goals.player2.size / 2) && ball_angle <= gameState.goals.player2.angle + gameState.goals.player2.size / 2) {
+    else if (gameState.goals.player1.protected == true && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
+        gameState.goals.player1.protected = false;
+        gameState.lastBounce = Date.now() + gameState.bounceInterval;
+        let normalX = dx / ball_dist;
+        let normalY = dy / ball_dist;
+    
+        let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+    
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+    }
+
+    if (gameState.goals.player2.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player2.angle - gameState.goals.player2.size / 2) && ball_angle <= gameState.goals.player2.angle + gameState.goals.player2.size / 2) {
         resetBall(lobbyKey);
         gameState.score.player1++;
         resetParam(lobbyKey);
         console.log("GOAAAAAAAAL!!");
+    }
+
+    else if (gameState.goals.player2.protected == true && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player2.angle - gameState.goals.player2.size / 2) && ball_angle <= gameState.goals.player2.angle + gameState.goals.player2.size / 2) {
+        gameState.goals.player2.protected = false;
+        gameState.lastBounce = Date.now() + gameState.bounceInterval;
+        let normalX = dx / ball_dist;
+        let normalY = dy / ball_dist;
+    
+        let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+    
+        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
     }
 
     else if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > gameState.lastBounce ) {
@@ -198,8 +224,6 @@ function update(lobbyKey) {
         gameState.paddles.player2.size = Math.PI * 0.04;
     }
 
-
-    console.log(bounce);
     bonusManager(gameState);
 }
 
@@ -240,6 +264,12 @@ function bonusManager(gameState) {
                     gameState.goals.player2.size = Math.PI / 2;
                 if (last_player == "player2")
                     gameState.goals.player1.size = Math.PI / 2;
+            }
+            if (gameState.bonus.tag == 'S') {
+                if (last_player == "player1")
+                    gameState.goals.player1.protected = true;
+                if (last_player == "player2")
+                    gameState.goals.player2.protected = true;
             }
             gameState.bonus.tag = null;
         }

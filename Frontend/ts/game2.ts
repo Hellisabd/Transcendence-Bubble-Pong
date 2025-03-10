@@ -179,7 +179,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 player1: { name: user1, angle: Math.PI, size: Math.PI * 0.08 },
                 player2: { name: user2, angle: 0, size: Math.PI * 0.08 }
             },
-            goals: { player1: { angle: Math.PI, size: Math.PI / 3 }, player2: { angle: 0, size: Math.PI / 3 } },
+            goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
             score: { player1: 0, player2: 0 },
             bonus: {tag: null, x: 350, y: 350 },
             playerReady: { player1: false, player2: false }
@@ -273,10 +273,17 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 gameState.goals.player1.angle - gameState.goals.player1.size / 2,
                 gameState.goals.player1.angle + gameState.goals.player1.size / 2
             );
+            if (gameState.goals.player1.protected == true) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#00CDFF";
+            }
             ctx.lineWidth = 5;
             ctx.strokeStyle = "red";
             ctx.stroke();
+            ctx.stroke();
+            ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //GOAL 2
             ctx.beginPath();
@@ -287,10 +294,17 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 gameState.goals.player2.angle - gameState.goals.player2.size / 2,
                 gameState.goals.player2.angle + gameState.goals.player2.size / 2
             );
+            if (gameState.goals.player2.protected == true) {
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = "#00CDFF";
+            }
             ctx.lineWidth = 5;
             ctx.strokeStyle = "blue";
             ctx.stroke();
+            ctx.stroke();
+            ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //BALL
             ctx.beginPath();
@@ -363,6 +377,29 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
                 ctx.beginPath();
                 ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
+                if (up_down == true) {
+                    bonus_glowing++;
+                    if (bonus_glowing == 150)
+                        up_down = false;
+                }
+                if (up_down == false) {
+                    bonus_glowing--;
+                    if (bonus_glowing == 0)
+                        up_down = true;
+                }     
+                console.log(bonus_glowing);
+                ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
+                ctx.shadowColor = ctx.strokeStyle;
+                ctx.lineWidth = 20;
+                ctx.stroke();
+                ctx.closePath();
+                ctx.shadowBlur = 0;
+            }
+
+            if (gameState.bonus.tag == 'S') {
+                ctx.beginPath();
+                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = "#00CDFF";
                 if (up_down == true) {
                     bonus_glowing++;
                     if (bonus_glowing == 150)
