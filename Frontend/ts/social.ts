@@ -36,6 +36,27 @@ async function display_friends() {
 	}
 }
 
+async function display_pending(user: string[]) {
+	console.log("user tab:", user);
+	console.log("user tab:", user);
+	const canvas = document.getElementById("pending_request") as HTMLCanvasElement;
+	if (canvas) {
+		const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return ;
+        }
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		for (let i = 0; i < user.length; i++) {
+			ctx.textAlign = "start";
+            ctx.textBaseline = "alphabetic";
+            ctx.font = "20px Arial";
+			ctx.fillStyle = "#0080FF";
+            ctx.fillText(String(user[i]), 0, 20 + (i * 30));
+            ctx.fillText(String("Invited you"), 200, 20 + (i * 30));
+		}
+	}
+}
+
 async function set_up_friend_list(user: string | null) {
 	if (!user) {
 		user = await get_user();
@@ -58,7 +79,13 @@ async function set_up_friend_list(user: string | null) {
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
-        display_friends();
+		if (data.success == true && data.user_inviting) {
+			console.log("lol?");
+			display_pending(data.user_inviting);
+		}
+		else 
+			console.log("pas lol?");
+		display_friends();
     };
 }
 
@@ -96,4 +123,7 @@ async function pending_request(): Promise<void> {
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username: myusername})
 	});
+	const result = await response.json();
+	console.log("result in pending: ", result);
+	display_pending(result.user_inviting);
 }

@@ -128,10 +128,28 @@ fastify.post("/pending_request", async (request, reply) => {
       return reply.send(JSON.stringify({success: false, message: "user not found in db"}));
     }
     const pending_request = await db.prepare(`
-      SELECT * FROM friends
+      SELECT user_id FROM friends
       WHERE friend_id = ? AND status = 'pending'
-      `).run(user_id);
+      `).all(user_id);
+      if (!pending_request)
+        return reply.send(JSON.stringify({success: false}));
+    console.log("pending in back: ", pending_request);
+    let username_invit = []; 
+    for (let i = 0; i < pending_request.length; i++) {
+      username_invit.push(await get_user_with_id(pending_request[i].user_id));
+    }
+    return reply.send(JSON.stringify({success: true, user_inviting: username_invit}));
 });
+
+async function get_user_with_id(user_id) {
+  console.log("user_id in get user with id: ", user_id);
+  const user = await db.prepare(`
+    SELECT username FROM users
+    WHERE id = ?
+    `).get(user_id);
+    console.log(user.username);
+    return user.username;
+}
 
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
@@ -216,7 +234,7 @@ fastify.post("/add_friend", async (request, reply) => {
       VALUES (?, ?, 'pending')
       `).run(user_sending_id, user_to_add_id);
 
-    return reply.send(JSON.stringify({succes: true, message: `You successefully invited ${user_to_add}`}));
+    return reply.send(JSON.stringify({succes: true, message: `You successefully invited ${user_to_add}`, user_added: user_to_add}));
 });
 
 // 🔍 Vérifier les tables existantes

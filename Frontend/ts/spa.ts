@@ -98,10 +98,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             play_pong();
         if (page === "pong_tournament")
             pong_tournament();
-        // if (url === "/social") {
-        //     // pending_request();
-        //     display_friends();
-        // }
+        if (page === "social") {
+            pending_request();
+            console.log("passse dans pending request");
+        }
         display_friends();
         
     } catch (error) {
