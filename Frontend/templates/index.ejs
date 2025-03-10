@@ -2,32 +2,97 @@
 <html lang="en">
 <head>
       <link rel="stylesheet" href="/Frontend/css/style.css">
-      <link rel="stylesheet" href="/Frontend/css/btn.css">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SPA Demo</title>
 </head>
-<body>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("index"); // Appelle la fonction au chargement de la page
-      set_up_friend_list();
-    });
-  </script>
-  <div id="user" style="display: none;"></div>
-  <div id="content">
-    <h1>Page d'accueil</h1>
-    <p>Bienvenue sur la page d'accueil !</p>
-    <button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
-    <button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
-    <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
-    <button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
-    <button class="btn" onclick="navigateTo('history')">History</button>
-    <button class="btn" onclick="navigateTo('social')">Social</button>
-    <button class="btn" onclick="logout(1)">Logout</button>
-    <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
-    <canvas id="friends_list" width="300" height="500"></canvas>
-  </div>
-  <%- include('scripts.ejs') %>
-</body>
+
+	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+
+	<div id="content">
+		<nav class="bg-gray-800">
+			<div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+				<div class="relative flex h-16 items-center justify-between">
+					<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+						<!-- Mobile menu button-->
+						<button id="mobile-menu-button" type="button"
+							class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+							<span class="sr-only">Open main menu</span>
+							<svg id="menu-icon-open" class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+								stroke="currentColor" aria-hidden="true">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+							</svg>
+							<svg id="menu-icon-close" class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+								stroke="currentColor" aria-hidden="true">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+							</svg>
+						</button>
+					</div>
+					<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+						<div class="flex shrink-0 items-center">
+							<img class="h-8 w-auto"
+								src="/Frontend/assets/logo.webp"
+								alt="Your Company">
+						</div>
+						<div class="hidden sm:ml-6 sm:block">
+							<div class="flex space-x-4">
+								<a href="#" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+									aria-current="page">Dashboard</a>
+								<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
+								<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+								<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+							</div>
+						</div>
+					</div>
+					<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+						<div id="user" class="relative ml-3"></div>
+
+						<!-- Profile dropdown -->
+						<div class="relative ml-3">
+							<div>
+								<button id="user-menu-button" type="button"
+									class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+									<span class="sr-only">Open user menu</span>
+									<img id="avatar" class="size-8 rounded-full" alt="">
+								</button>
+							</div>
+							<!-- Dropdown menu -->
+							<div id="user-menu"
+								class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+								<a href="#" class="block px-4 py-2 text-sm text-gray-700">Your Profile</a>
+								<a href="#" class="block px-4 py-2 text-sm text-gray-700">Settings</a>
+								<a href="#" class="block px-4 py-2 text-sm text-gray-700">Sign out</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Mobile menu -->
+			<div id="mobile-menu" class="hidden sm:hidden">
+				<div class="space-y-1 px-2 pb-3 pt-2">
+					<a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
+						aria-current="page">Dashboard</a>
+					<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
+					<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+					<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+				</div>
+			</div>
+		</nav>
+
+		<h1>Page d'accueil</h1>
+		<p>Bienvenue sur la page d'accueil !</p>
+		<button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
+		<button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
+		<button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
+		<button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
+		<button class="btn" onclick="navigateTo('history')">History</button>
+		<button class="btn" onclick="navigateTo('social')">Social</button>
+		<button class="btn" onclick="logout(1)">Logout</button>
+		<!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
+		<canvas id="friends_list" width="300" height="500"></canvas>
+	</div>
+		<%- include('scripts.ejs') %>
+	</body>
 </html>

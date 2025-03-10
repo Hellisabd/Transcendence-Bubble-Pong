@@ -16,8 +16,7 @@ let usersession = new Map();
 
 async function get_avatar(request, reply) {
     const {username} = request.body;
-    console.log("username dans get_avatar", username);
-    const response = await axios.post("//users:5000/get_avatar",
+    const response = await axios.post("http://users:5000/get_avatar",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
@@ -26,7 +25,6 @@ async function get_avatar(request, reply) {
 
 async function update_avatar(req, reply) {
     try {
-        console.log("passe dans update avatr");
       const token = req.cookies.session; 
       const username = await get_user(token);
   
@@ -55,11 +53,9 @@ async function update_avatar(req, reply) {
         { headers: { "Content-Type": "application/json" } }
     );
     if (response.data.success) {
-        console.log(`Fichier téléchargé avec succès : ${fullPath}`);
         reply.send({ success: true, message: "Avatar mis à jour avec succès." });
     }
     else {
-        console.log("data.succes is false");
         reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
     }
     } catch (error) {
@@ -79,16 +75,13 @@ fastify.register(fastifyCookie, {
 async function log(req, reply) {
     console.log("🔄 Redirection de /login vers users...");
     const {username} = req.body;
-    console.log(username);
     const response = await axios.post("http://users:5000/login", req.body);
     const result = await response.data;
     if (result.success) {
-        console.log(response.data);
         const {token , username, domain} = response.data;
         if ([...usersession.values()].some(user => user.username === username)) {
             return reply.send({success: false, message: `You are already loged`});
         }
-        console.log(`domain::: ${domain}`);
         usersession.set(token, {username: username, status: 'online'});
         send_to_friend(username, token);
         return reply
@@ -114,7 +107,6 @@ async function create_account(req, reply) {
         const response = await axios.post("http://users:5000/create_account", req.body, {
             withCredentials: true
         });
-        console.log(response.data);
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
@@ -139,20 +131,16 @@ async function logout(token, reply) {
     let username = await get_user(token);
     if (usersession.has(token)) {
         usersession.delete(token);
-        console.log("passe dans logout", usersession.get(token));
         send_to_friend(username);
     }
 }
 
 async function modify_user(req, reply) {
-    console.log("envoie au container user depuis spa dans modify user");
     const response = await axios.post("http://users:5000/modify_user", req.body);
     if (response.data.new_file_name && response.data.old_file_name &&  response.data.old_file_name != "default.jpg") {
         const pathtoimage = "/usr/src/app/Frontend/avatar/";
         const oldFilePath = `${pathtoimage}${response.data.old_file_name}`;
         const newFilePath = `${pathtoimage}${response.data.new_file_name}`;
-        console.log(oldFilePath);
-        console.log(newFilePath);
         if (fs.existsSync(oldFilePath)) { 
             fs.renameSync(oldFilePath, newFilePath);
         }
@@ -177,14 +165,12 @@ async function get_history(req, reply) {
         return reply.view("login.ejs");        
     }
 
-    console.log("Envoi de la requête à /get_history pour :", username);
 
     const response = await axios.post("http://users:5000/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
     const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-    console.log("Réponse reçue :", response.data);
     // reply.send(finalFile);
     return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }
@@ -203,7 +189,6 @@ async function waiting_room(req, reply) {
 }
 
 async function display_friends(username, connection) {
-    console.log(`username: ${username}`);
     const data = await get_friends(username);
     const friends = data.friends;
     if (!friends) {
@@ -257,17 +242,14 @@ async function pending_request(req, reply) {
 }
 
 async function get_friends(username) {
-    console.log("passe dans online users");
     const response = await axios.post("http://users:5000/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    console.log("retour de get_friends: ", response.data);
     let friends = response.data.friends;
     if (!friends) {
         return response.data;
     }
-    console.log(`friends:: ${friends} length : ${friends.length}`);
     let friends_and_status = [];
     for (let i = 0; i < friends.length; i++) {
         if ([...usersession.values()].some(user => user.username === friends[i].username)) {
@@ -276,7 +258,6 @@ async function get_friends(username) {
         else
             friends_and_status.push({username: friends[i].username, status: "offline"});
     }
-    console.log(`friends_and_status::: ${friends_and_status}`)
     return ({success: true, friends: friends_and_status});
 }
 

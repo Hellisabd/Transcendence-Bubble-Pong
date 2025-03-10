@@ -6,28 +6,31 @@ if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
 }
 
-async function set_user(): Promise<void> {
-    const userDiv = document.getElementById("user") as HTMLDivElement;
-    
-    const username =  await get_user();
-    console.log(`✅ Utilisateur récupéré : ${username}`);
-    
-    if (username) {
-        userDiv.innerHTML = `👤 ${username}`;
-        userDiv.style.display = "block";
-    } else {
-        userDiv.innerHTML = "";
-        userDiv.style.display = "none";
-    }
+async function set_user(contentDiv: HTMLDivElement, username: string | null): Promise<void> {
+	if (!username)
+		return;
+
+	const userDiv = contentDiv.querySelector("#user") as HTMLDivElement;
+	const avatarElement = contentDiv.querySelector("#avatar") as HTMLImageElement;
+	console.log(`👤 ${username}`);
+	userDiv.innerHTML = `👤 ${username}`;
+	userDiv.classList.add("text-white");
+	const response = await fetch("/get_avatar", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username: username})
+	});
+	const response_avatar = await response.json();
+	const avatar_name = await response_avatar.avatar_name;
+	avatarElement.src = `./Frontend/avatar/${avatar_name}`;
 }
 
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-    console.log("Navigating to:", page);
-    let afficheUser = false;
-    const username: string | null = await get_user();
-    console.log(`✅ Utilisateur récupéré : ${username}`);
-    const loging: boolean = page == "login"; 
+	console.log(`🚀 Changement de page: ${page}`);
+	let afficheUser = false;
+	const username = await get_user();
+    const loging: boolean = page == "login";
     const creating: boolean = page == "create_account";
     const loged: boolean = creating || loging;
     if (username && username.length > 0) {
@@ -37,23 +40,23 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
     }
     if (!loged && !afficheUser) {
-        console.log("passe dans recur");
         navigateTo("login", true, null);
         return ;
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
-    const userDiv = document.getElementById("user") as HTMLDivElement;
-    
+    let userDiv = document.getElementById("user") as HTMLDivElement;
+
     // Vider le contenu actuel
+    if (!userDiv)
+        userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
-    
+
     let url: string = page == "index" ? "/" : `/${page}`;
-    
+
     try {
         let response: Response | null = null;
         if (url === "/end_tournament") {
-            console.log("ask for end tournament");
             response = await fetch("/end_tournament", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -69,12 +72,16 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        
+
         const html: string = await response.text();
-        
+
         const tempDiv: HTMLDivElement = document.createElement("div");
+        let bodyClass: string = "";
+        if (-1 != html.indexOf("body class=\""))
+            bodyClass = html.substring(html.indexOf("body class=\"") + 12, html.indexOf(">", html.indexOf("body class=\"")) - 1);
+        document.body.className = bodyClass;
         tempDiv.innerHTML = html;
-        
+
         // ✅ Mise à jour du contenu principal
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
@@ -83,22 +90,22 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
         // ✅ Attendre la valeur correcte de `get_user()`
-        if (afficheUser) {
-            const response = await fetch("/get_avatar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: username})
-            });
-            const response_avatar = await response.json();
-            const avatar_name = await response_avatar.avatar_name;
-            userDiv.innerHTML = `prout: ${username}
-            <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
-            userDiv.style.display = "block";
-        }
+        // if (afficheUser) {
+        //     const response = await fetch("/get_avatar", {
+        //         method: "POST",
+        //         headers: { "Content-Type": "application/json" },
+        //         body: JSON.stringify({ username: username})
+        //     });
+        //     const response_avatar = await response.json();
+        //     const avatar_name = await response_avatar.avatar_name;
+        //     userDiv.innerHTML = `${username}
+        //     <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
+        //     userDiv.style.display = "";
+        // }
+		set_user(contentDiv, username);
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
-        console.log("deco spa");
         Disconnect_from_game();
         if (page === "waiting_room")
             play_pong();
@@ -109,34 +116,30 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         //     display_friends();
         // }
         display_friends();
-        
+
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
     }
 }
 
-async function get_user(): Promise<string> {
-    try {
-        const response = await fetch("/get_user", {
-            method: "GET",
-            credentials: "include",
-        })
-        if (!response.ok)
-            return "";
-        const data: {success: boolean; username?: string} = await response.json();
-        return data.success ? data.username ?? "" : ""; 
-    } catch (error) {
-        alert("Erreur cant get user");
-        return "";
-    }
+async function get_user(): Promise<string | null> {
+	const response = await fetch("/get_user", {
+		method: "GET",
+		credentials: "include",
+	})
+	if (!response.ok)
+		return null;
+	const data: {success: boolean; username?: string} = await response.json();
+	return data.success ? data.username ?? null : null;
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+	navigateTo(window.location.pathname.substring(1), false, null);
+});
 
 // Gestion de l'historique
 window.onpopstate = function(event: PopStateEvent): void {
     if (event.state) {
-		console.log("Navigating back/forward to:", event.state.page);
         navigateTo(event.state.page, false, null);
 	};
 }
-
-set_user();

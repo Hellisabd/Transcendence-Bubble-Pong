@@ -21,15 +21,14 @@ declare function get_user(): Promise<string | null>;
 
 async function login(event: Event): Promise<void> {
     event.preventDefault();
-    console.log("login appelé");
-    
+
     const email = (document.getElementById("email") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
 
     if (!sanitizeInput(email) || !sanitizeInput(password)) {
         return alert("Be carefull i can bite");
     }
-    
+
     try {
         let domain =  window.location.host.substring(0, window.location.host.indexOf(':'));
         const response = await fetch("/login", {
@@ -38,50 +37,34 @@ async function login(event: Event): Promise<void> {
             body: JSON.stringify({ email, password, "domain": domain })
         });
 
-        console.log(`email: ${email}`);
-        console.log(`password: ${password}`);
-        console.log("domain:", domain);
-        
         const result: LoginResponse = await response.json();
-        console.log(`result::: ${result.success}`);
 
         if (result.success) {
             alert(JSON.stringify(result));
-            navigateTo("", true, null);
+            navigateTo("index", true, null);
             set_up_friend_list(await get_user());
         } else {
             alert(JSON.stringify(result));
         }
     } catch (error) {
-        console.error("Erreur réseau :", error);
         alert("Erreur de connexion au serveur.");
     }
 }
 
 async function create_account(event: Event): Promise<void> {
     event.preventDefault();
-    console.log("create account appelé");
-    
-    const username = (document.getElementById("username") as HTMLInputElement).value;
-    const password = (document.getElementById("password") as HTMLInputElement).value;
-    const email = (document.getElementById("email") as HTMLInputElement).value;
-    
-    if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(username)) {
-        return alert("Be carefull i can bite");
-    }
+
+    const username = (document.getElementById("name") as HTMLInputElement).value;
+    const password = (document.getElementById("password_creation") as HTMLInputElement).value;
+    const email = (document.getElementById("email_creation") as HTMLInputElement).value;
 
     const response = await fetch("/create_account", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, email })
     });
-    
-    console.log(`username: ${username}`);
-    console.log(`password: ${password}`);
-    console.log(`email: ${email}`);
-    
+
     const result: LoginResponse = await response.json();
-    console.log(`result success:: ${result.success}`);
 
     if (result.success) {
         alert("Compte créé!");
@@ -93,8 +76,7 @@ async function create_account(event: Event): Promise<void> {
 
 async function logout(print: boolean): Promise<void> {
     await fetch("/logout", { method: "GET" });
-    
-    console.log(`print: ${print}`);
+
     if (print) {
         alert("Déconnexion!");
         navigateTo("", true, null);
@@ -108,7 +90,7 @@ async function uploadProfileImage() {
         if (file) {
             const formData = new FormData();
             formData.append('profileImage', file);
-            
+
         try {
             const response = await fetch('/update_avatar', {
                 method: 'POST',
@@ -118,9 +100,7 @@ async function uploadProfileImage() {
 
         if (data.success) {
             alert('Image uploaded successfully!');
-            console.log('Server response:', data);
         } else {
-            console.log('Upload failed:', data);
             alert('Failed to upload image.');
         }
         } catch (error) {
@@ -131,22 +111,16 @@ async function uploadProfileImage() {
 
 async function modify_user(event: Event): Promise<void> {
     event.preventDefault();
-    
+
     const newusername = (document.getElementById("username") as HTMLInputElement).value;
     const password = (document.getElementById("password") as HTMLInputElement).value;
     const email = (document.getElementById("email") as HTMLInputElement).value;
-    
-    console.log(`newusername: ${newusername}`);
-    console.log(`password: ${password}`);
-    console.log(`email: ${email}`);
-    
+
     if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(newusername)) {
         return alert("Be carefull i can bite");
     }
 
-    const username = await get_user(); 
-    console.log(`oldusername: ${username}`);
-    
+    const username = await get_user();
     if (!username) {
         alert("Impossible de récupérer l'utilisateur!");
 
@@ -158,9 +132,9 @@ async function modify_user(event: Event): Promise<void> {
             },
             body: JSON.stringify({newusername, password, email, username})
         });
-        
+
         const result: ModifyUserResponse = await response.json();
-        
+
         if (result.success) {
             logout(false);
             alert("Modification effectuée!");
@@ -168,5 +142,41 @@ async function modify_user(event: Event): Promise<void> {
         } else {
             alert("Erreur lors de la modification.");
         }
+    }
+}
+
+
+
+
+
+
+
+function fadeOutCard(page: 'create_account' | 'login'): void {
+    if (page === 'create_account') {
+        showRegister();
+    } else {
+        showLogin();
+    }
+}
+
+function showLogin(): void {
+    const regis = document.getElementById('register');
+    const login = document.getElementById('login');
+
+    if (regis && login) {
+        login.classList.remove('hidden');
+        login.classList.add('animate-leftFadeIn');
+        regis.classList.add('hidden');
+    }
+}
+
+function showRegister(): void {
+    const regis = document.getElementById('register');
+    const login = document.getElementById('login');
+
+    if (regis && login) {
+        login.classList.add('hidden');
+        regis.classList.remove('hidden');
+        regis.classList.add('animate-rightFadeIn');
     }
 }

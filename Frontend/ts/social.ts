@@ -15,7 +15,6 @@ async function display_friends() {
             return ;
         }
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		console.log("passe dans display friends");
 		for (let i = 0; i < friends.length; i++) {
 			ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
@@ -53,7 +52,6 @@ async function set_up_friend_list(user: string | null) {
         console.warn("⚠️ WebSocket users fermée :", user);};
 	socialSocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-		console.log("data::: ", data);
 		const index = friends.findIndex(friend => friend.username == data.username);
 		if (index == -1)
 			friends.push({username: data.username, status: data.status});
@@ -72,7 +70,6 @@ function close_users_socket() {
 async function add_friend(event: Event): Promise<void> {
     event.preventDefault();
 
-	console.log("passe dans addfriend");
 	const friend_username = (document.getElementById("friend_username") as HTMLInputElement).value;
 	if (!sanitizeInput(friend_username)) {
         return alert("Be carefull i can bite");
