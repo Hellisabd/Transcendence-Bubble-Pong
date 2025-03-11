@@ -11,6 +11,7 @@ if (window.location.pathname === "/") {
 }
 
 async function set_user(): Promise<void> {
+    console.log("lol");
     const userDiv = document.getElementById("user") as HTMLDivElement;
     
     const username =  await get_user();

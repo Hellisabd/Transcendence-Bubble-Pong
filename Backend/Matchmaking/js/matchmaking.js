@@ -105,6 +105,7 @@ fastify.register(async function (fastify) {
                         for (let i = 0; i < currentTournament.tournamentsUsernames.length; i++) {
                             if (connection == currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]]) {
                                 delete currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]];
+                                console.log(`disconnecting ${currentTournament.tournamentsUsernames[i]} from tournament queue`);
                                 const index = currentTournament.classements.findIndex(player => player.username === currentTournament.tournamentsUsernames[i])
                                 currentTournament.tournamentsUsernames.splice(i, 1);
                                 if (index !== -1)
@@ -143,7 +144,7 @@ fastify.register(async function (fastify) {
                     id_tournament_key_from_player = data.id_tournament_key_from_player;
                     currentTournament.end_lobby++;
                     currentTournament.history[data.username].push(data.history);
-                    if (data.history.win == 2) {
+                    if (data.history.win == 1) {
                         for (let i = 0; i < 4; i++) {
                             if (data.username == currentTournament.classements[i].username) {
                                 currentTournament.classements[i].score += 1;
