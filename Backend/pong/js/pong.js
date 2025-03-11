@@ -146,12 +146,12 @@ function check_score(lobbyKey) {
         return ;
     gameState = lobbies[lobbyKey].gameState;
 
-    if (gameState.score.player1 == 1 || gameState.score.player2 == 1) {
+    if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
         gameState.playerReady.player1 = false;
         gameState.playerReady.player2 = false;
         gameState.ballSpeed.ballSpeedX = 3.2
         gameState.ballSpeed.ballSpeedY = 3.2
-        if ((gameState.score.player1 == 1 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 1 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
+        if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
                 lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: true}));
                 lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: false}));
         }
@@ -237,10 +237,13 @@ function handleGameInput(data, lobbyKey) {
     }
     if (data.playerReady) {
         console.log("Registering player state");
+        console.log(data);
         if (data.player == 1)
             gameState.playerReady.player1 = true;
         if (data.player == 2)
             gameState.playerReady.player2 = true;
+        console.log("player1: ", gameState.playerReady.player1);
+        console.log("player2: ", gameState.playerReady.player2);
         if (gameState.playerReady.player1 && gameState.playerReady.player2) {
             console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
             lobbies[lobbyKey].players.forEach(client => {

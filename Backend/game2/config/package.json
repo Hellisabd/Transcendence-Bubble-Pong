@@ -1,0 +1,13 @@
+{
+	"name": "game2",
+	"version": "1.0.0",
+	"main": "game2.js",
+	"scripts": {
+	  "start": "node Backend/js/game2.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.0.0",
+	  "@fastify/websocket": "^7.2.0",
+	  "axios": "^1.7.9"
+	}
+  }

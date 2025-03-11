@@ -9,7 +9,7 @@ type ModifyUserResponse = {
     success: boolean;
 };
 
-function sanitizeInput(input) {
+function sanitizeInput(input: string): string | boolean {
     if (typeof input !== "string") return false;
     if (input.length > 50) return false; // Empêche les inputs trop longs
     if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
