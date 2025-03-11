@@ -11,7 +11,7 @@ const arena_width = 700;
 const ballRadius = 10;
 const bonusRadius = 50;
 const arena_radius = 350;
-const bonus = "PPPGGGS";
+const bonus = "PPGGS";
 let bonus_bool = 0;
 let last_player = null;
 
@@ -120,38 +120,91 @@ function update(lobbyKey) {
     move_paddle(gameState.paddles.player1, gameState.moving.player1, gameState.paddles.player2);
     move_paddle(gameState.paddles.player2, gameState.moving.player2, gameState.paddles.player1);
 
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player1.angle - gameState.paddles.player1.size) && (ball_angle <= gameState.paddles.player1.angle + gameState.paddles.player1.size) && Date.now() > gameState.lastBounce) {
-        console.log("PADDLE1!!");
-        gameState.lastBounce = Date.now() + gameState.bounceInterval;
-        bounce++;
+    let lim_inf_player1 = gameState.paddles.player1.angle - gameState.paddles.player1.size;
+    if (lim_inf_player1 < 0)
+        lim_inf_player1 += 2 * Math.PI;
 
-        let impactFactor = (ball_angle - gameState.paddles.player1.angle) / gameState.paddles.player1.size;
+    let lim_sup_player1 = gameState.paddles.player1.angle + gameState.paddles.player1.size;
+    if (lim_sup_player1 > 2 * Math.Pi)
+        lim_sup_player1 -= 2 * Math.PI;
 
-        let bounceAngle = impactFactor * Math.PI / 4;
-        let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
+    let lim_inf_player2 = gameState.paddles.player2.angle - gameState.paddles.player2.size;
+    if (lim_inf_player2 < 0)
+        lim_inf_player2 += 2 * Math.PI;
 
-        gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
-        gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+    let lim_sup_player2 = gameState.paddles.player2.angle + gameState.paddles.player2.size;
+    if (lim_sup_player2 > 2 * Math.Pi)
+        lim_sup_player2 -= 2 * Math.PI;
+
+    if (ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness && Date.now() > gameState.lastBounce) {
+        if (lim_inf_player1 < lim_sup_player1) {
+            if (ball_angle >= lim_inf_player1 && ball_angle <= lim_sup_player1) {
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                bounce++;
         
-        randGoalPos(gameState.goals.player1, gameState.goals.player2);
-        last_player = "player1";
-    }
-
-    if ((ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness) && (ball_angle >= gameState.paddles.player2.angle - gameState.paddles.player2.size) && (ball_angle <= gameState.paddles.player2.angle + gameState.paddles.player2.size) && Date.now() > gameState.lastBounce) {
-        console.log("PADDLE2!!");
-        gameState.lastBounce = Date.now() + gameState.bounceInterval;
-        bounce++;
-
-        let impactFactor = (ball_angle - gameState.paddles.player2.angle) / gameState.paddles.player2.size;
-
-        let bounceAngle = impactFactor * Math.PI / 4;
-        let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
-
-        gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
-        gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
-
-        randGoalPos(gameState.goals.player2, gameState.goals.player1);
-        last_player = "player2";
+                let impactFactor = (ball_angle - gameState.paddles.player1.angle) / gameState.paddles.player1.size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
+        
+                gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+                
+                randGoalPos(gameState.goals.player1, gameState.goals.player2);
+                last_player = "player1";
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_player1 || ball_angle <= lim_sup_player1) {
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                bounce++;
+        
+                let impactFactor = (ball_angle - gameState.paddles.player1.angle) / gameState.paddles.player1.size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
+        
+                gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+                
+                randGoalPos(gameState.goals.player1, gameState.goals.player2);
+                last_player = "player1";
+            }
+        }
+        if (lim_inf_player2 < lim_sup_player2) {
+            if (ball_angle >= lim_inf_player2 && ball_angle <= lim_sup_player2) {
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                bounce++;
+        
+                let impactFactor = (ball_angle - gameState.paddles.player2.angle) / gameState.paddles.player2.size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
+        
+                gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+        
+                randGoalPos(gameState.goals.player2, gameState.goals.player1);
+                last_player = "player2";
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_player2 || ball_angle <= lim_sup_player2) {
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                bounce++;
+        
+                let impactFactor = (ball_angle - gameState.paddles.player2.angle) / gameState.paddles.player2.size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(gameState.ballSpeed.ballSpeedX ** 2 + gameState.ballSpeed.ballSpeedY ** 2);
+        
+                gameState.ballSpeed.ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                gameState.ballSpeed.ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+        
+                randGoalPos(gameState.goals.player2, gameState.goals.player1);
+                last_player = "player2";
+            }
+        }
     }
 
     if (gameState.ballSpeed.ballSpeedX > 10)
@@ -163,48 +216,117 @@ function update(lobbyKey) {
     if (gameState.ballSpeed.ballSpeedY < -10)
         gameState.ballSpeed.ballSpeedY = -10;
 
-    if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
-        resetBall(lobbyKey);
-        gameState.score.player2++;
-        resetParam(lobbyKey);
-        console.log("GOAAAAAAAAL!!");
+    let lim_inf_goal1 = gameState.goals.player1.angle - gameState.goals.player1.size / 2;
+    if (lim_inf_goal1 < 0)
+        lim_inf_goal1 += 2 * Math.PI;
+
+    let lim_sup_goal1 = gameState.goals.player1.angle + gameState.goals.player1.size / 2;
+    if (lim_inf_goal1 > 2 * Math.PI)
+        lim_inf_goal1 -= 2 * Math.PI;
+
+    let lim_inf_goal2 = gameState.goals.player2.angle - gameState.goals.player2.size / 2;
+    if (lim_inf_goal2 < 0)
+        lim_inf_goal2 += 2 * Math.PI;
+
+    let lim_sup_goal2 = gameState.goals.player2.angle + gameState.goals.player2.size / 2;
+    if (lim_inf_goal2 > 2 * Math.PI)
+        lim_inf_goal2 -= 2 * Math.PI;
+
+    if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
+        if (lim_inf_goal1 < lim_sup_goal1) {
+            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                resetBall(lobbyKey);
+                gameState.score.player2++;
+                resetParam(lobbyKey);
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                resetBall(lobbyKey);
+                gameState.score.player2++;
+                resetParam(lobbyKey);
+            } 
+        }
     }
 
-    else if (gameState.goals.player1.protected == true && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player1.angle - gameState.goals.player1.size / 2) && ball_angle <= gameState.goals.player1.angle + gameState.goals.player1.size / 2) {
-        gameState.goals.player1.protected = false;
-        gameState.lastBounce = Date.now() + gameState.bounceInterval;
-        let normalX = dx / ball_dist;
-        let normalY = dy / ball_dist;
+    if (gameState.goals.player1.protected == true && ball_dist + ballRadius + 5 > arena_radius) {
+        if (lim_inf_goal1 < lim_sup_goal1) {
+            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                gameState.goals.player1.protected = false;
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+            
+                gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+                gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                gameState.goals.player1.protected = false;
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+            
+                gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+                gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+            } 
+        }
+    } 
     
-        let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
-    
-        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
-        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+    if (gameState.goals.player2.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
+        if (lim_inf_goal2 < lim_sup_goal2) {
+            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                resetBall(lobbyKey);
+                gameState.score.player1++;
+                resetParam(lobbyKey);
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                resetBall(lobbyKey);
+                gameState.score.player1++;
+                resetParam(lobbyKey);
+            } 
+        }
     }
 
-    if (gameState.goals.player2.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player2.angle - gameState.goals.player2.size / 2) && ball_angle <= gameState.goals.player2.angle + gameState.goals.player2.size / 2) {
-        resetBall(lobbyKey);
-        gameState.score.player1++;
-        resetParam(lobbyKey);
-        console.log("GOAAAAAAAAL!!");
+    if (gameState.goals.player2.protected == true && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
+        if (lim_inf_goal2 < lim_sup_goal2) {
+            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                gameState.goals.player2.protected = false;
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+            
+                gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+                gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                gameState.goals.player2.protected = false;
+                gameState.lastBounce = Date.now() + gameState.bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
+            
+                gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
+                gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+            } 
+        }
     }
-
-    else if (gameState.goals.player2.protected == true && ball_dist + ballRadius + 5 > arena_radius && (ball_angle >= gameState.goals.player2.angle - gameState.goals.player2.size / 2) && ball_angle <= gameState.goals.player2.angle + gameState.goals.player2.size / 2) {
-        gameState.goals.player2.protected = false;
-        gameState.lastBounce = Date.now() + gameState.bounceInterval;
-        let normalX = dx / ball_dist;
-        let normalY = dy / ball_dist;
     
-        let dotProduct = (gameState.ballSpeed.ballSpeedX * normalX + gameState.ballSpeed.ballSpeedY * normalY);
-    
-        gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
-        gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
-    }
-
-    else if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > gameState.lastBounce ) {
+    if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > gameState.lastBounce ) {
         bounce++;
         gameState.lastBounce = Date.now() + gameState.bounceInterval;
-        console.log("WALL!!");
         let normalX = dx / ball_dist;
         let normalY = dy / ball_dist;
     
@@ -219,7 +341,7 @@ function update(lobbyKey) {
         gameState.goals.player2.size = Math.PI / 2;
     }
 
-    if (bounce == 40) {
+    if (bounce == 30) {
         gameState.paddles.player1.size = Math.PI * 0.04;
         gameState.paddles.player2.size = Math.PI * 0.04;
     }

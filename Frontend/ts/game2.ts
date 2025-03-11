@@ -296,7 +296,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
             );
             if (gameState.goals.player2.protected == true) {
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = "#00CDFF";
+                ctx.shadowColor = "#FF9F00";
             }
             ctx.lineWidth = 5;
             ctx.strokeStyle = "blue";

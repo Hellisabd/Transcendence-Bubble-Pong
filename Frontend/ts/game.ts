@@ -232,7 +232,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                     message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
                 if (event.key === "ArrowDown")
                     message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
-                if (event.key === " ") {
+                if (event.key === " " && disp == true) {
                     win = 0;
                     message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
                     console.log("message from front: ", message);

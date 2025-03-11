@@ -147,6 +147,8 @@ services:
   grafana:
     container_name: grafana
     image: grafana/grafana:latest
+    logging:
+      driver: "none"
     ports:
       - "3000:3000"
     volumes:
