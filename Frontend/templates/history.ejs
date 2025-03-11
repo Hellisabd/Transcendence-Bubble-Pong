@@ -61,19 +61,37 @@
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🥈 2</td>
+					<%if (tournoi.player2_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else {%>
+						<td>🥈 2</td>
+					<%}%>
 					<td><%= tournoi.player2_username %></td>
 					<td><%= tournoi.player2_score %></td>
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🥉 3</td>
+					<%if (tournoi.player3_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else if (tournoi.player3_score == tournoi.player2_score){%>
+						<td>🥈 2</td>
+					<%} else {%>
+						<td>🥉 3</td>
+					<%}%>
 					<td><%= tournoi.player3_username %></td>
 					<td><%= tournoi.player3_score %></td>
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🏅 4</td>
+					<%if (tournoi.player4_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else if (tournoi.player4_score == tournoi.player2_score){%>
+						<td>🥈 2</td>
+					<%} else if (tournoi.player4_score == tournoi.player3_score){%>
+						<td>🥉 3</td>
+					<%} else {%>
+						<td>🏅 4</td>
+					<%}%>
 					<td><%= tournoi.player4_username %></td>
 					<td><%= tournoi.player4_score %></td>
 					<td><%= tournoi.created_at %></td>
