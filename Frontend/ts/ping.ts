@@ -1,30 +1,30 @@
-console.log("game2.js chargé");
+console.log("ping.js chargé");
 
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
-let game2_mystatus = "online";
+let ping_mystatus = "online";
 
-let game2_player_id = 0;
+let ping_player_id = 0;
 
-let game2_id_tournament: number = 0;
+let ping_id_tournament: number = 0;
 
-let game2_inTournament:boolean = false;
+let ping_inTournament:boolean = false;
 
-let game2_lobbyKey: string | null = null;
+let ping_lobbyKey: string | null = null;
 
-let game2_socket: WebSocket | null = null;
-let game2_Wsocket: WebSocket | null = null;
-let game2_Tsocket: WebSocket | null = null;
+let ping_socket: WebSocket | null = null;
+let ping_Wsocket: WebSocket | null = null;
+let ping_Tsocket: WebSocket | null = null;
 
-let game2_disp: boolean = true;
-let game2_win: number = 0;
+let ping_disp: boolean = true;
+let ping_win: number = 0;
 
 let bonus_glowing: number = 0;
 let up_down: boolean = true;
 
-async function play_game2() {
-    game2_Disconnect_from_game();
+async function play_ping() {
+    ping_Disconnect_from_game();
     const user = await get_user();
 
     fetch("/update_status", {
@@ -32,141 +32,141 @@ async function play_game2() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({"status": "inqueue"})
     });
-    game2_mystatus = "inqueue";
+    ping_mystatus = "inqueue";
     const sock_name = window.location.host;
-    game2_Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/game2");
-    game2_Wsocket.onopen = () => {
+    ping_Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping");
+    ping_Wsocket.onopen = () => {
         console.log("✅ WebSocket waiting connectée !");
-        game2_Wsocket?.send(JSON.stringify({ username: user }));
+        ping_Wsocket?.send(JSON.stringify({ username: user }));
     };
-    game2_Wsocket.onerror = (event) => {
+    ping_Wsocket.onerror = (event) => {
         console.error("❌ WebSocket waiting erreur :", user);};
-    game2_Wsocket.onclose = (event) => {
+    ping_Wsocket.onclose = (event) => {
         console.warn("⚠️ WebSocket waiting fermée :", user);};
-    game2_Wsocket.onmessage = (event) => {
+    ping_Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
-            game2_Wsocket?.close();
-            game2_player_id = data.player_id;
-            game2_lobbyKey = data.lobbyKey;
-            game2_initializeGame(data.player1, data.player2, user);
+            ping_Wsocket?.close();
+            ping_player_id = data.player_id;
+            ping_lobbyKey = data.lobbyKey;
+            ping_initializeGame(data.player1, data.player2, user);
         }
     };
 }
 
-async function game2_tournament() {
-    game2_Disconnect_from_game();
+async function ping_tournament() {
+    ping_Disconnect_from_game();
     const user = await get_user();
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({"status": "inqueue"})
     });
-    game2_mystatus = "inqueue";
-    game2_inTournament = true;
+    ping_mystatus = "inqueue";
+    ping_inTournament = true;
     const sock_name = window.location.host;
-    game2_Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/game2_tournament");
-    game2_Tsocket.onopen = () => {
-        console.log("✅ WebSocket game2 tournament connectée !");
-        game2_Tsocket?.send(JSON.stringify({ username: user, init: true }));
+    ping_Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping_tournament");
+    ping_Tsocket.onopen = () => {
+        console.log("✅ WebSocket ping tournament connectée !");
+        ping_Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
-    game2_Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket game2 tournament erreur :", user);};
-    game2_Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket game2 tournament fermée :", user);};
-    game2_Tsocket.onmessage = (event) => {
+    ping_Tsocket.onerror = (event) => {
+        console.error("❌ WebSocket ping tournament erreur :", user);};
+    ping_Tsocket.onclose = (event) => {
+        console.warn("⚠️ WebSocket ping tournament fermée :", user);};
+    ping_Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-        console.log("game2_id_tournament in data: ", data.game2_id_tournament);
+        console.log("ping_id_tournament in data: ", data.ping_id_tournament);
         console.log("data: ", data);
         if (data.id_tournament != undefined) {
-            console.log("actualise game2_id_tournament");
-            game2_id_tournament = data.id_tournament; 
+            console.log("actualise ping_id_tournament");
+            ping_id_tournament = data.id_tournament; 
         }
         if (data.end_tournament && data.classementDecroissant) {
-            game2_Tsocket?.close();
+            ping_Tsocket?.close();
             navigateTo("end_tournament", true, data.classementDecroissant);
-            game2_inTournament = false;
+            ping_inTournament = false;
             return ;
         }
         console.log("success: ", data.success);
         if (data.success == true) {
-            game2_player_id = data.player_id;
-            game2_lobbyKey = data.lobbyKey;
+            ping_player_id = data.player_id;
+            ping_lobbyKey = data.lobbyKey;
             console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
-            game2_initializeGame(data.player1, data.player2, user);
+            ping_initializeGame(data.player1, data.player2, user);
         }
     };
 }
 
-function game2_end_game(game2_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  game2_inTournament: boolean) {
-    if (game2_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
-        console.log("endgame on tournament: ", game2_id_tournament);
-        game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, username: user, endgame: true, history: {"win": game2_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}}));
-        game2_socket?.close();
+function ping_end_game(ping_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  ping_inTournament: boolean) {
+    if (ping_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
+        console.log("endgame on tournament: ", ping_id_tournament);
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}}));
+        ping_socket?.close();
     }
     else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
         console.log("update normal game history"); 
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ history:{"win": game2_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "game2"}})
+            body: JSON.stringify({ history:{"win": ping_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}})
         });
     }
-    game2_win = 0;
+    ping_win = 0;
 }
 
-function game2_Disconnect_from_game() {
-    if (!game2_Wsocket && !game2_socket && !game2_lobbyKey && !game2_Tsocket)
+function ping_Disconnect_from_game() {
+    if (!ping_Wsocket && !ping_socket && !ping_lobbyKey && !ping_Tsocket)
         return;
-    game2_Wsocket?.close();
-    game2_socket?.close();
-    game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
-    game2_Tsocket?.close();
-    if (game2_mystatus != "online") {
+    ping_Wsocket?.close();
+    ping_socket?.close();
+    ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
+    ping_Tsocket?.close();
+    if (ping_mystatus != "online") {
         fetch("/update_status", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({"status": "online"})
         });
-        game2_mystatus = "online";
+        ping_mystatus = "online";
     }
-    game2_socket = null;
-    game2_lobbyKey = null;
-    game2_id_tournament = 0;
-    game2_disp = true;
-    game2_win = 0;
+    ping_socket = null;
+    ping_lobbyKey = null;
+    ping_id_tournament = 0;
+    ping_disp = true;
+    ping_win = 0;
 }
 
-function game2_initializeGame(user1: string, user2: string, myuser: string | null): void {
+function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    const canvas = document.getElementById("game2Canvas") as HTMLCanvasElement;
+    const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({"status": "ingame"})
     });
-    game2_mystatus = "ingame";
+    ping_mystatus = "ingame";
     if (canvas) {
         const ctx = canvas.getContext("2d");
         if (!ctx) {
             return ;
         }
         const sock_name = window.location.host
-        game2_socket = new WebSocket("wss://" + sock_name + "/ws/game2");
-        if (!game2_socket)
+        ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
+        if (!ping_socket)
             return ;
-        game2_socket.onopen = () => {
+        ping_socket.onopen = () => {
             console.log("✅ WebSocket connectée !");
-            game2_socket?.send(JSON.stringify({ username1: user1, username2: user2, "game2_lobbyKey": game2_lobbyKey, "myuser": myuser}));
+            ping_socket?.send(JSON.stringify({ username1: user1, username2: user2, "ping_lobbyKey": ping_lobbyKey, "myuser": myuser}));
         };
-        game2_socket.onerror = (event) => {
+        ping_socket.onerror = (event) => {
             console.error("❌ WebSocket erreur :", event);};
-        game2_socket.onclose = (event) => {
-            game2_socket = null;
-            game2_lobbyKey = null;
-            game2_disp = true;
-            game2_win = 0;
+        ping_socket.onclose = (event) => {
+            ping_socket = null;
+            ping_lobbyKey = null;
+            ping_disp = true;
+            ping_win = 0;
             console.warn("⚠️ WebSocket fermée :", event);
         };
         
@@ -185,67 +185,67 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
             playerReady: { player1: false, player2: false }
         };
 
-        game2_socket.onmessage = (event) => {
+        ping_socket.onmessage = (event) => {
             let gs = JSON.parse(event.data);
             if (gs.disconnect == true) {
-                game2_socket?.close();
+                ping_socket?.close();
             }
             if (gs.start == "start") {
-                game2_disp = false;
+                ping_disp = false;
             }
             else if (gs.start == "stop")
-                game2_disp = true;
-            if (gs.game2_lobbyKey === game2_lobbyKey) {
+                ping_disp = true;
+            if (gs.ping_lobbyKey === ping_lobbyKey) {
                 gameState = gs.gameState;
                 drawGame();
             }
             if (gs.winner == true) {
-                game2_win = 1;
+                ping_win = 1;
                 draw_winner();
             }
             else if (gs.winner == false) {
-                game2_win = 2;
+                ping_win = 2;
                 draw_winner();
             }
         };
 
         document.addEventListener("keydown", (event) => {
-            if (game2_socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; playerReady?: boolean; game2_lobbyKey?: string | null} | null = null;
+            if (ping_socket?.readyState === WebSocket.OPEN) {
+                let message: { player?: number; move?: string; playerReady?: boolean; ping_lobbyKey?: string | null} | null = null;
         
                 if (event.key === "ArrowUp") {
-                    message = { player: game2_player_id, move: "up", "game2_lobbyKey": game2_lobbyKey };
+                    message = { player: ping_player_id, move: "up", "ping_lobbyKey": ping_lobbyKey };
                 }
                 if (event.key === "ArrowDown") {
-                    message = { player: game2_player_id, move: "down", "game2_lobbyKey": game2_lobbyKey};
+                    message = { player: ping_player_id, move: "down", "ping_lobbyKey": ping_lobbyKey};
                 }
                 if (event.key === "ArrowRight") {
-                    message = { player: game2_player_id, move: "right", "game2_lobbyKey": game2_lobbyKey };
+                    message = { player: ping_player_id, move: "right", "ping_lobbyKey": ping_lobbyKey };
                 }
                 if (event.key === "ArrowLeft") {
-                    message = { player: game2_player_id, move: "left", "game2_lobbyKey": game2_lobbyKey };
+                    message = { player: ping_player_id, move: "left", "ping_lobbyKey": ping_lobbyKey };
                 } 
-                if (event.key === " " && game2_disp == true) {
-                    game2_win = 0;
-                    message = { playerReady: true, player: game2_player_id, "game2_lobbyKey": game2_lobbyKey };
+                if (event.key === " " && ping_disp == true) {
+                    ping_win = 0;
+                    message = { playerReady: true, player: ping_player_id, "ping_lobbyKey": ping_lobbyKey };
                 }
 
                 if (message) {
-                    game2_socket?.send(JSON.stringify(message));
+                    ping_socket?.send(JSON.stringify(message));
                 }
             }
         });
 
         document.addEventListener("keyup", (event) => {
-            if (game2_socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; game?: string; game2_lobbyKey?: string | null } | null = null;
+            if (ping_socket?.readyState === WebSocket.OPEN) {
+                let message: { player?: number; move?: string; game?: string; ping_lobbyKey?: string | null } | null = null;
 
                 if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
-                    message = { player: game2_player_id, move: "stop", "game2_lobbyKey": game2_lobbyKey  };
+                    message = { player: ping_player_id, move: "stop", "ping_lobbyKey": ping_lobbyKey  };
                 }
 
                 if (message) {
-                    game2_socket.send(JSON.stringify(message));
+                    ping_socket.send(JSON.stringify(message));
                 }
             }
         });
@@ -421,7 +421,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
 
             draw_score();
             draw_winner();
-            if (game2_disp == true) {
+            if (ping_disp == true) {
                 ctx.font = "30px Arial";
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
@@ -450,27 +450,27 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
             if (!ctx) {
                 return ;
             }
-            if (game2_win == 1) {
+            if (ping_win == 1) {
                 ctx.textAlign = "start";
                 ctx.textBaseline = "alphabetic";
                 ctx.font = "40px Arial";
                 ctx.fillStyle = "#008100";
                 ctx.fillText(String("YOU WIN!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
             }
-            if (game2_win == 2) {
+            if (ping_win == 2) {
                 ctx.textAlign = "start";
                 ctx.textBaseline = "alphabetic";
                 ctx.font = "40px Arial";
                 ctx.fillStyle = "#810000";
                 ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
             }
-            if (game2_player_id == 1 && game2_win != 0) {
-                console.log(game2_player_id);
-                game2_end_game(game2_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, game2_inTournament);
+            if (ping_player_id == 1 && ping_win != 0) {
+                console.log(ping_player_id);
+                ping_end_game(ping_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, ping_inTournament);
             }
-            else if (game2_player_id == 2 && game2_win != 0) {
-                console.log(game2_player_id);
-                game2_end_game(game2_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, game2_inTournament);
+            else if (ping_player_id == 2 && ping_win != 0) {
+                console.log(ping_player_id);
+                ping_end_game(ping_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, ping_inTournament);
             }
         }
     } 
@@ -480,7 +480,7 @@ function game2_initializeGame(user1: string, user2: string, myuser: string | nul
 }
 
 window.addEventListener("beforeunload", () => {
-    if (game2_Tsocket?.readyState === WebSocket.OPEN) {
-        game2_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: game2_id_tournament, disconnect: true}));
+    if (ping_Tsocket?.readyState === WebSocket.OPEN) {
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
     }
 });

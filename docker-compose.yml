@@ -17,7 +17,7 @@ services:
       - .env
     networks:
       - pong-network
-      - game2-network
+      - ping-network
       - spa-network
       - prom-network
     container_name: nginx
@@ -37,7 +37,7 @@ services:
       - ./Frontend/avatar:/usr/src/app/Frontend/avatar
     networks:
       - spa-network
-      - game2-network
+      - ping-network
       - pong-network
     depends_on:
       - pong
@@ -66,19 +66,19 @@ services:
     ports:
       - "4000:4000"
 
-  game2:
+  ping:
     build:
       context: .
-      dockerfile: ./Backend/game2/Dockerfile 
+      dockerfile: ./Backend/ping/Dockerfile 
       args: 
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
-      - ./Backend/game2:/usr/src/app/Backend
+      - ./Backend/ping:/usr/src/app/Backend
     networks:
       - spa-network
-      - game2-network
-    container_name: game2
+      - ping-network
+    container_name: ping
     env_file:
       - .env
     restart: "no"
@@ -114,7 +114,7 @@ services:
       - ./Backend/Matchmaking:/usr/src/app/Backend
     networks:
       - spa-network
-      - game2-network
+      - ping-network
       - pong-network
     container_name: matchmaking
     env_file:
@@ -177,7 +177,7 @@ networks:
     driver: bridge
   pong-network:
     driver: bridge
-  game2-network:
+  ping-network:
     driver: bridge
   prom-network:
     driver: bridge

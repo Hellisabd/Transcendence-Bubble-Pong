@@ -172,8 +172,8 @@ async function get_history(req, reply) {
     );
     const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
     // reply.send(finalFile);
-    console.log("game2_tab", response.data.game2_history);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, game2_history: response.data.game2_history, history_game2_tournament: response.data.history_game2_tournament });
+    console.log("ping_tab", response.data.ping_history);
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, ping_history: response.data.ping_history, history_ping_tournament: response.data.history_ping_tournament });
 }
 
 async function end_tournament(req, reply) {
@@ -189,8 +189,8 @@ async function waiting_room(req, reply) {
     reply.send(response.data);
 }
 
-async function game2_waiting_room(req, reply) {
-    const response = await axios.post("http://game2:4002/game2_waiting_room", req.body);
+async function ping_waiting_room(req, reply) {
+    const response = await axios.post("http://ping:4002/ping_waiting_room", req.body);
     reply.send(response.data);
 }
 
@@ -267,4 +267,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, game2_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };

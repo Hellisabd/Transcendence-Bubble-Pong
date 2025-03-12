@@ -212,7 +212,7 @@ fastify.register(async function (fastify) {
             console.error("error in websocket");
         }
     })
-    fastify.get("/ws/matchmaking/game2", { websocket: true }, (connection, req) => { 
+    fastify.get("/ws/matchmaking/ping", { websocket: true }, (connection, req) => { 
         clientsWaiting.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
         connection.socket.on("close", () => {
@@ -254,7 +254,7 @@ fastify.register(async function (fastify) {
             }
         });
     })
-    fastify.get("/ws/matchmaking/game2_tournament", { websocket: true }, (connection, req) => {
+    fastify.get("/ws/matchmaking/ping_tournament", { websocket: true }, (connection, req) => {
         try {
             console.log("Nouvelle connexion WebSocket sur Tournament !");
             connection.socket.on("message", (message) => {

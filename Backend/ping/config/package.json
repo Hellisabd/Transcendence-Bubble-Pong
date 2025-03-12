@@ -1,9 +1,9 @@
 {
-	"name": "game2",
+	"name": "ping",
 	"version": "1.0.0",
-	"main": "game2.js",
+	"main": "ping.js",
 	"scripts": {
-	  "start": "node Backend/js/game2.js"
+	  "start": "node Backend/js/ping.js"
 	},
 	"dependencies": {
 	  "fastify": "^4.0.0",

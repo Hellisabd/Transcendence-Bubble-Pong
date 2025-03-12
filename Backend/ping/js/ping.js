@@ -13,7 +13,7 @@ const arena_radius = 350;
 const bonus = "PPGGS";
 
 fastify.register(async function (fastify) {
-    fastify.get("/ws/game2", { websocket: true }, (connection, req) => {
+    fastify.get("/ws/ping", { websocket: true }, (connection, req) => {
         console.log("Nouvelle connexion WebSocket !");
         
         connection.socket.on("message", (message) => {
@@ -21,7 +21,7 @@ fastify.register(async function (fastify) {
             if (data.disconnect) {
                 connection.socket.send(JSON.stringify({disconnect: true}));
             }
-            const lobbyKey = data.game2_lobbyKey;
+            const lobbyKey = data.ping_lobbyKey;
             if (!lobbies[lobbyKey]) {
                 lobbies[lobbyKey] = {
                     players: [],
@@ -468,7 +468,7 @@ function gameLoop(lobbyKey) {
       update(lobbyKey);
       check_score(lobbyKey);
       lobbies[lobbyKey].players.forEach(client => {
-          client.socket.send(JSON.stringify({ gameState, "game2_lobbyKey": lobbyKey }));
+          client.socket.send(JSON.stringify({ gameState, "ping_lobbyKey": lobbyKey }));
       });
   }
 }
@@ -621,7 +621,7 @@ function startGameLoop(lobbyKey) {
 const start = async () => {
     try {
         await fastify.listen({ port: 4002, host: "0.0.0.0" });
-        console.log("🎮 game2 WebSocket Server running on port 4002");
+        console.log("🎮 ping WebSocket Server running on port 4002");
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);
