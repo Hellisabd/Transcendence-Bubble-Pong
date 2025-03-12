@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, get_avatar, update_avatar } = require("./proxy");
+const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, get_avatar, update_avatar} = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -22,6 +22,8 @@ const fs = require('fs');
 const axios = require("axios"); // Pour faire des requêtes HTTP
 const fastifyCookie = require("@fastify/cookie");
 const multipart = require('@fastify/multipart');
+const otplib = require('otplib');
+const qrcode = require('qrcode');
 
 fastify.register(multipart);
 
@@ -107,6 +109,7 @@ fastify.post("/add_friend", add_friend);
 
 fastify.post("/get_avatar", get_avatar);
 
+
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
   if (page[page.length - 1] == '/')
@@ -133,5 +136,22 @@ const start = async () => {
         process.exit(1);
     }
 };
+
+
+
+fastify.post("/2fa/setup", async (request, reply) => {
+	const { username } = request.body;
+	if(!username){
+		return reply.code(400).send({error: 'Username inexistant.'});
+	}
+
+	const secret = otplib.generateSecret({ name: `Transcendence (${username})` });
+	qrcode.toDataURL(secret.otplib_url, (err, dataUrl) => {
+		if (err) {
+			return reply.code(500).send({ error: "Impossible de generer le QR code" });
+		}
+		return reply.send({otplib_url: secret.otplib_url, qr_code: dataUrl });
+	});
+});
 
 start();

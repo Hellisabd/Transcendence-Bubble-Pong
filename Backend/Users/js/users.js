@@ -84,12 +84,12 @@ db.prepare(`
     player4_username TEXT NOT NULL,
     player4_score INTEGER NOT NULL DEFAULT 0,
     player4_ranking INTEGER NOT NULL DEFAULT 0,
-    
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     `).run();
 
-db.prepare(` 
+db.prepare(`
   CREATE TABLE IF NOT EXISTS friends (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -99,10 +99,10 @@ db.prepare(`
     FOREIGN KEY(friend_id) REFERENCES users(id) ON DELETE CASCADE
     )
     `).run();
-    
+
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement} = request.body;
-  db.prepare(`INSERT INTO tournament_history 
+  db.prepare(`INSERT INTO tournament_history
             (player1_username, player1_score, player1_ranking,
             player2_username, player2_score, player2_ranking,
             player3_username, player3_score, player3_ranking,
@@ -111,7 +111,7 @@ fastify.post("/update_history_tournament", async (request, reply) => {
               ?, ?, ?,
               ?, ?, ?,
               ?, ?, ?)`)
-              .run(classement[0].username, classement[0].score, 1, 
+              .run(classement[0].username, classement[0].score, 1,
                   classement[1].username, classement[1].score, 2,
                   classement[2].username, classement[2].score, 3,
                   classement[3].username, classement[3].score, 4,
@@ -294,7 +294,7 @@ fastify.get("/me", async (request, reply) => {
     if (!token) {
       return reply.send({success: false, error: "Non autorise"});
     }
-    
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return reply.send({ success: true, user : decoded});
   } catch {
@@ -328,16 +328,16 @@ fastify.post("/get_history", async (request, reply) => {
 
     reply.send(JSON.stringify({history: history, history_tournament: history_tournament}));
   });
-  
+
 
 
   async function history_for_tournament(history) {
-    for (const match of history) { 
+    for (const match of history) {
       const player1 = match.myusername;
       const player2 = match.otherusername;
       const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
-    
+
     if (score_player1 !== 1 && score_player2 !== 1) {
       return;
     }
@@ -353,8 +353,8 @@ fastify.post("/get_history", async (request, reply) => {
 
     // Vérification des matchs récents dans les 5 dernières secondes
     const recentMatch = await db.prepare(`
-      SELECT created_at FROM match_history 
-      WHERE ((player1_username = ? AND player2_username = ?) 
+      SELECT created_at FROM match_history
+      WHERE ((player1_username = ? AND player2_username = ?)
           OR (player1_username = ? AND player2_username = ?))
       AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
       ORDER BY created_at DESC
@@ -365,7 +365,7 @@ fastify.post("/get_history", async (request, reply) => {
       continue;
     }
 
-    await db.prepare(`INSERT INTO match_history 
+    await db.prepare(`INSERT INTO match_history
               (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score)
               VALUES (?, ?, ?, ?, ?, ?)`)
               .run(player1, player2, winner, looser, score_player1, score_player2);

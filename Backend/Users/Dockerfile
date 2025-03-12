@@ -35,6 +35,7 @@ RUN mkdir -p dataBase
 RUN chown -R Users:Users /usr/src/app/dataBase/
 # RUN chmod -R 777 /usr/src/app/dataBase/core.db
 
+
 USER Users
 
 # Exposer le port utilisé par Users

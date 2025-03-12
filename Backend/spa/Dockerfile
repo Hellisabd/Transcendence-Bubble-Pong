@@ -1,4 +1,4 @@
-FROM node:20-bullseye
+FROM node:23-bullseye
 
 ARG USER_ID=${USER_ID}
 ARG GROUP_ID=${GROUP_ID}
@@ -35,6 +35,11 @@ RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 RUN npm install -g tailwindcss@^3.3.0
 RUN npm install tailwindcss@^3.3.0
+
+RUN apt install -y nodejs npm
+RUN npm install @noble/hashes
+RUN npm install --unsafe-perm qrcode
+RUN npm install --unsafe-perm otplib
 
 # USER spa
 

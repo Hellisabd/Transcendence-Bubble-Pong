@@ -1,3 +1,5 @@
+import { setup2fa } from "../../Backend/spa/js/proxy";
+
 console.log("login.ts chargé");
 
 type LoginResponse = {
@@ -57,6 +59,12 @@ async function create_account(event: Event): Promise<void> {
     const username = (document.getElementById("name") as HTMLInputElement).value;
     const password = (document.getElementById("password_creation") as HTMLInputElement).value;
     const email = (document.getElementById("email_creation") as HTMLInputElement).value;
+
+	const rep = await fetch("/2fa/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+    });
 
     const response = await fetch("/create_account", {
         method: "POST",
@@ -145,7 +153,49 @@ async function modify_user(event: Event): Promise<void> {
     }
 }
 
+async function setup2FA(username: string): Promise<void> {
+	const response = await fetch("/2fa/setup", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username })
+	});
+	const result = await response.json();
+	console.log(result);
+	if (result.success) {
+		show2FAModal();
+	} else {
+		alert("Erreur lors de l'initiation de la 2FA.");
+	}
+}
 
+async function verify2FA(event: Event): Promise<void> {
+	event.preventDefault();
+	const code = (document.getElementById("twoFaCode") as HTMLInputElement).value;
+	const username = await get_user();
+	if (!username) {
+		return alert("Utilisateur introuvable !");
+	}
+	const response = await fetch("/2fa/verify", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username, code })
+	});
+	const result = await response.json();
+	if (result.success) {
+		alert("2FA vérifiée, connexion réussie.");
+		navigateTo("index", true, null);
+	} else {
+		alert("Code 2FA incorrect, réessayez.");
+	}
+}
+
+function show2FAModal(): void {
+	const modal = document.getElementById("twoFaContainer");
+	if (modal) {
+		modal.classList.remove("hidden");
+		modal.classList.add("animate-fadeIn");
+	}
+}
 
 
 
