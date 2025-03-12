@@ -34,10 +34,10 @@ RUN npm install formidable
 RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 
-USER spa
-
 # Exposer le port utilisé par spa
 EXPOSE 7000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]
+
+USER spa
