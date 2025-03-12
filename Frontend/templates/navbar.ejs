@@ -1,0 +1,77 @@
+<nav class="bg-gray-800">
+	<div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+		<div class="relative flex h-16 items-center justify-between">
+			<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+				<!-- Mobile menu button-->
+				<button id="mobile-menu-button" type="button"
+					class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+					<span class="sr-only">Open main menu</span>
+					<svg id="menu-icon-open" class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+						stroke="currentColor" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+					</svg>
+					<svg id="menu-icon-close" class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+						stroke="currentColor" aria-hidden="true">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+			<div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+				<div class="flex shrink-0 items-center">
+					<img class="h-14 w-14"
+						src="/Frontend/assets/logo.webp"
+						alt="Website logo"
+						onclick="navigateTo('index')">
+				</div>
+				<div class="hidden sm:ml-6 sm:block">
+					<div class="flex space-x-4">
+						<!-- ------------------------  -->
+						<svg class="w-14 h-14 group hover:bg-violet-800 p-2 rounded-lg" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="navigateTo('history')">
+							<path d="M9.5 16V14.5H15.5V16M13.5 10.5V14.5M11.5 10.5V14.5M15.5 7.5C15.5 9.15685 14.1569 10.5 12.5 10.5C10.8431 10.5 9.5 9.15685 9.5 7.5C9.5 5.84315 10.8431 4.5 12.5 4.5C14.1569 4.5 15.5 5.84315 15.5 7.5ZM18.5 19.5H6.5C5.94772 19.5 5.5 19.0523 5.5 18.5V17.5C5.5 16.9477 5.94772 16.5 6.5 16.5H18.5C19.0523 16.5 19.5 16.9477 19.5 17.5V18.5C19.5 19.0523 19.0523 19.5 18.5 19.5Z"
+							class="stroke-[1.5] stroke-violet-800 group-hover:stroke-emerald-600"/>
+						</svg>
+						<a href="#" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+							aria-current="page">Dashboard</a>
+						<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
+						<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+						<a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+					</div>
+				</div>
+			</div>
+			<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+				<!-- USER -->
+				<div id="user" class="relative ml-3"></div>
+				<!-- Profile dropdown -->
+				<div class="relative ml-3">
+					<div>
+						<button id="user-menu-button" type="button"
+							class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+							<span class="sr-only">Open user menu</span>
+							<img id="avatar" class="size-8 rounded-full" alt="Profile picture">
+						</button>
+					</div>
+					<!-- Dropdown menu -->
+					<div id="user-menu"
+						class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+						<a href="#" class="block px-4 py-2 text-sm text-gray-700">Your Profile</a>
+						<a href="#" class="block px-4 py-2 text-sm text-gray-700">Settings</a>
+						<a href="#" class="block px-4 py-2 text-sm text-gray-700">Sign out</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Mobile menu -->
+	<div id="mobile-menu" class="hidden sm:hidden">
+		<div class="space-y-1 px-2 pb-3 pt-2">
+			<a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
+				aria-current="page">Dashboard</a>
+			<object data="./Frontend/assets/joystick.svg" type="image/svg+xml" class="w-10 h-10"></object>
+			<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Play</a>
+			<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
+			<a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
+		</div>
+	</div>
+</nav>

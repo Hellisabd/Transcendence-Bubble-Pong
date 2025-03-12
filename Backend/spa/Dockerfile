@@ -33,6 +33,8 @@ RUN npm install pino-pretty
 RUN npm install formidable
 RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
+RUN npm install -g tailwindcss@^3.3.0
+RUN npm install tailwindcss@^3.3.0
 
 # Exposer le port utilisé par spa
 EXPOSE 7000

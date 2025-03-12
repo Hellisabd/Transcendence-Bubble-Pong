@@ -2,32 +2,28 @@
 <html lang="en">
 <head>
       <link rel="stylesheet" href="/Frontend/css/style.css">
-      <link rel="stylesheet" href="/Frontend/css/btn.css">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SPA Demo</title>
 </head>
-<body>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("index"); // Appelle la fonction au chargement de la page
-      set_up_friend_list();
-    });
-  </script>
-  <div id="user" style="display: none;"></div>
-  <div id="content">
-    <h1>Page d'accueil</h1>
-    <p>Bienvenue sur la page d'accueil !</p>
-    <button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
-    <button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
-    <button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
-    <button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
-    <button class="btn" onclick="navigateTo('history')">History</button>
-    <button class="btn" onclick="navigateTo('social')">Social</button>
-    <button class="btn" onclick="logout(1)">Logout</button>
-    <!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
-    <canvas id="friends_list" width="300" height="500"></canvas>
-  </div>
-  <%- include('scripts.ejs') %>
-</body>
+	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+		<div id="content">
+			<%- include('navbar.ejs') %>
+			<div class="flex flex-col items-center justify-center">
+				<h1 class="title-font text-6xl text-center pt-20 font-medium tracking-widest text-slate-500">Page d'accueil</h1>
+				<div class="border border-slate-500 w-[20rem] mt-8">
+				</div>
+			</div>
+			<button class="btn" onclick="navigateTo('pong_game')">Aller au jeu Pong</button>
+			<button class="btn" onclick="navigateTo('bonjour_monsieur')">Bonjour Monsieur</button>
+			<button class="btn" onclick="navigateTo('bonjour_madame')">Bonjour Madame</button>
+			<button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
+			<button class="btn" onclick="navigateTo('history')">History</button>
+			<button class="btn" onclick="navigateTo('social')">Social</button>
+			<button class="btn" onclick="logout(1)">Logout</button>
+			<!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
+			<canvas id="friends_list" width="300" height="500"></canvas>
+		</div>
+		<%- include('scripts.ejs') %>
+	</body>
 </html>
