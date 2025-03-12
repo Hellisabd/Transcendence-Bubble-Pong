@@ -23,6 +23,7 @@
 	<% } else { %>
 		<table border="1">
 			<tr>
+				<th>Game</th>
 				<th>Joueur 1</th>
 				<th>Joueur 2</th>
 				<th>Score</th>
@@ -32,6 +33,7 @@
 
 			<% history.forEach(match => { %>
 				<tr>
+					<td><%= match.gametype %></td>
 					<td><%= match.player1_username %></td>
 					<td><%= match.player2_username %></td>
 					<td><%= match.player1_score %> - <%= match.player2_score %></td>
@@ -49,31 +51,54 @@
 		<% tournament.forEach(tournoi => { %>
 			<table border="1">
 				<tr>
+					<th>Game</th>
 					<th>Position</th>
 					<th>Joueur</th>
 					<th>Score</th>
 					<th>Date</th>
 				</tr>
 				<tr>
+					<td><%= tournoi.gametype %></td>
 					<td>🥇 1</td>
 					<td><%= tournoi.player1_username %></td>
 					<td><%= tournoi.player1_score %></td>
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🥈 2</td>
+					<td><%= tournoi.gametype %></td>
+					<%if (tournoi.player2_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else {%>
+						<td>🥈 2</td>
+					<%}%>
 					<td><%= tournoi.player2_username %></td>
 					<td><%= tournoi.player2_score %></td>
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🥉 3</td>
+					<td><%= tournoi.gametype %></td>
+					<%if (tournoi.player3_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else if (tournoi.player3_score == tournoi.player2_score){%>
+						<td>🥈 2</td>
+					<%} else {%>
+						<td>🥉 3</td>
+					<%}%>
 					<td><%= tournoi.player3_username %></td>
 					<td><%= tournoi.player3_score %></td>
 					<td><%= tournoi.created_at %></td>
 				</tr>
 				<tr>
-					<td>🏅 4</td>
+					<td><%= tournoi.gametype %></td>
+					<%if (tournoi.player4_score == tournoi.player1_score) { %>
+						<td>🥇 1</td>
+					<%} else if (tournoi.player4_score == tournoi.player2_score){%>
+						<td>🥈 2</td>
+					<%} else if (tournoi.player4_score == tournoi.player3_score){%>
+						<td>🥉 3</td>
+					<%} else {%>
+						<td>🏅 4</td>
+					<%}%>
 					<td><%= tournoi.player4_username %></td>
 					<td><%= tournoi.player4_score %></td>
 					<td><%= tournoi.created_at %></td>

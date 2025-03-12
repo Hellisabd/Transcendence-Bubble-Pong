@@ -48,3 +48,5 @@ EXPOSE 7000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]
+
+USER spa

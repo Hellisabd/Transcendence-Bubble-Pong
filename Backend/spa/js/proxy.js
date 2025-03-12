@@ -157,7 +157,7 @@ async function update_history(req, reply) {
 async function get_history(req, reply) {
     const token = req.cookies.session;
     if (!token) {
-        return reply.status(401).send({ success: false, message: "Token manquant" });
+        return reply.view("login.ejs");
     }
 
     const username = await get_user(token);
@@ -172,7 +172,8 @@ async function get_history(req, reply) {
     );
     const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
     // reply.send(finalFile);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
+    console.log("ping_tab", response.data.ping_history);
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, ping_history: response.data.ping_history, history_ping_tournament: response.data.history_ping_tournament });
 }
 
 async function end_tournament(req, reply) {
@@ -185,6 +186,11 @@ async function end_tournament(req, reply) {
 
 async function waiting_room(req, reply) {
     const response = await axios.post("http://pong:4000/waiting_room", req.body);
+    reply.send(response.data);
+}
+
+async function ping_waiting_room(req, reply) {
+    const response = await axios.post("http://ping:4002/ping_waiting_room", req.body);
     reply.send(response.data);
 }
 
@@ -273,4 +279,4 @@ async function verify2fa(req, reply) {
     reply.send(response.data);
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };

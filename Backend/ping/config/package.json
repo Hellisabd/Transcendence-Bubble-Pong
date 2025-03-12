@@ -1,0 +1,13 @@
+{
+	"name": "ping",
+	"version": "1.0.0",
+	"main": "ping.js",
+	"scripts": {
+	  "start": "node Backend/js/ping.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.0.0",
+	  "@fastify/websocket": "^7.2.0",
+	  "axios": "^1.7.9"
+	}
+  }
