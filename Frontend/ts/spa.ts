@@ -119,19 +119,19 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     }
 }
 
-async function get_user(): Promise<string> {
+async function get_user(): Promise<string | null> {
     try {
         const response = await fetch("/get_user", {
             method: "GET",
             credentials: "include",
         })
         if (!response.ok)
-            return "";
+            return null;
         const data: {success: boolean; username?: string} = await response.json();
-        return data.success ? data.username ?? "" : ""; 
+        return data.success ? data.username ?? null : null; 
     } catch (error) {
         alert("Erreur cant get user");
-        return "";
+        return null;
     }
 }
 

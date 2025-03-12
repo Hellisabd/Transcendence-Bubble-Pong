@@ -157,12 +157,12 @@ async function update_history(req, reply) {
 async function get_history(req, reply) {
     const token = req.cookies.session;
     if (!token) {
-        return reply.status(401).send({ success: false, message: "Token manquant" });
+        return reply.view("login.ejs");
     }
 
     const username = await get_user(token);
     if (!username) {
-        return reply.view("login.ejs");        
+        return reply.view("login.ejs");      
     }
 
 

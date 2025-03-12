@@ -119,11 +119,11 @@ async function pong_tournament() {
 }
 
 function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
-    if (intournament && (myscore == 1 || otherscore == 1)) { // a changer en 3 c est le score finish
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
+    if (intournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "pong"}}));
         socket?.close();
     }
-    else if (myscore == 1 || otherscore == 1) { // a changer en 3 c est le score finish
+    else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

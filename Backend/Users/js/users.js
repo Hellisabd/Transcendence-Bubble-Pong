@@ -357,7 +357,7 @@ async function history_for_tournament(history) {
     const player2 = match.otherusername;
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
-    
+    const gametype = history.gametype;
     if (score_player1 !== 1 && score_player2 !== 1) {
       return;
     }

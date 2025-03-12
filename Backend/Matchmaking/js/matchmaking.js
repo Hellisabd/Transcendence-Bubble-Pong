@@ -137,6 +137,7 @@ fastify.register(async function (fastify) {
                         }
                         id_tournament++;
                         currentTournament.count_game++;
+                        console.log("game 1");
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player);
                     }
                 }
@@ -152,13 +153,15 @@ fastify.register(async function (fastify) {
                             }
                         }
                     }
+                    console.log("nombre de joueurs dans la queue pour le tournoi: ", currentTournament.end_lobby)
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
-    
+                        console.log("game 2");
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player)
                         currentTournament.count_game++;
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
+                        console.log("game 3");
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], id_tournament_key_from_player)
                         currentTournament.end_lobby = 0;
                         currentTournament.count_game++; 
