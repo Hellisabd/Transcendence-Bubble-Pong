@@ -1,3 +1,7 @@
 .card-height {
-	height: 25%;
+	height: 35rem;
+}
+
+.title-font {
+	font-family: 'Inter', sans-serif;
 }

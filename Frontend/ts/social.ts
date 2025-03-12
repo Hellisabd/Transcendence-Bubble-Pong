@@ -8,32 +8,45 @@ let friends: { username: string; status: string }[] = [];
 let socialSocket: WebSocket | null = null;
 
 async function display_friends() {
-	const canvas = document.getElementById("friends_list") as HTMLCanvasElement;
-	if (canvas) {
-		const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("friends_list") as HTMLCanvasElement;
+    if (canvas) {
+        const ctx = canvas.getContext("2d");
         if (!ctx) {
-            return ;
+            return;
         }
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		for (let i = 0; i < friends.length; i++) {
-			ctx.textAlign = "start";
-            ctx.textBaseline = "alphabetic";
-            ctx.font = "20px Arial";
-			if (friends[i].status == "online")
-            	ctx.fillStyle = "#00FF00";
-			else if (friends[i].status == "offline"){
-				ctx.fillStyle = "#FF0000";
-			}
-			else if (friends[i].status == "inqueue"){
-				ctx.fillStyle = "#0080FF";
-			}
-			else if (friends[i].status == "ingame"){
-				ctx.fillStyle = "#FF8000";
-			}
-            ctx.fillText(String(friends[i].username), 0, 20 + (i * 30));
-            ctx.fillText(String(friends[i].status), 200, 20 + (i * 30));
-		}
-	}
+
+        // Nettoyer le canvas avant de redessiner
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Définir la police et la couleur du titre
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "#2D3748";  // Slate-500 en hex (équivalent)
+        ctx.fillText("Friends", 10, 40);  // Décalage pour éviter que le texte soit collé au bord
+
+        // Boucle pour afficher les amis
+        for (let i = 0; i < friends.length; i++) {
+            ctx.textAlign = "start";  // Alignement à gauche
+            ctx.textBaseline = "alphabetic";  // Alignement vertical du texte
+
+            ctx.font = "20px Arial";  // Taille de police pour le nom des amis
+            let yPos = 70 + i * 40;  // Calculer la position Y, avec un espacement de 40px entre chaque ami
+
+            // Définir la couleur en fonction du statut
+            if (friends[i].status == "online") {
+                ctx.fillStyle = "#00FF00";  // Vert
+            } else if (friends[i].status == "offline") {
+                ctx.fillStyle = "#FF0000";  // Rouge
+            } else if (friends[i].status == "inqueue") {
+                ctx.fillStyle = "#0080FF";  // Bleu
+            } else if (friends[i].status == "ingame") {
+                ctx.fillStyle = "#FF8000";  // Orange
+            }
+
+            // Afficher le nom de l'ami et son statut
+            ctx.fillText(friends[i].username, 10, yPos);  // Affiche le nom à la position calculée
+            ctx.fillText(friends[i].status, 200, yPos);   // Affiche le statut à une position différente
+        }
+    }
 }
 
 async function set_up_friend_list(user: string | null) {

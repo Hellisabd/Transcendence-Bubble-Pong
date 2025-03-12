@@ -12,9 +12,13 @@ async function set_user(contentDiv: HTMLDivElement, username: string | null): Pr
 
 	const userDiv = contentDiv.querySelector("#user") as HTMLDivElement;
 	const avatarElement = contentDiv.querySelector("#avatar") as HTMLImageElement;
-	console.log(`👤 ${username}`);
 	userDiv.innerHTML = `👤 ${username}`;
 	userDiv.classList.add("text-white");
+	avatarElement.classList.add("w-12");
+	avatarElement.classList.add("h-12");
+	avatarElement.classList.add("hover:border-2");
+	avatarElement.classList.add("hover:border-white");
+
 	const response = await fetch("/get_avatar", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
