@@ -1,6 +1,10 @@
 console.log("Script spa.ts chargé !");
 
-declare function display_friends();
+declare function display_friends(): void;
+declare function play_pong(): void;
+declare function pong_tournament(): void;
+declare function play_ping(): void;
+declare function ping_tournament(): void;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -111,14 +115,19 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             window.history.pushState({ page: page }, "", `/${page}`);
         }
         Disconnect_from_game();
+        ping_Disconnect_from_game();
         if (page === "waiting_room")
             play_pong();
         if (page === "pong_tournament")
             pong_tournament();
-        // if (url === "/social") {
-        //     // pending_request();
-        //     display_friends();
-        // }
+        if (page === "ping_waiting_room")
+            play_ping();
+        if (page === "ping_tournament")
+            ping_tournament();
+        if (page === "social") {
+            pending_request();
+            console.log("passse dans pending request");
+        }
         display_friends();
 
     } catch (error) {

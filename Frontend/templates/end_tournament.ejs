@@ -27,12 +27,22 @@
           <th>Joueur</th>
           <th>Score</th>
         </tr>
+        <% let oldScore = 0; %>
+        <% let oldPlace = 1; %>
+        <% let Place = 0; %>
         <% classement.forEach((player, index) => { %>
+          <% if (oldScore == player.score && index != 0) { %>
+              <% Place = oldPlace %>
+            <% } else { %>
+              <% Place = index + 1 %>
+            <% } %>
           <tr>
-            <td><%= index + 1 %> 🏅</td>
+            <td><%= Place%> 🏅</td>
             <td><%= player.username %></td>
             <td><%= player.score %></td>
           </tr>
+          <% oldScore = player.score%>
+          <% oldPlace = Place%>
         <% }) %>
       </table>
     <% } else { %>

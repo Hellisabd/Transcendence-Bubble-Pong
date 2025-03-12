@@ -2,7 +2,6 @@ console.log("game.js chargé");
 
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
-declare function set_up_friend_list(user: string | null)
 
 let mystatus = "online";
 
@@ -20,23 +19,6 @@ let Tsocket: WebSocket | null = null;
 
 let disp: boolean = true;
 let win: number = 0;
-
-// async function get_user(): Promise<string> {
-//     try {
-//         const response = await fetch("/get_user", {
-//             method: "GET",
-//             credentials: "include",
-//         });
-//         if (!response.ok) {
-//             return "";
-//         }
-//         const data: { success: boolean; username?: string } = await response.json();
-//         return data.success ? data.username ?? "" : "";
-//     } catch (error) {
-//         alert("Erreur: Impossible de récupérer l'utilisateur");
-//         return "";
-//     }
-// }
 
 async function play_pong() {
     Disconnect_from_game();
@@ -137,15 +119,15 @@ async function pong_tournament() {
 }
 
 function end_game(win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  intournament: boolean) {
-    if (intournament && (myscore == 1 || otherscore == 1)) { // a changer en 3 c est le score finish
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore}}));
+    if (intournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, username: user, endgame: true, history: {"win": win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "pong"}}));
         socket?.close();
     }
-    else if (myscore == 1 || otherscore == 1) { // a changer en 3 c est le score finish
+    else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ history:{"win": win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore}})
+            body: JSON.stringify({ history:{"win": win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "pong"}})
         });
     }
     win = 0;
@@ -154,7 +136,6 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 function Disconnect_from_game() {
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
-    console.log("deco");
     Wsocket?.close();
     socket?.close();
     Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
@@ -251,9 +232,10 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                     message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
                 if (event.key === "ArrowDown")
                     message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
-                if (event.key === " ") {
+                if (event.key === " " && disp == true) {
                     win = 0;
                     message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
+                    console.log("message from front: ", message);
                 }
 
                 if (message) {
