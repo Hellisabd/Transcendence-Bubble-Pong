@@ -4,24 +4,51 @@ const axios = require("axios"); // Pour faire des requêtes HTTP
 
 let i = 0;
 
-let waitingClient = {};
+let waitingClientPong = {};
 
-const clientsWaiting = new Set();
+const clientsWaitingPong = new Set();
 
-let tournamentMap = new Map();
+let waitingClientPing = {};
 
-let id_tournament = 0;
+const clientsWaitingPing = new Set();
 
-let old_id_tournament = 0;
+let tournamentMapPong = new Map();
 
-tournamentMap.set(id_tournament, { 
+let id_tournamentPong = 0;
+
+let old_id_tournamentPong = 0;
+
+let tournamentMapPing = new Map();
+
+let id_tournamentPing = 0;
+
+let old_id_tournamentPing = 0;
+
+tournamentMapPong.set(id_tournamentPong, { 
     end_lobby: 0,
 
     count_game: 0,
     
     history: {},
     
-    tournament_id: id_tournament,
+    tournament_id: id_tournamentPong,
+    
+    classements: [],
+    
+    tournamentQueue: {},
+    
+    tournamentsUsernames: []
+
+})
+
+tournamentMapPing.set(id_tournamentPing, { 
+    end_lobby: 0,
+
+    count_game: 0,
+    
+    history: {},
+    
+    tournament_id: id_tournamentPing,
     
     classements: [],
     
@@ -37,31 +64,31 @@ fastify.register(async function (fastify) {
     let username1 = 0;
     let username2 = 0;
     fastify.get("/ws/matchmaking/pong", { websocket: true }, (connection, req) => { 
-        clientsWaiting.add(connection);
+        clientsWaitingPong.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
         connection.socket.on("close", () => {
-            clientsWaiting.clear();
-            waitingClient = {};
+            clientsWaitingPong.clear();
+            waitingClientPong = {};
             i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
             if (i == 0) {
-                waitingClient[0] = data.username;
+                waitingClientPong[0] = data.username;
                 username1 = data.username;
                 i++;
             } else if (i == 1) {
                 if (data.username == username1)
                     return ;
-                waitingClient[1] = data.username;
+                waitingClientPong[1] = data.username;
                 username2 = data.username;
                 i++;
             }
             if (i == 2) {
                 i = 0;
                 const lobbyKey = `${username1}${username2}`;
-                clientsWaiting.forEach(clientsWaiting => {
+                clientsWaitingPong.forEach(clientsWaiting => {
                     i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
@@ -71,8 +98,8 @@ fastify.register(async function (fastify) {
                         "lobbyKey": lobbyKey
                     }));
                 });
-                clientsWaiting.clear();
-                waitingClient = {};
+                clientsWaitingPong.clear();
+                waitingClientPong = {};
                 i = 0;
             }
         });
@@ -81,21 +108,21 @@ fastify.register(async function (fastify) {
         try {
             console.log("Nouvelle connexion WebSocket sur Tournament !");
             connection.socket.on("message", (message) => {
-                if (old_id_tournament != id_tournament) {
-                    tournamentMap.set(id_tournament, {
+                if (old_id_tournamentPong != id_tournamentPong) {
+                    tournamentMapPong.set(id_tournamentPong, {
                         end_lobby: 0,
                         count_game: 0,
                         history: {},
-                        tournament_id: id_tournament,
+                        tournament_id: id_tournamentPong,
                         classements: [],
                         tournamentQueue: {},
                         tournamentsUsernames: []
                     });
-                    old_id_tournament = id_tournament; // Met à jour l'ancien ID
+                    old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournament;
-                let currentTournament = tournamentMap.get(id_tournament_key_from_player);
+                let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
+                let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
                     console.error(`Tournoi ${id_tournament_key_from_player} introuvable`);
                     return ;
@@ -135,7 +162,7 @@ fastify.register(async function (fastify) {
                         for (let i = 0; i < 4; i++) {
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({ succes: true, id_tournament: id_tournament}));
                         }
-                        id_tournament++;
+                        id_tournamentPong++;
                         currentTournament.count_game++;
                         console.log("game 1");
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player);
@@ -196,7 +223,7 @@ fastify.register(async function (fastify) {
                         if (currentTournament) {
                             let socketClose = Object.values(currentTournament.tournamentQueue);
 
-                            tournamentMap.delete(id_tournament_key_from_player);
+                            tournamentMapPong.delete(id_tournament_key_from_player);
 
                             socketClose.forEach(client => {
                                 if (client && client.socket) {
@@ -213,24 +240,24 @@ fastify.register(async function (fastify) {
         }
     })
     fastify.get("/ws/matchmaking/ping", { websocket: true }, (connection, req) => { 
-        clientsWaiting.add(connection);
+        clientsWaitingPing.add(connection);
         console.log("Nouvelle connexion WebSocket sur Waiting !");
         connection.socket.on("close", () => {
-            clientsWaiting.clear();
-            waitingClient = {};
+            clientsWaitingPing.clear();
+            waitingClientPing = {};
             i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
             if (i == 0) {
-                waitingClient[0] = data.username;
+                waitingClientPing[0] = data.username;
                 username1 = data.username;
                 i++;
             } else if (i == 1) {
                 if (data.username == username1)
                     return ;
-                waitingClient[1] = data.username;
+                waitingClientPing[1] = data.username;
                 username2 = data.username;
                 i++;
             }
@@ -238,7 +265,7 @@ fastify.register(async function (fastify) {
                 i = 0;
                 const lobbyKey = `${username1}${username2}`;
                 console.log("lobby: ", lobbyKey); 
-                clientsWaiting.forEach(clientsWaiting => {
+                clientsWaitingPing.forEach(clientsWaiting => {
                     i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
@@ -248,8 +275,8 @@ fastify.register(async function (fastify) {
                         "lobbyKey": lobbyKey
                     }));
                 });
-                clientsWaiting.clear();
-                waitingClient = {};
+                clientsWaitingPing.clear();
+                waitingClientPing = {};
                 i = 0;
             }
         });
@@ -258,8 +285,8 @@ fastify.register(async function (fastify) {
         try {
             console.log("Nouvelle connexion WebSocket sur Tournament !");
             connection.socket.on("message", (message) => {
-                if (old_id_tournament != id_tournament) {
-                    tournamentMap.set(id_tournament, {
+                if (old_id_tournamentPing != id_tournamentPing) {
+                    tournamentMapPing.set(id_tournamentPing, {
                         end_lobby: 0,
                         count_game: 0,
                         history: {},
@@ -268,13 +295,13 @@ fastify.register(async function (fastify) {
                         tournamentQueue: {},
                         tournamentsUsernames: []
                     });
-                    old_id_tournament = id_tournament; // Met à jour l'ancien ID
+                    old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
                 console.log("data: ", data);
-                let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournament;
+                let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
-                let currentTournament = tournamentMap.get(id_tournament_key_from_player);
+                let currentTournament = tournamentMapPing.get(id_tournament_key_from_player);
                 if (!currentTournament) {
                     console.error(`Tournoi ${id_tournament_key_from_player} introuvable`);
                     return ;
@@ -386,7 +413,7 @@ fastify.register(async function (fastify) {
                         if (currentTournament) {
                             let socketClose = Object.values(currentTournament.tournamentQueue);
 
-                            tournamentMap.delete(id_tournament_key_from_player);
+                            tournamentMapPing.delete(id_tournament_key_from_player);
 
                             socketClose.forEach(client => {
                                 if (client && client.socket) {

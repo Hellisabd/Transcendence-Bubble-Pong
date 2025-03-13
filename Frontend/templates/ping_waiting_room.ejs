@@ -7,15 +7,15 @@
       <link rel="stylesheet" href="/Frontend/css/style.css">
       <link rel="stylesheet" href="/Frontend/css/btn.css">
 </head>
-<body>
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("pong_game"); // Appelle la fonction au chargement de la page
       set_up_friend_list();
     });
   </script>
-  <div id="user" style="display: none;"></div>
   <div id="content">
+    <%- include('navbar.ejs') %>
     <button class="btn" onclick="navigateTo('index')">HOME</button>
     <br>
     <br>

@@ -4,7 +4,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body {
+/* body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -13,13 +13,6 @@ body {
 	background-color: #000;
 	color: #fff;
 	font-family: Arial, sans-serif;
-}
-canvas {
-	border: 2px solid #fff;
-}
-
-#pingCanvas {
-	border: 2px solid rgb(0, 0, 0);
 }
 
 body {
@@ -49,4 +42,4 @@ body {
 
   main {
 	padding: 1rem;
-  }
+  } */

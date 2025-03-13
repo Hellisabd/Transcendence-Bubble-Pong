@@ -7,15 +7,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Social</title>
 </head>
-<body>
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
     <script>
         document.addEventListener("DOMContentLoaded", function() {
           navigateTo("social"); // Appelle la fonction au chargement de la page
           set_up_friend_list();
         });
       </script>
-    <div id="user" style="display: none;"></div>
     <div id="content">
+        <%- include('navbar.ejs') %>
         <h2>Add Friend</h2>
         <form onsubmit="add_friend(event)">
             <label for="friend_username">Find by username :</label>

@@ -450,12 +450,12 @@ function check_score(lobbyKey) {
         gameState.ballSpeed.ballSpeedX = 3.2
         gameState.ballSpeed.ballSpeedY = 3.2
         if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
-                lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: true}));
-                lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: false}));
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: true}));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: false}));
         }
         else {
-            lobbies[lobbyKey].players[0].socket.send(JSON.stringify({ start: "stop", winner: false}));
-            lobbies[lobbyKey].players[1].socket.send(JSON.stringify({ start: "stop", winner: true}));
+            lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: false}));
+            lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: true}));
         }
     }
 }
