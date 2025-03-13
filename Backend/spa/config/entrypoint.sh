@@ -2,7 +2,7 @@
 
 npx tsc
 
-#  chown -R spa:spa /usr/src/app/Frontend
+chown -R root:root /usr/src/app/Frontend
 npm start &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/ts; do

@@ -4,18 +4,16 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Pong Game - Fin du Tournoi</title>
-      <link rel="stylesheet" href="/Frontend/css/style.css">
-      <link rel="stylesheet" href="/Frontend/css/btn.css">
 </head>
 <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("end_tournament"); // Appelle la fonction au chargement de la page
+      navigateTo("index"); // Appelle la fonction au chargement de la page
       set_up_friend_list();
     });
   </script>
   <div id="content">
-    <%- include('navbar.ejs') %>
+    <%- include('/usr/src/app/Frontend/templates/navbar.ejs') %>
     <button class="btn" onclick="navigateTo('index')">HOME</button>
     <br><br><br>
     <h1>🏆 Classement du Tournoi 🏆</h1>

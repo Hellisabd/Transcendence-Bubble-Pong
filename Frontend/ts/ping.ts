@@ -259,10 +259,19 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             //ARENA
             ctx.beginPath();
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
+            ctx.fillStyle = "black";
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
             ctx.lineWidth = 5;
             ctx.strokeStyle = "white";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = ctx.strokeStyle;
             ctx.stroke();
             ctx.closePath();
+            ctx.shadowBlur = 0;
 
             //GOAL 1
             ctx.beginPath();

@@ -1,0 +1,166 @@
+
+> fastify-app@1.0.0 start
+> node Backend/js/core.js
+
+✅ Plugin `@fastify/cookie` chargé !
+Nouvelle connexion Social WebSocket !
+🔄 Redirection de /login vers users...
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+🔄 Redirection de /login vers users...
+🔄 Redirection de /login vers users...
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+🔄 Redirection de /login vers users...
+Nouvelle connexion Social WebSocket !
+🔄 Redirection de /login vers users...
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+ping_tab undefined
+ping_tab undefined
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+Nouvelle connexion Social WebSocket !
+ERROR: ejs:16
+    14|   </script>
+    15|   <div id="content">
+ >> 16|     <%- include('navbar.ejs') %>
+    17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+    18|     <br><br><br>
+    19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+
+Could not find the include file "navbar.ejs" {"req":{"method":"POST","url":"/end_tournament","hostname":"k1r4p4","remoteAddress":"192.168.64.5","remotePort":59782},"res":{"statusCode":500}}
+    err: {
+      "type": "Error",
+      "message": "ejs:16\n    14|   </script>\n    15|   <div id=\"content\">\n >> 16|     <%- include('navbar.ejs') %>\n    17|     <button class=\"btn\" onclick=\"navigateTo('index')\">HOME</button>\n    18|     <br><br><br>\n    19|     <h1>🏆 Classement du Tournoi 🏆</h1>\n\nCould not find the include file \"navbar.ejs\"",
+      "stack":
+          Error: ejs:16
+              14|   </script>
+              15|   <div id="content">
+           >> 16|     <%- include('navbar.ejs') %>
+              17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+              18|     <br><br><br>
+              19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+          
+          Could not find the include file "navbar.ejs"
+              at getIncludePath (/usr/src/app/node_modules/ejs/lib/ejs.js:185:13)
+              at includeFile (/usr/src/app/node_modules/ejs/lib/ejs.js:311:19)
+              at include (/usr/src/app/node_modules/ejs/lib/ejs.js:701:16)
+              at eval (eval at compile (/usr/src/app/node_modules/ejs/lib/ejs.js:673:12), <anonymous>:12:17)
+              at anonymous (/usr/src/app/node_modules/ejs/lib/ejs.js:703:17)
+              at exports.render (/usr/src/app/node_modules/ejs/lib/ejs.js:425:37)
+              at Object.end_tournament (/usr/src/app/Backend/js/proxy.js:182:27)
+              at preHandlerCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:139:37)
+              at validationCompleted (/usr/src/app/node_modules/fastify/lib/handleRequest.js:123:5)
+              at preValidationCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:100:5)
+      "path": ""
+    }
+ERROR: ejs:16
+    14|   </script>
+    15|   <div id="content">
+ >> 16|     <%- include('navbar.ejs') %>
+    17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+    18|     <br><br><br>
+    19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+
+Could not find the include file "navbar.ejs" {"req":{"method":"POST","url":"/end_tournament","hostname":"transcendence","remoteAddress":"192.168.64.5","remotePort":59806},"res":{"statusCode":500}}
+    err: {
+      "type": "Error",
+      "message": "ejs:16\n    14|   </script>\n    15|   <div id=\"content\">\n >> 16|     <%- include('navbar.ejs') %>\n    17|     <button class=\"btn\" onclick=\"navigateTo('index')\">HOME</button>\n    18|     <br><br><br>\n    19|     <h1>🏆 Classement du Tournoi 🏆</h1>\n\nCould not find the include file \"navbar.ejs\"",
+      "stack":
+          Error: ejs:16
+              14|   </script>
+              15|   <div id="content">
+           >> 16|     <%- include('navbar.ejs') %>
+              17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+              18|     <br><br><br>
+              19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+          
+          Could not find the include file "navbar.ejs"
+              at getIncludePath (/usr/src/app/node_modules/ejs/lib/ejs.js:185:13)
+              at includeFile (/usr/src/app/node_modules/ejs/lib/ejs.js:311:19)
+              at include (/usr/src/app/node_modules/ejs/lib/ejs.js:701:16)
+              at eval (eval at compile (/usr/src/app/node_modules/ejs/lib/ejs.js:673:12), <anonymous>:12:17)
+              at anonymous (/usr/src/app/node_modules/ejs/lib/ejs.js:703:17)
+              at exports.render (/usr/src/app/node_modules/ejs/lib/ejs.js:425:37)
+              at Object.end_tournament (/usr/src/app/Backend/js/proxy.js:182:27)
+              at preHandlerCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:139:37)
+              at validationCompleted (/usr/src/app/node_modules/fastify/lib/handleRequest.js:123:5)
+              at preValidationCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:100:5)
+      "path": ""
+    }
+ERROR: ejs:16
+    14|   </script>
+    15|   <div id="content">
+ >> 16|     <%- include('navbar.ejs') %>
+    17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+    18|     <br><br><br>
+    19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+
+Could not find the include file "navbar.ejs" {"req":{"method":"POST","url":"/end_tournament","hostname":"k1r4p4","remoteAddress":"192.168.64.5","remotePort":59832},"res":{"statusCode":500}}
+    err: {
+      "type": "Error",
+      "message": "ejs:16\n    14|   </script>\n    15|   <div id=\"content\">\n >> 16|     <%- include('navbar.ejs') %>\n    17|     <button class=\"btn\" onclick=\"navigateTo('index')\">HOME</button>\n    18|     <br><br><br>\n    19|     <h1>🏆 Classement du Tournoi 🏆</h1>\n\nCould not find the include file \"navbar.ejs\"",
+      "stack":
+          Error: ejs:16
+              14|   </script>
+              15|   <div id="content">
+           >> 16|     <%- include('navbar.ejs') %>
+              17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+              18|     <br><br><br>
+              19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+          
+          Could not find the include file "navbar.ejs"
+              at getIncludePath (/usr/src/app/node_modules/ejs/lib/ejs.js:185:13)
+              at includeFile (/usr/src/app/node_modules/ejs/lib/ejs.js:311:19)
+              at include (/usr/src/app/node_modules/ejs/lib/ejs.js:701:16)
+              at eval (eval at compile (/usr/src/app/node_modules/ejs/lib/ejs.js:673:12), <anonymous>:12:17)
+              at anonymous (/usr/src/app/node_modules/ejs/lib/ejs.js:703:17)
+              at exports.render (/usr/src/app/node_modules/ejs/lib/ejs.js:425:37)
+              at Object.end_tournament (/usr/src/app/Backend/js/proxy.js:182:27)
+              at preHandlerCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:139:37)
+              at validationCompleted (/usr/src/app/node_modules/fastify/lib/handleRequest.js:123:5)
+              at preValidationCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:100:5)
+      "path": ""
+    }
+ERROR: ejs:16
+    14|   </script>
+    15|   <div id="content">
+ >> 16|     <%- include('navbar.ejs') %>
+    17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+    18|     <br><br><br>
+    19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+
+Could not find the include file "navbar.ejs" {"req":{"method":"POST","url":"/end_tournament","hostname":"k1r4p4","remoteAddress":"192.168.64.5","remotePort":59854},"res":{"statusCode":500}}
+    err: {
+      "type": "Error",
+      "message": "ejs:16\n    14|   </script>\n    15|   <div id=\"content\">\n >> 16|     <%- include('navbar.ejs') %>\n    17|     <button class=\"btn\" onclick=\"navigateTo('index')\">HOME</button>\n    18|     <br><br><br>\n    19|     <h1>🏆 Classement du Tournoi 🏆</h1>\n\nCould not find the include file \"navbar.ejs\"",
+      "stack":
+          Error: ejs:16
+              14|   </script>
+              15|   <div id="content">
+           >> 16|     <%- include('navbar.ejs') %>
+              17|     <button class="btn" onclick="navigateTo('index')">HOME</button>
+              18|     <br><br><br>
+              19|     <h1>🏆 Classement du Tournoi 🏆</h1>
+          
+          Could not find the include file "navbar.ejs"
+              at getIncludePath (/usr/src/app/node_modules/ejs/lib/ejs.js:185:13)
+              at includeFile (/usr/src/app/node_modules/ejs/lib/ejs.js:311:19)
+              at include (/usr/src/app/node_modules/ejs/lib/ejs.js:701:16)
+              at eval (eval at compile (/usr/src/app/node_modules/ejs/lib/ejs.js:673:12), <anonymous>:12:17)
+              at anonymous (/usr/src/app/node_modules/ejs/lib/ejs.js:703:17)
+              at exports.render (/usr/src/app/node_modules/ejs/lib/ejs.js:425:37)
+              at Object.end_tournament (/usr/src/app/Backend/js/proxy.js:182:27)
+              at preHandlerCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:139:37)
+              at validationCompleted (/usr/src/app/node_modules/fastify/lib/handleRequest.js:123:5)
+              at preValidationCallback (/usr/src/app/node_modules/fastify/lib/handleRequest.js:100:5)
+      "path": ""
+    }
