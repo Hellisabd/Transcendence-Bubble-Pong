@@ -61,10 +61,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     userDiv.innerHTML = '';
 
     let url: string = page == "index" ? "/" : `/${page}`;
-
+    
     try {
         let response: Response | null = null;
-        if (url === "/end_tournament") {
+        if (url === "/end_tournament" && classement) {
             response = await fetch("/end_tournament", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -72,6 +72,12 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             });
         }
         else {
+            if (url == "/end_tournament") {
+                console.log("wtf?");
+                url = "/";
+                page = "index";
+            }
+            console.log("url: ", url);
             response = await fetch(url, {
                 credentials: "include",
                 headers: { "Content-Type": "text/html" }
@@ -147,7 +153,10 @@ async function get_user(): Promise<string | null> {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-	navigateTo(window.location.pathname.substring(1), false, null);
+    if (window.location.pathname.substring(1) == "end_tournament") {
+        window.location.pathname = "/index";
+    }
+    navigateTo(window.location.pathname.substring(1), false, null);
 });
 
 // Gestion de l'historique
