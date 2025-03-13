@@ -16,7 +16,7 @@ async function set_user(contentDiv: HTMLDivElement, username: string | null): Pr
 
 	const userDiv = contentDiv.querySelector("#user") as HTMLDivElement;
 	const avatarElement = contentDiv.querySelector("#avatar") as HTMLImageElement;
-	userDiv.innerHTML = `👤 ${username}`;
+	userDiv.innerHTML = `${username}`;
 	userDiv.classList.add("text-white");
 	avatarElement.classList.add("w-12");
 	avatarElement.classList.add("h-12");
@@ -61,7 +61,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     userDiv.innerHTML = '';
 
     let url: string = page == "index" ? "/" : `/${page}`;
-    
+
     try {
         let response: Response | null = null;
         if (url === "/end_tournament" && classement) {
