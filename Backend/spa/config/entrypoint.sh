@@ -6,7 +6,6 @@ npx tsc
 npm start &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/ts; do
-	npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
     echo "Changement détecté ! Redémarrage du service..."
 	npx tailwindcss -i ./style.css -o ./output.css
     npx tsc  # Ou relancer le processus concerné
