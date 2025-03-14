@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <link rel="stylesheet" href="/Frontend/css/style.css">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>SPA Demo</title>
+      <%- include('links.ejs') %>
 </head>
 	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
 		<div id="content">
@@ -14,10 +14,6 @@
 				<div class="border border-slate-500 w-[20rem] mt-8">
 				</div>
 			</div>
-			<button class="btn" onclick="navigateTo('modify_user')">Modify User</button>
-			<button class="btn" onclick="navigateTo('social')">Social</button>
-			<button class="btn" onclick="logout(1)">Logout</button>
-			<!-- <button class="btn" onclick="window.location.href = 'https://bonjourmadame.fr/';" target="_blank">Bonjour Madame</button> -->
 			<canvas id="friends_list" width="300" height="500"></canvas>
 		</div>
 		<%- include('scripts.ejs') %>

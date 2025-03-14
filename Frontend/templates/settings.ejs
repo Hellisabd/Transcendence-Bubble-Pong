@@ -2,22 +2,21 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="/Frontend/css/style.css">
-        <link rel="stylesheet" href="/Frontend/css/btn.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Modify User</title>
+        <%- include('links.ejs') %>
     </head>
     <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-              navigateTo("modify_user"); // Appelle la fonction au chargement de la page
+              navigateTo("settings"); // Appelle la fonction au chargement de la page
               set_up_friend_list();
             });
         </script>
         <div id="content">
             <%- include('navbar.ejs') %>
             <h2>Modify User</h2>
-            <form id="modifyUserForm" onsubmit="modify_user(event)">
+            <form id="modifyUserForm" onsubmit="settings(event)">
                 <label for="email">Adresse Email :</label>
                 <input type="text" id="email" name="email" required>
                 <br>

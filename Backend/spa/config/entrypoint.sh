@@ -16,6 +16,6 @@ while inotifywait -r -e modify,create,delete /usr/src/app/Backend; do
     echo "Changement détecté ! Redémarrage du serveur..."
 	kill $(pgrep -f "node")
     npm start & # Ou relancer le processus concerné
-done &
+done
 
-npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css --watch
+# npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css --watch
