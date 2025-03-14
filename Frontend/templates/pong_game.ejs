@@ -15,7 +15,7 @@
   </script>
   <div id="content">
     <%- include('navbar.ejs') %>
-    <div class="flex flex-row items-center justify-center min-h-screen space-x-8">
+    <div class="flex flex-col md:flex-row items-center justify-center min-h-screen md:space-x-8 space-y-8">
       <!-- Conteneur du premier canvas avec son bouton -->
       <div class="relative">
           <canvas id="pong_animation" width="1000" height="600"></canvas>
@@ -35,12 +35,12 @@
       <div class="relative">
           <canvas id="ping_animation" width="750" height="750"></canvas>
           <button onclick="navigateTo('ping_waiting_room')" 
-                  class="absolute top-16 left-1/2 transform -translate-x-1/2
+                  class="absolute top-40 left-1/2 transform -translate-x-1/2
                          bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded press-start-2p-regular">
                   PLAY ping
           </button>
           <button onclick="navigateTo('ping_tournament')" 
-                  class="absolute bottom-16 left-1/2 transform -translate-x-1/2
+                  class="absolute bottom-40 left-1/2 transform -translate-x-1/2
                          bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded press-start-2p-regular">
                   Tournament ping
           </button>

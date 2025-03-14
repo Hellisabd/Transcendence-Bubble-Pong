@@ -103,19 +103,8 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         } else {
             console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
-        // ✅ Attendre la valeur correcte de `get_user()`
-        // if (afficheUser) {
-        //     const response = await fetch("/get_avatar", {
-        //         method: "POST",
-        //         headers: { "Content-Type": "application/json" },
-        //         body: JSON.stringify({ username: username})
-        //     });
-        //     const response_avatar = await response.json();
-        //     const avatar_name = await response_avatar.avatar_name;
-        //     userDiv.innerHTML = `${username}
-        //     <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
-        //     userDiv.style.display = "";
-        // }
+        document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
+        console.log("document title: ", document.title);
 		set_user(contentDiv, username);
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -136,7 +125,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         if (page === "pong_game") {
             initializeAnimationPong();
-            // initializeAnimationPing();
+            initializeAnimationPing();
         }
         display_friends();
 

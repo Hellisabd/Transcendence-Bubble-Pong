@@ -23,18 +23,16 @@
 			</div>
 			<script>
 				document.addEventListener("click", function(event) {
-						  const MenuMobile = document.getElementById("mobile-menu");
-						  const mobilemenubutton = document.getElementById("mobile-menu-button");
-						  const menuIconOpen = document.getElementById("menu-icon-open");
-							const menuIconClose = document.getElementById("menu-icon-close");
-
-							// Vérifie si le clic est à l'intérieur du menu ou sur le bouton d'ouverture
-							if (!MenuMobile.contains(event.target) && !mobilemenubutton.contains(event.target)) {
-								MenuMobile.classList.add("hidden");
-								menuIconOpen.classList.remove("hidden");
-								menuIconClose.classList.add("hidden");
-							}
-					  });
+					const MenuMobile = document.getElementById("mobile-menu");
+					const mobilemenubutton = document.getElementById("mobile-menu-button");
+					const menuIconOpen = document.getElementById("menu-icon-open");
+					const menuIconClose = document.getElementById("menu-icon-close");
+					if (!MenuMobile.contains(event.target) && !mobilemenubutton.contains(event.target)) {
+						MenuMobile.classList.add("hidden");
+						menuIconOpen.classList.remove("hidden");
+						menuIconClose.classList.add("hidden");
+					}
+				});
 				function displayMenu() {
 					const mobileMenu = document.getElementById("mobile-menu");
 					const menuIconOpen = document.getElementById("menu-icon-open");
