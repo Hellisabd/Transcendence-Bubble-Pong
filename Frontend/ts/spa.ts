@@ -134,6 +134,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             pending_request();
             console.log("passse dans pending request");
         }
+        if (page === "pong_game") {
+            initializeAnimationPong();
+            // initializeAnimationPing();
+        }
         display_friends();
 
     } catch (error) {
