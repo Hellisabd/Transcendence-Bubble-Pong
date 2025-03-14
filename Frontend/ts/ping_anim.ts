@@ -6,6 +6,10 @@ let ping_canvas: HTMLCanvasElement | null = null;
 const ping_ballRadius = 10;
 const ping_paddle_size = Math.PI * 0.08;
 const ping_goal_size = Math.PI / 3;
+const ping_paddle_thickness = 15;
+const ping_arena_radius = 375;
+const bounceInterval = 500;
+const paddle_speed = Math.PI / 150;
 
 let ping_ballX: number = 0;
 let ping_ballY: number = 0;
@@ -21,6 +25,7 @@ let ping_ballSpeedX: number = 3.2;
 let ping_ballSpeedY: number = 3.2;
 let ping_speed: number  = 0;
 
+let lastBounce: number = 0;
 
 function initializeAnimationPing() {
     ping_canvas = document.getElementById("ping_animation") as HTMLCanvasElement;
@@ -30,6 +35,7 @@ function initializeAnimationPing() {
 		ping_p2_angle = 0;
 		ping_p1_goal = Math.PI;
 		ping_p2_goal = 0;
+		lastBounce = Date.now();
 		ping_resetBall();
 		ping_gameLoop();
 	}
@@ -40,6 +46,248 @@ function ping_update() {
         return ;
 	ping_ballX += ping_ballSpeedX;
 	ping_ballY += ping_ballSpeedY;
+
+	let dx = ping_ballX - ping_canvas.width / 2;
+    let dy = ping_ballY - ping_canvas.height / 2;
+    let ball_dist = Math.sqrt(dx * dx + dy * dy);
+    let ball_angle = Math.atan2(ping_ballY - ping_canvas.height / 2, ping_ballX - ping_canvas.width / 2);
+    if (ball_angle < 0)
+        ball_angle += 2 * Math.PI;
+
+	ping_move_paddles();
+
+	let lim_inf_player1 = ping_p1_angle - ping_paddle_size;
+    if (lim_inf_player1 < 0)
+        lim_inf_player1 += 2 * Math.PI;
+
+    let lim_sup_player1 = ping_p1_angle + ping_paddle_size;
+    if (lim_sup_player1 > 2 * Math.PI)
+        lim_sup_player1 -= 2 * Math.PI;
+
+    let lim_inf_player2 = ping_p2_angle - ping_paddle_size;
+    if (lim_inf_player2 < 0)
+        lim_inf_player2 += 2 * Math.PI;
+
+    let lim_sup_player2 = ping_p2_angle + ping_paddle_size;
+    if (lim_sup_player2 > 2 * Math.PI)
+        lim_sup_player2 -= 2 * Math.PI;
+
+    if (ball_dist + ping_ballRadius + ping_paddle_thickness > ping_arena_radius - ping_paddle_thickness && Date.now() > lastBounce) {
+        if (lim_inf_player1 < lim_sup_player1) {
+            if (ball_angle >= lim_inf_player1 && ball_angle <= lim_sup_player1) {
+                lastBounce = Date.now() + bounceInterval;
+        
+                let impactFactor = (ball_angle - ping_p1_angle) / ping_paddle_size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(ping_ballSpeedX ** 2 + ping_ballSpeedY ** 2);
+        
+                ping_ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                ping_ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+                
+                randGoalPos(ping_p1_goal, ping_p2_goal);
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_player1 || ball_angle <= lim_sup_player1) {
+                lastBounce = Date.now() + bounceInterval;
+        
+                let impactFactor = (ball_angle - ping_p1_angle) / ping_paddle_size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(ping_ballSpeedX ** 2 + ping_ballSpeedY ** 2);
+        
+                ping_ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                ping_ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+                
+                randGoalPos(ping_p1_goal, ping_p2_goal);
+            }
+        }
+        if (lim_inf_player2 < lim_sup_player2) {
+            if (ball_angle >= lim_inf_player2 && ball_angle <= lim_sup_player2) {
+                lastBounce = Date.now() + bounceInterval;
+        
+                let impactFactor = (ball_angle - ping_p2_angle) / ping_paddle_size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(ping_ballSpeedX ** 2 + ping_ballSpeedY ** 2);
+        
+                ping_ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                ping_ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+        
+                randGoalPos(ping_p2_goal, ping_p1_goal);
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_player2 || ball_angle <= lim_sup_player2) {
+                lastBounce = Date.now() + bounceInterval;
+        
+                let impactFactor = (ball_angle - ping_p2_angle) / ping_paddle_size;
+        
+                let bounceAngle = impactFactor * Math.PI / 4;
+                let speed = Math.sqrt(ping_ballSpeedX ** 2 + ping_ballSpeedY ** 2);
+        
+                ping_ballSpeedX = speed * Math.cos(ball_angle + bounceAngle) * -1.05;
+                ping_ballSpeedY = speed * Math.sin(ball_angle + bounceAngle) * -1.05;
+        
+                randGoalPos(ping_p2_goal, ping_p1_goal);
+            }
+        }
+    }
+
+    if (ping_ballSpeedX > 10)
+        ping_ballSpeedX = 10;
+    if (ping_ballSpeedX < -10)
+        ping_ballSpeedX = -10;
+    if (ping_ballSpeedY > 10)
+        ping_ballSpeedY = 10;
+    if (ping_ballSpeedY < -10)
+        ping_ballSpeedY = -10;
+
+    let lim_inf_goal1 = ping_p1_goal - ping_goal_size / 2;
+    if (lim_inf_goal1 < 0)
+        lim_inf_goal1 += 2 * Math.PI;
+
+    let lim_sup_goal1 = ping_p1_goal + ping_goal_size / 2;
+    if (lim_inf_goal1 > 2 * Math.PI)
+        lim_inf_goal1 -= 2 * Math.PI;
+
+    let lim_inf_goal2 = ping_p2_goal - ping_goal_size / 2;
+    if (lim_inf_goal2 < 0)
+        lim_inf_goal2 += 2 * Math.PI;
+
+    let lim_sup_goal2 = ping_p2_goal + ping_goal_size / 2;
+    if (lim_inf_goal2 > 2 * Math.PI)
+        lim_inf_goal2 -= 2 * Math.PI;
+
+    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+        if (lim_inf_goal1 < lim_sup_goal1) {
+            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                ping_resetBall();
+                ping_resetParam();
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                ping_resetBall();
+                ping_resetParam();
+            } 
+        }
+    }
+
+    if (ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+        if (lim_inf_goal1 < lim_sup_goal1) {
+            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                lastBounce = Date.now() + bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (ping_ballSpeedX * normalX + ping_ballSpeedY * normalY);
+            
+                ping_ballSpeedX -= 2 * dotProduct * normalX;
+                ping_ballSpeedY -= 2 * dotProduct * normalY;
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                lastBounce = Date.now() + bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (ping_ballSpeedX * normalX + ping_ballSpeedY * normalY);
+            
+                ping_ballSpeedX -= 2 * dotProduct * normalX;
+                ping_ballSpeedY -= 2 * dotProduct * normalY;
+            } 
+        }
+    } 
+    
+    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+        if (lim_inf_goal2 < lim_sup_goal2) {
+            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                ping_resetBall();
+                ping_resetParam();
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                ping_resetBall();
+                ping_resetParam();
+            } 
+        }
+    }
+
+    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+        if (lim_inf_goal2 < lim_sup_goal2) {
+            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                lastBounce = Date.now() + bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (ping_ballSpeedX * normalX + ping_ballSpeedY * normalY);
+            
+                ping_ballSpeedX -= 2 * dotProduct * normalX;
+                ping_ballSpeedY -= 2 * dotProduct * normalY;
+            }
+        }
+        else {
+            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                lastBounce = Date.now() + bounceInterval;
+                let normalX = dx / ball_dist;
+                let normalY = dy / ball_dist;
+            
+                let dotProduct = (ping_ballSpeedX * normalX + ping_ballSpeedY * normalY);
+            
+                ping_ballSpeedX -= 2 * dotProduct * normalX;
+                ping_ballSpeedY -= 2 * dotProduct * normalY;
+            } 
+        }
+    }
+    
+    if (ball_dist + ping_ballRadius + 5 > ping_arena_radius && Date.now() > lastBounce ) {
+        lastBounce = Date.now() + bounceInterval;
+        let normalX = dx / ball_dist;
+        let normalY = dy / ball_dist;
+    
+        let dotProduct = (ping_ballSpeedX * normalX + ping_ballSpeedY * normalY);
+    
+        ping_ballSpeedX -= 2 * dotProduct * normalX;
+        ping_ballSpeedY -= 2 * dotProduct * normalY;
+    }
+}
+
+function ping_move_paddles() {
+	if (Math.abs(ping_p1_angle - ping_ball_angle) < Math.abs(ping_p2_angle - ping_ball_angle)) {
+		if (ping_p1_angle - ping_ball_angle > 0)
+			ping_p1_angle += paddle_speed;
+		else
+			ping_p1_angle -= paddle_speed;
+	}
+	else {
+		if (ping_p2_angle - ping_ball_angle > 0)
+			ping_p2_angle += paddle_speed;
+		else
+			ping_p2_angle -= paddle_speed;
+	}
+}
+
+function ping_resetParam() {
+    ping_p1_angle = Math.PI;
+    ping_p2_angle = 0;
+    ping_p1_goal = Math.PI;
+    ping_p2_goal = 0;
+    lastBounce = Date.now();
+}
+
+function circular_distance(a: number, b: number) {
+    return Math.min(Math.abs(a - b), 2 * Math.PI - Math.abs(a - b));
+}
+
+function randGoalPos(goal_player: number, goal_opponent: number) {
+    goal_player = Math.random() * 2 * Math.PI;
+    if (circular_distance(goal_player, goal_opponent) < ping_paddle_size) {
+        randGoalPos(goal_player, goal_opponent);
+    }
 }
 
 function randBallPos() {
