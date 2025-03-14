@@ -1,110 +1,110 @@
 console.log("animation pong chargé !")
 
-let ctx: CanvasRenderingContext2D | null = null;
-let canvas: HTMLCanvasElement | null = null;
+let pong_ctx: CanvasRenderingContext2D | null = null;
+let pong_canvas: HTMLCanvasElement | null = null;
 
-const paddleWidth = 20;
-const paddleHeight = 100;
-const ballRadius = 10;
+const pong_paddleWidth = 20;
+const pong_paddleHeight = 100;
+const pong_ballRadius = 10;
 
-let player1Y: number = 0;
-let player2Y = 0;
+let pong_player1Y: number = 0;
+let pong_player2Y: number = 0;
 
-let ballX: number  = 0;
-let ballY: number  = 0;
-let ballSpeedX: number  = 0;
-let ballSpeedY: number  = 0;
-let speed: number  = 0;
+let pong_ballX: number  = 0;
+let pong_ballY: number  = 0;
+let pong_ballSpeedX: number  = 0;
+let pong_ballSpeedY: number  = 0;
+let pong_speed: number  = 0;
 
 function initializeAnimationPong() {
-    canvas = document.getElementById("pong_animation") as HTMLCanvasElement;
-    ctx = canvas.getContext("2d");
-    if (ctx) {
-        player1Y = canvas.height / 2 - paddleHeight / 2;
-        player2Y = canvas.height / 2 - paddleHeight / 2;
+    pong_canvas = document.getElementById("pong_animation") as HTMLCanvasElement;
+    pong_ctx = pong_canvas.getContext("2d");
+    if (pong_ctx) {
+        pong_player1Y = pong_canvas.height / 2 - pong_paddleHeight / 2;
+        pong_player2Y = pong_canvas.height / 2 - pong_paddleHeight / 2;
 
-        ballX = canvas.width / 2;
-        ballY = canvas.height / 2;
-        ballSpeedX = 4;
-        ballSpeedY = 4;
-        speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
-        resetBall();
-        draw();
-        gameLoop();
+        pong_ballX = pong_canvas.width / 2;
+        pong_ballY = pong_canvas.height / 2;
+        pong_ballSpeedX = 4;
+        pong_ballSpeedY = 4;
+        pong_speed = Math.sqrt(pong_ballSpeedX * pong_ballSpeedX + pong_ballSpeedY * pong_ballSpeedY);
+        pong_resetBall();
+        pong_draw();
+        pong_gameLoop();
     }
 }
 
-function drawBackground() {
-    if (!ctx || !canvas) {
+function pong_drawBackground() {
+    if (!pong_ctx || !pong_canvas) {
         return ;
 	}
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    pong_ctx.fillStyle = "black";
+    pong_ctx.fillRect(0, 0, pong_canvas.width, pong_canvas.height);
 }
 
-function draw() {
-    drawBackground()
-    if (!ctx || !canvas) {
+function pong_draw() {
+    pong_drawBackground()
+    if (!pong_ctx || !pong_canvas) {
       return ;
     }
-    // Draw paddles
-    ctx.fillStyle = "#810000";
-    ctx.fillRect(0, player1Y, paddleWidth, paddleHeight); // Player 1
+    // pong_draw paddles
+    pong_ctx.fillStyle = "#810000";
+    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight); // Player 1
 
-    ctx.fillStyle = "#00009c";
-    ctx.fillRect(canvas.width - paddleWidth, player2Y, paddleWidth, paddleHeight); // Player 2
+    pong_ctx.fillStyle = "#00009c";
+    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight); // Player 2
 
-    // Draw ball
-    ctx.beginPath();
-    ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#FFFF00";
-    ctx.fill();
-    ctx.closePath();
+    // pong_draw ball
+    pong_ctx.beginPath();
+    pong_ctx.arc(pong_ballX, pong_ballY, pong_ballRadius, 0, Math.PI * 2);
+    pong_ctx.fillStyle = "#FFFF00";
+    pong_ctx.fill();
+    pong_ctx.closePath();
 }
 
-function update() {
-    ballX += ballSpeedX;
-    ballY += ballSpeedY;
-    if (!canvas) {
+function pong_update() {
+    pong_ballX += pong_ballSpeedX;
+    pong_ballY += pong_ballSpeedY;
+    if (!pong_canvas) {
         return ;
     } 
 
-    if (ballY + ballRadius > canvas.height || ballY - ballRadius < 0) {
-        ballSpeedY = -ballSpeedY;
+    if (pong_ballY + pong_ballRadius > pong_canvas.height || pong_ballY - pong_ballRadius < 0) {
+        pong_ballSpeedY = -pong_ballSpeedY;
     }
 
-    if (ballX - ballRadius < paddleWidth && ballY > player1Y && ballY < player1Y + paddleHeight)
-        ballSpeedX = -ballSpeedX;
+    if (pong_ballX - pong_ballRadius < pong_paddleWidth && pong_ballY > pong_player1Y && pong_ballY < pong_player1Y + pong_paddleHeight)
+        pong_ballSpeedX = -pong_ballSpeedX;
 
-    if (ballX + ballRadius > canvas.width - paddleWidth && ballY > player2Y && ballY < player2Y + paddleHeight)
-        ballSpeedX = -ballSpeedX;
+    if (pong_ballX + pong_ballRadius > pong_canvas.width - pong_paddleWidth && pong_ballY > pong_player2Y && pong_ballY < pong_player2Y + pong_paddleHeight)
+        pong_ballSpeedX = -pong_ballSpeedX;
 
-    if (ballX - ballRadius < 0) {
-        resetBall();
+    if (pong_ballX - pong_ballRadius < 0) {
+        pong_resetBall();
     }
 
-    if (ballX + ballRadius > canvas.width) {
-        resetBall();
+    if (pong_ballX + pong_ballRadius > pong_canvas.width) {
+        pong_resetBall();
     }
-    player1Y = ballY - paddleHeight / 2;
-    player2Y = player1Y;
-    if (player1Y < 0)
-        player1Y = 0;
-    if (player2Y < 0)
-        player2Y = 0;
-    if (player1Y + paddleHeight > canvas.height)
-        player1Y = canvas.height - paddleHeight;
-    if (player2Y + paddleHeight > canvas.height)
-        player2Y = canvas.height - paddleHeight;
+    pong_player1Y = pong_ballY - pong_paddleHeight / 2;
+    pong_player2Y = pong_player1Y;
+    if (pong_player1Y < 0)
+        pong_player1Y = 0;
+    if (pong_player2Y < 0)
+        pong_player2Y = 0;
+    if (pong_player1Y + pong_paddleHeight > pong_canvas.height)
+        pong_player1Y = pong_canvas.height - pong_paddleHeight;
+    if (pong_player2Y + pong_paddleHeight > pong_canvas.height)
+        pong_player2Y = pong_canvas.height - pong_paddleHeight;
 }
 
-function resetBall() {
-    if (!canvas) {
+function pong_resetBall() {
+    if (!pong_canvas) {
         return ;
     }
-    ballX = canvas.width / 2;
-    ballY = canvas.height / 2;
-    speed = Math.sqrt(ballSpeedX * ballSpeedX + ballSpeedY * ballSpeedY);
+    pong_ballX = pong_canvas.width / 2;
+    pong_ballY = pong_canvas.height / 2;
+    pong_speed = Math.sqrt(pong_ballSpeedX * pong_ballSpeedX + pong_ballSpeedY * pong_ballSpeedY);
 
     let angle: number;
     if (Math.random() < 0.5) {
@@ -114,21 +114,21 @@ function resetBall() {
         angle = Math.random() * (Math.PI / 2) + (3 * Math.PI) / 4;
     }
 
-    ballSpeedX = speed * Math.cos(angle);
-    ballSpeedY = speed * Math.sin(angle);
+    pong_ballSpeedX = pong_speed * Math.cos(angle);
+    pong_ballSpeedY = pong_speed * Math.sin(angle);
 }
 
 
-function gameLoop() {
-	if (!ctx) {
+function pong_gameLoop() {
+	if (!pong_ctx) {
 		return;
 	}
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
+    pong_update();
+    pong_draw();
+    requestAnimationFrame(pong_gameLoop);
 }
 
 function animation_pong_stop() {
-	ctx = null;
-	canvas = null;
+	pong_ctx = null;
+	pong_canvas = null;
 }
