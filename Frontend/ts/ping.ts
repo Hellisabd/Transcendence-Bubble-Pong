@@ -116,6 +116,7 @@ function ping_end_game(ping_win: number, user: string | null, otheruser: string,
 }
 
 function ping_Disconnect_from_game() {
+    animation_ping_stop();
     if (!ping_Wsocket && !ping_socket && !ping_lobbyKey && !ping_Tsocket)
         return;
     ping_Wsocket?.close();
@@ -374,7 +375,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -396,7 +396,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -419,7 +418,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -474,11 +472,9 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
             }
             if (ping_player_id == 1 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, ping_inTournament);
             }
             else if (ping_player_id == 2 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, ping_inTournament);
             }
         }

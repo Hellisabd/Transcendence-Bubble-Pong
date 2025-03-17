@@ -107,9 +107,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
         console.log("document title: ", document.title);
 		set_user(contentDiv, username);
-        console.log("caca8", window.history.state.page);
-        if (addHistory && window.history.state.page !== page) {
-            old_url = page;
+        // console.log("caca8", window.history.state.page);
+        if (addHistory/*  && window.history.state.page !== page */) {
+            // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
         }
         Disconnect_from_game();
