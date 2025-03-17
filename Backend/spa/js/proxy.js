@@ -267,16 +267,5 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-async function setup2fa(req, reply) {
-    const response = await axios.post("http://users:5000/2fa/setup", req.body, {
-    });
-    reply.send(response.data);
-}
-
-async function verify2fa(req, reply) {
-    const response = await axios.post("http://users:5000/2fa/verify", req.body, {
-    });
-    reply.send(response.data);
-}
 
 module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };

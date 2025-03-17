@@ -140,20 +140,4 @@ const start = async () => {
 };
 
 
-
-fastify.post("/2fa/setup", async (request, reply) => {
-	const { username } = request.body;
-	if(!username){
-		return reply.code(400).send({error: 'Username inexistant.'});
-	}
-
-	const secret = otplib.generateSecret({ name: `Transcendence (${username})` });
-	qrcode.toDataURL(secret.otplib_url, (err, dataUrl) => {
-		if (err) {
-			return reply.code(500).send({ error: "Impossible de generer le QR code" });
-		}
-		return reply.send({otplib_url: secret.otplib_url, qr_code: dataUrl });
-	});
-});
-
 start();
