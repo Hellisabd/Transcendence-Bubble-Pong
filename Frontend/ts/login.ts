@@ -1,5 +1,3 @@
-import { setup2fa } from "../../Backend/spa/js/proxy";
-
 console.log("login.ts chargé");
 
 type LoginResponse = {

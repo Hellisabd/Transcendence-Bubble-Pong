@@ -41,8 +41,6 @@ RUN npm install @noble/hashes
 RUN npm install --unsafe-perm qrcode
 RUN npm install --unsafe-perm otplib
 
-# USER spa
-
 # Exposer le port utilisé par spa
 EXPOSE 7000
 
