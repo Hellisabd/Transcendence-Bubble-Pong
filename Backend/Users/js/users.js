@@ -274,7 +274,7 @@ fastify.post("/login", async (request, reply) => {
 });
 
 
-fastify.post("/modify_user", async (request, reply) => {
+fastify.post("/settings", async (request, reply) => {
   let old_file_name = null;
   let new_file_name = null;
   const { email, password, newusername, username } = request.body;

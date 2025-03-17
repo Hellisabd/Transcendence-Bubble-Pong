@@ -123,54 +123,54 @@ services:
     ports:
       - "4020:4020"
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus:latest
-    volumes:
-      - ./Backend/monitoring/Prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prom-data:/prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.retention.time=30d"
-      - "--storage.tsdb.path=/prometheus"
-    ports:
-      - "9090:9090"
-    depends_on:
-      - nginx-exporter
-    networks:
-      - prom-network
-    env_file:
-      - .env
-    restart: unless-stopped
+  # prometheus:
+  #   container_name: prometheus
+  #   image: prom/prometheus:latest
+  #   volumes:
+  #     - ./Backend/monitoring/Prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prom-data:/prometheus
+  #   command:
+  #     - "--config.file=/etc/prometheus/prometheus.yml"
+  #     - "--storage.tsdb.retention.time=30d"
+  #     - "--storage.tsdb.path=/prometheus"
+  #   ports:
+  #     - "9090:9090"
+  #   depends_on:
+  #     - nginx-exporter
+  #   networks:
+  #     - prom-network
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
 
 
-  grafana:
-    container_name: grafana
-    image: grafana/grafana:latest
-    logging:
-      driver: "none"
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-    networks:
-      - prom-network
+  # grafana:
+  #   container_name: grafana
+  #   image: grafana/grafana:latest
+  #   logging:
+  #     driver: "none"
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana:/var/lib/grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   depends_on:
+  #     - prometheus
+  #   networks:
+  #     - prom-network
 
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:latest
-    ports:
-      - "9113:9113"
-    networks:
-      - prom-network
-    container_name: nginx-exporter
-    depends_on:
-      - nginx
-    command:
-      - "--nginx.scrape-uri=https://nginx:8000/stub_status"
+  # nginx-exporter:
+  #   image: nginx/nginx-prometheus-exporter:latest
+  #   ports:
+  #     - "9113:9113"
+  #   networks:
+  #     - prom-network
+  #   container_name: nginx-exporter
+  #   depends_on:
+  #     - nginx
+  #   command:
+  #     - "--nginx.scrape-uri=https://nginx:8000/stub_status"
 
 networks:
   spa-network:

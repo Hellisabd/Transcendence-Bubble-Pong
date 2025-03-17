@@ -11,6 +11,7 @@ module.exports = {
 	  extend: {
 		fontFamily: {
 			mainFont: ['"Oxanium"', 'sans-serif'],
+			secondFont: ['"Press Start 2P"', 'system-ui'],
 		},
 		keyframes:{
 			fadeIn: {

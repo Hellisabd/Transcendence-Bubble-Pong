@@ -3,20 +3,19 @@
 <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Pong Game</title>
-      <link rel="stylesheet" href="/Frontend/css/style.css">
-      <link rel="stylesheet" href="/Frontend/css/btn.css">
+      <title>History</title>
+      <%- include('links.ejs') %>
 </head>
-<body>
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("history"); // Appelle la fonction au chargement de la page
 	  set_up_friend_list();
     });
   </script>
-  <div id="user" style="display: none;"></div>
   
   <div id="content">
+	<%- include('navbar.ejs') %>
 	<h1>Historique des matchs</h1>
   <% if (history.length === 0) { %>
 	<p>Aucun match trouvé.</p>

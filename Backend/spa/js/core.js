@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
+const { log, create_account , get_user , logout, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -91,7 +91,7 @@ fastify.post("/update_avatar", update_avatar);
 
 fastify.post("/pending_request", pending_request);
 
-fastify.post("/modify_user", modify_user);
+fastify.post("/settings", settings);
 
 fastify.post("/update_history", update_history);
 

@@ -4,25 +4,48 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Pong Game</title>
-      <link rel="stylesheet" href="/Frontend/css/style.css">
-      <link rel="stylesheet" href="/Frontend/css/btn.css">
+      <%- include('links.ejs') %>
 </head>
-<body>
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       navigateTo("pong_game"); // Appelle la fonction au chargement de la page
       set_up_friend_list();
     });
   </script>
-  <div id="user" style="display: none;"></div>
   <div id="content">
-    <button class="btn" onclick="navigateTo('index')">HOME</button>
-    <button class="btn" onclick="logout(1)">Logout</button>
-    <button class="btn" onclick="navigateTo('waiting_room')">PLAY</button>
-    <button class="btn" onclick="navigateTo('pong_tournament')">Tournament</button>
-    <button class="btn" onclick="navigateTo('ping_waiting_room')">PLAY ping</button>
-    <button class="btn" onclick="navigateTo('ping_tournament')">Tournament ping</button>
-    <canvas id="friends_list" width="300" height="500"></canvas>
+    <%- include('navbar.ejs') %>
+    <div class="flex flex-col md:flex-row items-center justify-center min-h-screen md:space-x-8 space-y-8">
+      <!-- Conteneur du premier canvas avec son bouton -->
+      <div class="relative">
+          <canvas id="pong_animation" width="1000" height="600"></canvas>
+          <button onclick="navigateTo('waiting_room')"
+                  class="absolute top-20 left-1/2 transform -translate-x-1/2
+                         bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded font-secondFont">
+                         Play Pong
+          </button>
+          <button onclick="navigateTo('pong_tournament')"
+                  class="absolute bottom-20 left-1/2 transform -translate-x-1/2
+                          bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded font-secondFont">
+              Pong Tournament
+          </button>
+      </div>
+
+      <!-- Conteneur du deuxième canvas avec son bouton -->
+      <div class="relative">
+          <canvas id="ping_animation" width="750" height="750"></canvas>
+          <button onclick="navigateTo('ping_waiting_room')"
+                  class="absolute top-16 left-1/2 transform -translate-x-1/2
+                         bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded font-secondFont">
+                  PLAY ping
+          </button>
+          <button onclick="navigateTo('ping_tournament')"
+                  class="absolute bottom-16 left-1/2 transform -translate-x-1/2
+                         bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded font-secondFont">
+                  Tournament ping
+          </button>
+      </div>
+  </div>
   </div>
   <%- include('scripts.ejs') %>
 </body>

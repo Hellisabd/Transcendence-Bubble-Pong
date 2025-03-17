@@ -16,7 +16,7 @@ async function set_user(contentDiv: HTMLDivElement, username: string | null): Pr
 
 	const userDiv = contentDiv.querySelector("#user") as HTMLDivElement;
 	const avatarElement = contentDiv.querySelector("#avatar") as HTMLImageElement;
-	userDiv.innerHTML = `👤 ${username}`;
+	userDiv.innerHTML = `${username}`;
 	userDiv.classList.add("text-white");
 	avatarElement.classList.add("w-12");
 	avatarElement.classList.add("h-12");
@@ -64,7 +64,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
 
     try {
         let response: Response | null = null;
-        if (url === "/end_tournament") {
+        if (url === "/end_tournament" && classement) {
             response = await fetch("/end_tournament", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -72,6 +72,12 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             });
         }
         else {
+            if (url == "/end_tournament") {
+                console.log("wtf?");
+                url = "/";
+                page = "index";
+            }
+            console.log("url: ", url);
             response = await fetch(url, {
                 credentials: "include",
                 headers: { "Content-Type": "text/html" }
@@ -97,19 +103,8 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         } else {
             console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
-        // ✅ Attendre la valeur correcte de `get_user()`
-        // if (afficheUser) {
-        //     const response = await fetch("/get_avatar", {
-        //         method: "POST",
-        //         headers: { "Content-Type": "application/json" },
-        //         body: JSON.stringify({ username: username})
-        //     });
-        //     const response_avatar = await response.json();
-        //     const avatar_name = await response_avatar.avatar_name;
-        //     userDiv.innerHTML = `${username}
-        //     <img src="../Frontend/avatar/${avatar_name}" alt="Avatar" width="50" height="50">`;
-        //     userDiv.style.display = "";
-        // }
+        document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
+        console.log("document title: ", document.title);
 		set_user(contentDiv, username);
         if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -127,6 +122,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (page === "social") {
             pending_request();
             console.log("passse dans pending request");
+        }
+        if (page === "pong_game") {
+            initializeAnimationPong();
+            initializeAnimationPing();
         }
         display_friends();
 
@@ -147,7 +146,10 @@ async function get_user(): Promise<string | null> {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-	navigateTo(window.location.pathname.substring(1), false, null);
+    if (window.location.pathname.substring(1) == "end_tournament") {
+        window.location.pathname = "/index";
+    }
+    navigateTo(window.location.pathname.substring(1), false, null);
 });
 
 // Gestion de l'historique

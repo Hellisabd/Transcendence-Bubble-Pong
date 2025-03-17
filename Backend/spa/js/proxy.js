@@ -135,8 +135,8 @@ async function logout(token, reply) {
     }
 }
 
-async function modify_user(req, reply) {
-    const response = await axios.post("http://users:5000/modify_user", req.body);
+async function settings(req, reply) {
+    const response = await axios.post("http://users:5000/settings", req.body);
     if (response.data.new_file_name && response.data.old_file_name &&  response.data.old_file_name != "default.jpg") {
         const pathtoimage = "/usr/src/app/Frontend/avatar/";
         const oldFilePath = `${pathtoimage}${response.data.old_file_name}`;
@@ -279,4 +279,4 @@ async function verify2fa(req, reply) {
     reply.send(response.data);
 }
 
-module.exports = { log , create_account , logout, get_user, modify_user, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };

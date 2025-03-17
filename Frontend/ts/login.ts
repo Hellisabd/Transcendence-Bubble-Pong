@@ -115,7 +115,7 @@ async function uploadProfileImage() {
     }
 }
 
-async function modify_user(event: Event): Promise<void> {
+async function settings(event: Event): Promise<void> {
     event.preventDefault();
 
     const newusername = (document.getElementById("username") as HTMLInputElement).value;
@@ -131,7 +131,7 @@ async function modify_user(event: Event): Promise<void> {
         alert("Impossible de récupérer l'utilisateur!");
 
     } else {
-        const response = await fetch("/modify_user", {
+        const response = await fetch("/settings", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
+	<%- include('links.ejs') %>
 </head>
 	<script >
 		document.addEventListener("DOMContentLoaded", function() {
@@ -48,7 +49,7 @@
 						</div>
 						<div class="relative">
 							<label for="email" class="block text-sm font-medium text-neutral-200">Email :</label>
-							<input type="email" id="email_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+							<input type="text" id="email_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="relative">
 							<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
