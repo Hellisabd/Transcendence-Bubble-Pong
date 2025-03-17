@@ -57,14 +57,65 @@ async function create_account(event: Event): Promise<void> {
     const username = (document.getElementById("name") as HTMLInputElement).value;
     const password = (document.getElementById("password_creation") as HTMLInputElement).value;
     const email = (document.getElementById("email_creation") as HTMLInputElement).value;
+    const activeFA = (document.getElementById("twofa") as HTMLInputElement).checked;
 
-    const response = await fetch("/create_account", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, email })
-    });
+    let repResult = null;
+    let result: LoginResponse = { success: false };
 
-    const result: LoginResponse = await response.json();
+    if (activeFA) {
+        const rep = await fetch("/2fa/setup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
+        });
+
+        if (rep.ok) { // Vérifie que la réponse a un statut 2xx
+            const text = await rep.text(); // Utilise text() pour vérifier la réponse brute
+            console.log("Réponse brute:", text); // Log de la réponse brute
+            interface TwoFAResponse {
+                otplib_url: string;
+                qr_code: string;
+            }
+            if (text) {
+                try {
+                    repResult = JSON.parse(text);
+                    if (repResult) {
+                        alert("2FA setup completed! Scan this QR code to complete the setup.");
+
+                        // Affiche le QR code dans l'alerte, si possible
+                        const qrImage = new Image();
+                        qrImage.src = repResult.qr_code;
+                        document.body.appendChild(qrImage);  // Pour afficher l'image du QR code sur la page
+                    }
+                    console.log("2FA setup result:", repResult);
+                } catch (e) {
+                    console.error("Erreur de parsing JSON pour 2FA setup:", e);
+                }
+            } else {
+                console.error("La réponse du serveur est vide.");
+            }
+        } else {
+            console.error("Erreur serveur pour 2FA setup:", rep.statusText);
+        }
+    }
+
+    if (!activeFA || (activeFA && repResult != null)) {
+        const response = await fetch("/create_account", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, email })
+        });
+
+        if (response.ok) {
+            const responseText = await response.text();
+            console.log("Réponse brute create_account:", responseText);
+            if (responseText) {
+                result = JSON.parse(responseText); // Essayons de parser la réponse
+            }
+        } else {
+            console.error("Erreur serveur pour create_account:", response.statusText);
+        }
+    }
 
     if (result.success) {
         alert("Compte créé!");
@@ -72,6 +123,7 @@ async function create_account(event: Event): Promise<void> {
     } else {
         alert("Erreur: utilisateur existant");
     }
+
 }
 
 async function logout(print: boolean): Promise<void> {
@@ -146,7 +198,50 @@ async function settings(event: Event): Promise<void> {
 }
 
 
+async function setup2FA(username: string): Promise<void> {
+	const response = await fetch("/2fa/setup", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username })
+	});
+	const result = await response.json();
+	console.log(result);
+	if (result.success) {
+		show2FAModal();
+	} else {
+		alert("Erreur lors de l'initiation de la 2FA.");
+	}
+}
 
+
+async function verify2FA(event: Event): Promise<void> {
+	event.preventDefault();
+	const code = (document.getElementById("twoFaCode") as HTMLInputElement).value;
+	const username = await get_user();
+	if (!username) {
+		return alert("Utilisateur introuvable !");
+	}
+	const response = await fetch("/2fa/verify", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ username, code })
+	});
+	const result = await response.json();
+	if (result.success) {
+		alert("2FA vérifiée, connexion réussie.");
+		navigateTo("index", true, null);
+	} else {
+		alert("Code 2FA incorrect, réessayez.");
+	}
+}
+
+function show2FAModal(): void {
+	const modal = document.getElementById("twoFaContainer");
+	if (modal) {
+		modal.classList.remove("hidden");
+		modal.classList.add("animate-fadeIn");
+	}
+}
 
 
 

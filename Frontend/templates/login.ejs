@@ -55,6 +55,11 @@
 							<label for="password" class="block text-sm font-medium text-neutral-200">Mot de passe :</label>
 							<input type="password" id="password_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
+						<div class="flex items-center gap-2">
+							<input type="checkbox" id="twofa" class="hidden peer">
+							<label for="twofa" class="w-5 h-5 border-2 border-gray-500 rounded-md cursor-pointer peer-checked:bg-green-500 peer-checked:border-green-500 transition-all"></label>
+							<span class="text-white text-sm">2FA activé</span>
+						</div>
 						<div class="flex justify-center">
 							<button type="submit" class="w-48 py-3 px-4 bg-green-600 border-2 border-neutral-200/0 hover:border-neutral-200 hover:bg-indigo-700 text-neutral-200 rounded-lg shadow-lg font-semibold text-lg transition-all hover:scale-105">
 								S'inscrire

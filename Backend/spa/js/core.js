@@ -14,7 +14,7 @@ const fastify = require("fastify")({
 fastify.register(require("@fastify/websocket"));
 const { log, create_account , get_user , logout, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
 const cors = require("@fastify/cors");
-const path = require('path'); 
+const path = require('path');
 const fastifystatic = require('@fastify/static');
 const view = require('@fastify/view');
 const fs = require('fs');
@@ -22,6 +22,8 @@ const fs = require('fs');
 const axios = require("axios"); // Pour faire des requêtes HTTP
 const fastifyCookie = require("@fastify/cookie");
 const multipart = require('@fastify/multipart');
+const otplib = require('otplib');
+const qrcode = require("qrcode");
 
 fastify.register(multipart);
 
@@ -135,5 +137,46 @@ const start = async () => {
         process.exit(1);
     }
 };
+
+fastify.post("/2fa/setup", async (request, reply) => {
+  const { username } = request.body;
+
+  if (!username) {
+      console.log("Erreur : username inexistant");
+      return reply.code(400).send({ error: 'Username inexistant.' });
+  }
+
+  try {
+      // Générer le secret 2FA
+      const secret = otplib.authenticator.generateSecret();
+      if (!secret || typeof secret !== 'string') {
+          console.error("Le secret généré n'est pas valide");
+          return reply.code(500).send({ error: "Erreur lors de la génération du secret 2FA" });
+      }
+
+      // Générer l'URL pour le QR Code
+      const otplibUrl = otplib.authenticator.keyuri(username, 'MyApp', secret);
+      console.log("URL du QR Code générée :", otplibUrl);
+
+      // Utiliser un async/await pour gérer correctement la génération du QR code
+      const dataUrl = await new Promise((resolve, reject) => {
+          qrcode.toDataURL(otplibUrl, (err, url) => {
+              if (err) {
+                  console.error("Erreur lors de la génération du QR code:", err);
+                  return reject(err);
+              }
+              resolve(url);
+          });
+      });
+
+      // Une fois le QR code généré, on envoie la réponse
+      console.log("QR Code généré avec succès");
+      return reply.send({ otplib_url: otplibUrl, qr_code: dataUrl });
+
+  } catch (err) {
+      console.error("Erreur serveur lors du traitement 2FA:", err);
+      return reply.code(500).send({ error: "Erreur serveur lors de la mise en place du 2FA" });
+  }
+});
 
 start();
