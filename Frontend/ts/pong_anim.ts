@@ -3,9 +3,9 @@ console.log("animation pong chargé !")
 let pong_ctx: CanvasRenderingContext2D | null = null;
 let pong_canvas: HTMLCanvasElement | null = null;
 
-const pong_paddleWidth = 20;
-const pong_paddleHeight = 100;
-const pong_ballRadius = 10;
+let pong_paddleWidth:number = 0;
+let pong_paddleHeight:number = 0;
+let pong_ballRadius:number = 0;
 
 let pong_player1Y: number = 0;
 let pong_player2Y: number = 0;
@@ -25,8 +25,8 @@ function initializeAnimationPong() {
 
         pong_ballX = pong_canvas.width / 2;
         pong_ballY = pong_canvas.height / 2;
-        pong_ballSpeedX = 4;
-        pong_ballSpeedY = 4;
+        pong_ballSpeedX = 0.8;
+        pong_ballSpeedY = 0.8;
         pong_speed = Math.sqrt(pong_ballSpeedX * pong_ballSpeedX + pong_ballSpeedY * pong_ballSpeedY);
         pong_resetBall();
         pong_draw();
@@ -63,12 +63,14 @@ function pong_draw() {
 }
 
 function pong_update() {
-    pong_ballX += pong_ballSpeedX;
-    pong_ballY += pong_ballSpeedY;
     if (!pong_canvas) {
         return ;
-    } 
-
+    }
+    pong_ballX += pong_ballSpeedX;
+    pong_ballY += pong_ballSpeedY;
+    pong_paddleWidth = pong_canvas.width * 20 / 1000;
+    pong_paddleHeight = pong_canvas.height / 6;
+    pong_ballRadius = pong_canvas.width / 100;
     if (pong_ballY + pong_ballRadius > pong_canvas.height || pong_ballY - pong_ballRadius < 0) {
         pong_ballSpeedY = -pong_ballSpeedY;
     }

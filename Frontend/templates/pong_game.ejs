@@ -15,11 +15,11 @@
   </script>
   <div id="content">
     <%- include('navbar.ejs') %>
-    <div class="flex flex-col md:flex-row items-center justify-center min-h-screen md:space-x-8 space-y-8">
+    <div class="relative flex flex-col lg:flex-row items-center justify-center min-h-screen md:space-x-8 space-y-8">
       <!-- Conteneur du premier canvas avec son bouton -->
-      <div class="relative">
-          <canvas id="pong_animation" width="1000" height="600"></canvas>
-          <button onclick="navigateTo('waiting_room')"
+      <div class="lg:w-[32rem] h-[100%] flex items-center justify-center">
+        <canvas id="pong_animation" class="w-[100vw] h-[60vw] lg:w-[32rem] lg:h-[19.1875rem]"></canvas>
+          <!-- <button onclick="navigateTo('waiting_room')"
                   class="absolute top-20 left-1/2 transform -translate-x-1/2
                          bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded font-secondFont">
                          Play Pong
@@ -28,13 +28,13 @@
                   class="absolute bottom-20 left-1/2 transform -translate-x-1/2
                           bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded font-secondFont">
               Pong Tournament
-          </button>
+          </button> -->
       </div>
 
       <!-- Conteneur du deuxième canvas avec son bouton -->
-      <div class="relative">
-          <canvas id="ping_animation" width="750" height="750"></canvas>
-          <button onclick="navigateTo('ping_waiting_room')"
+      <div class="lg:w-[50%] h-[100%] flex items-center justify-center">
+          <canvas id="ping_animation" class="w-[100vw] h-[100vw] lg:w-[25vw] lg:h-[25vw]"></canvas>
+          <!-- <button onclick="navigateTo('ping_waiting_room')"
                   class="absolute top-16 left-1/2 transform -translate-x-1/2
                          bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded font-secondFont">
                   PLAY ping
@@ -43,7 +43,7 @@
                   class="absolute bottom-16 left-1/2 transform -translate-x-1/2
                          bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded font-secondFont">
                   Tournament ping
-          </button>
+          </button> -->
       </div>
   </div>
   </div>

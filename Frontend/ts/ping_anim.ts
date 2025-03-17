@@ -31,6 +31,8 @@ function initializeAnimationPing() {
     ping_canvas = document.getElementById("ping_animation") as HTMLCanvasElement;
     ping_ctx = ping_canvas.getContext("2d");
 	if (ping_ctx) {
+        ping_canvas.width = ping_canvas.clientWidth;
+        ping_canvas.height = ping_canvas.clientHeight;
 		ping_p1_angle = Math.PI;
 		ping_p2_angle = 0;
 		ping_p1_goal = Math.PI;
@@ -44,6 +46,9 @@ function initializeAnimationPing() {
 function ping_update() {
 	if (!ping_canvas || !ping_ctx)
         return ;
+
+
+
 	ping_ballX += ping_ballSpeedX;
 	ping_ballY += ping_ballSpeedY;
 
