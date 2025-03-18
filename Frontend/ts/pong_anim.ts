@@ -47,17 +47,15 @@ function pong_draw() {
     if (!pong_ctx || !pong_canvas) {
       return ;
     }
-    // pong_draw paddles
-    pong_ctx.fillStyle = "#810000";
-    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight); // Player 1
+    pong_ctx.fillStyle = "red";
+    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight);
 
-    pong_ctx.fillStyle = "#00009c";
-    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight); // Player 2
+    pong_ctx.fillStyle = "blue";
+    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight);
 
-    // pong_draw ball
     pong_ctx.beginPath();
     pong_ctx.arc(pong_ballX, pong_ballY, pong_ballRadius, 0, Math.PI * 2);
-    pong_ctx.fillStyle = "#FFFF00";
+    pong_ctx.fillStyle = "yellow";
     pong_ctx.fill();
     pong_ctx.closePath();
 }
@@ -70,7 +68,7 @@ function pong_update() {
     pong_ballY += pong_ballSpeedY;
     pong_paddleWidth = pong_canvas.width * 20 / 1000;
     pong_paddleHeight = pong_canvas.height / 6;
-    pong_ballRadius = pong_canvas.width / 100;
+    pong_ballRadius = pong_canvas.width / 80;
     if (pong_ballY + pong_ballRadius > pong_canvas.height || pong_ballY - pong_ballRadius < 0) {
         pong_ballSpeedY = -pong_ballSpeedY;
     }

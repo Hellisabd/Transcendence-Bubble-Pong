@@ -3,11 +3,11 @@ console.log("ping_anim.js chargé");
 let ping_ctx: CanvasRenderingContext2D | null = null;
 let ping_canvas: HTMLCanvasElement | null = null;
 
-const ping_ballRadius = 10;
+let ping_ballRadius = 0;
+let ping_paddle_thickness = 0;
+let ping_arena_radius = 0;
 const ping_paddle_size = Math.PI * 0.08;
 const ping_goal_size = Math.PI / 3;
-const ping_paddle_thickness = 15;
-const ping_arena_radius = 375;
 const bounceInterval = 500;
 const paddle_speed = Math.PI / 200;
 
@@ -33,6 +33,9 @@ function initializeAnimationPing() {
 	if (ping_ctx) {
         ping_canvas.width = ping_canvas.clientWidth;
         ping_canvas.height = ping_canvas.clientHeight;
+        ping_ballRadius = ping_canvas.width / 70;
+        ping_paddle_thickness = ping_canvas.width * 19 / 700;
+        ping_arena_radius = ping_canvas.width / 2;
 		ping_p1_angle = Math.PI;
 		ping_p2_angle = 0;
 		ping_p1_goal = Math.PI;
@@ -46,12 +49,11 @@ function initializeAnimationPing() {
 function ping_update() {
 	if (!ping_canvas || !ping_ctx)
         return ;
-
-
-
 	ping_ballX += ping_ballSpeedX;
 	ping_ballY += ping_ballSpeedY;
-
+    ping_ballRadius = ping_canvas.width / 70;
+    ping_paddle_thickness = ping_canvas.width * 19 / 700;
+    ping_arena_radius = ping_canvas.width / 2;
 	let dx = ping_ballX - ping_canvas.width / 2;
     let dy = ping_ballY - ping_canvas.height / 2;
     let ball_dist = Math.sqrt(dx * dx + dy * dy);
@@ -259,7 +261,7 @@ function ping_draw(): void {
 	ping_ctx.arc(ping_canvas.width / 2, ping_canvas.height / 2, ping_canvas.width / 2 - 5, 0, Math.PI * 2);
 	ping_ctx.lineWidth = 5;
 	ping_ctx.strokeStyle = "white";
-	ping_ctx.shadowBlur = 10;
+	ping_ctx.shadowBlur = 5;
 	ping_ctx.shadowColor = ping_ctx.strokeStyle;
 	ping_ctx.stroke();
 	ping_ctx.closePath();
@@ -314,7 +316,7 @@ function ping_draw(): void {
 	ping_ctx.arc(
 		ping_canvas.width / 2,
 		ping_canvas.height / 2,
-		ping_canvas.width / 2 - 19,
+		ping_canvas.width / 2 - ping_paddle_thickness,
 		ping_p1_angle - ping_paddle_size,
 		ping_p1_angle + ping_paddle_size
 	);
@@ -331,7 +333,7 @@ function ping_draw(): void {
 	ping_ctx.arc(
 		ping_canvas.width / 2,
 		ping_canvas.height / 2,
-		ping_canvas.width / 2 - 19,
+		ping_canvas.width / 2 - ping_paddle_thickness,
 		ping_p2_angle - ping_paddle_size,
 		ping_p2_angle + ping_paddle_size
 	);
