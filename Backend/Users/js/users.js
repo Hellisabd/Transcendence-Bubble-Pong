@@ -101,6 +101,29 @@ db.prepare(`
     FOREIGN KEY(friend_id) REFERENCES users(id) ON DELETE CASCADE
     )
 `).run();
+
+db.prepare(` 
+  CREATE TABLE IF NOT EXISTS stats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    win_blue_side_pong INTEGER DEFAULT 0,
+    win_red_side_pong INTEGER DEFAULT 0,
+    loose_red_side_pong INTEGER DEFAULT 0,
+    loose_blue_side_pong INTEGER DEFAULT 0,
+    win_blue_side_ping INTEGER DEFAULT 0,
+    win_red_side_ping INTEGER DEFAULT 0,
+    loose_blue_side_ping INTEGER DEFAULT 0,
+    loose_red_side_ping INTEGER DEFAULT 0,
+    average_bounce_pong REAL DEFAULT 0,
+    average_bounce_ping REAL DEFAULT 0,
+    goal_after_bonus_paddle INTEGER DEFAULT 0,
+    goal_after_bonus_goal INTEGER DEFAULT 0,
+    goal_after_bonus_shield INTEGER DEFAULT 0,
+    goal_taken_after_bonus_paddle INTEGER DEFAULT 0,
+    goal_taken_after_bonus_goal INTEGER DEFAULT 0,
+    goal_taken_after_bonus_shield INTEGER DEFAULT 0
+    )
+`).run();
     
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement} = request.body;
@@ -346,10 +369,34 @@ fastify.post("/get_history", async (request, reply) => {
     OR player4_username = ?
     ORDER BY created_at DESC;
     `).all(username, username, username, username);
-
-    reply.send(JSON.stringify({history: history, history_tournament: history_tournament}));
+    const stats = await get_stats(history, history_for_tournament, username);
+    reply.send(JSON.stringify({history: history, history_tournament: history_tournament, stats: stats}));
   });
   
+
+async function get_stats(history, history_tournament, username) {
+  // const user_id = await db.prepare(`
+  //   SELECT user_id FROM users
+  //   WHERE username = ?
+  //   `).get(username);
+  // const raw_stats = await db.prepare(`
+  //   SELECT * from stats
+  //   WHERE user_id = ?
+  //   `).all(user_id);
+  console.log(history);
+  console.log(history_tournament);
+  // let stats = {
+  //   winrate: winrate,
+  //   winrate_blue_side: winrate_blue_side,
+  //   winrate_red_side: winrate_red_side,
+  //   average_bounce_per_game: average_bounce_per_game,
+  //   goal_after_bonus_paddle: goal_after_bonus_paddle,
+  //   goal_after_bonus_goal: goal_after_bonus_goal,
+  //   goal_after_bonus_shield: goal_after_bonus_shield,
+  //   winrate_against_friends: winrate_against_friends
+  // }
+  // return stats;
+}
 
 async function history_for_tournament(history) {
   for (const match of history) { 
@@ -358,7 +405,7 @@ async function history_for_tournament(history) {
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
     const gametype = history.gametype;
-    if (score_player1 !== 1 && score_player2 !== 1) {
+    if (score_player1 !== 3 && score_player2 !== 3) {
       return;
     }
 
