@@ -151,18 +151,18 @@ fastify.post("/2fa/setup", async (request, reply) => {
       const secret = otplib.authenticator.generateSecret();
       if (!secret || typeof secret !== 'string') {
           console.error("Le secret généré n'est pas valide");
-          return reply.code(500).send({ error: "Erreur lors de la génération du secret 2FA" });
+          return reply.code(500).send({ error: "Erreur lors de la generation du secret 2FA" });
       }
 
       // Générer l'URL pour le QR Code
       const otplibUrl = otplib.authenticator.keyuri(username, 'MyApp', secret);
-      console.log("URL du QR Code générée :", otplibUrl);
+      console.log("URL du QR Code generee :", otplibUrl);
 
       // Utiliser un async/await pour gérer correctement la génération du QR code
       const dataUrl = await new Promise((resolve, reject) => {
           qrcode.toDataURL(otplibUrl, (err, url) => {
               if (err) {
-                  console.error("Erreur lors de la génération du QR code:", err);
+                  console.error("Erreur lors de la generation du QR code:", err);
                   return reject(err);
               }
               resolve(url);
@@ -170,7 +170,7 @@ fastify.post("/2fa/setup", async (request, reply) => {
       });
 
       // Une fois le QR code généré, on envoie la réponse
-      console.log("QR Code généré avec succès");
+      console.log("QR Code genere avec succes");
       return reply.send({ otplib_url: otplibUrl, qr_code: dataUrl });
 
   } catch (err) {

@@ -83,9 +83,20 @@ async function create_account(event: Event): Promise<void> {
                         alert("2FA setup completed! Scan this QR code to complete the setup.");
 
                         // Affiche le QR code dans l'alerte, si possible
-                        const qrImage = new Image();
-                        qrImage.src = repResult.qr_code;
-                        document.body.appendChild(qrImage);  // Pour afficher l'image du QR code sur la page
+						const qrCodeAlert = `
+							<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+										background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+								<p>Scan this QR Code:</p>
+								<img src="${repResult.qr_code}" alt="QR Code" style="max-width: 100%;"/>
+								<br/>
+								<button id="qr-alert-close">Close</button>
+							</div>`;
+						const alertDiv = document.createElement('div');
+						alertDiv.innerHTML = qrCodeAlert;
+						document.body.appendChild(alertDiv);
+						(document.getElementById("qr-alert-close") as HTMLButtonElement).addEventListener("click", () => {
+							document.body.removeChild(alertDiv);
+						});
                     }
                     console.log("2FA setup result:", repResult);
                 } catch (e) {
@@ -108,9 +119,9 @@ async function create_account(event: Event): Promise<void> {
 
         if (response.ok) {
             const responseText = await response.text();
-            console.log("Réponse brute create_account:", responseText);
+            console.log("Reponse brute create_account:", responseText);
             if (responseText) {
-                result = JSON.parse(responseText); // Essayons de parser la réponse
+                result = JSON.parse(responseText);
             }
         } else {
             console.error("Erreur serveur pour create_account:", response.statusText);
