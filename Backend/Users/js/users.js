@@ -50,8 +50,7 @@ db.prepare(`
 		email TEXT NOT NULL UNIQUE,
 		password TEXT NOT NULL,
 		avatar_name TEXT DEFAULT 'default.jpg',
-		activeFA INTEGER NOT NULL DEFAULT 0,
-		secret DEFAULT NULL TEXT UNIQUE
+		secret TEXT UNIQUE DEFAULT NULL
 	)
 `).run();
 
@@ -435,7 +434,6 @@ fastify.post("/update_history", async (request, reply) => {
             VALUES (?, ?, ?, ?, ?, ?, ?)`)
             .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
 });
-
 // 🔹 Route POST pour créer un compte
 fastify.post("/create_account", async (request, reply) => {
   const { username, email, password } = request.body;
@@ -487,4 +485,18 @@ fastify.post("/update_avatar",  async (request, reply) => {
     if (result.changes > 0)
       return reply.send({success: true, avatar_name: avatar_name});
     return reply.send({success: false});
+});
+
+fastify.post("/2fa/get_secret", async (request, reply) => {
+	const { username } = request.body;
+	if (!username)
+		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+	try {
+		const user = await db.prepare("SELECT secret FROM users WHERE username = ?").get(username);
+		if (!user || !user.secret)
+			return reply.send({ success: false, error: "Secret non trouvé" });
+		return reply.send({ success: true, secret: user.secret });
+	} catch (error) {
+		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+	}
 });

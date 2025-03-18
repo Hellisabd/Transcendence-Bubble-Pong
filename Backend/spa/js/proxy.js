@@ -7,6 +7,9 @@ const { pipeline } = require('stream');
 const util = require('util');
 const path = require('path');
 const pump = util.promisify(pipeline);
+const otplib = require('otplib');
+const qrcode = require("qrcode");
+const { authenticator } = require('otplib');
 
 fastify.register(require('@fastify/multipart'), {
   attachFieldsToBody: true,
@@ -267,16 +270,84 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-async function setup2fa(req, reply) {
-    const response = await axios.post("http://users:5000/2fa/setup", req.body, {
-    });
-    reply.send(response.data);
-}
+let secret_keys = [];
 
-async function verify2fa(req, reply) {
-    const response = await axios.post("http://users:5000/2fa/verify", req.body, {
-    });
-    reply.send(response.data);
-}
+async function setup2fa(request, reply) {
+	const { username } = request.body;
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, verify2fa };
+	if (!username) {
+		console.log("Erreur : username inexistant");
+		return reply.code(400).send({ error: 'Username inexistant.' });
+	}
+
+	try {
+		// Générer le secret 2FA
+		const secret = otplib.authenticator.generateSecret();
+		if (!secret || typeof secret !== 'string') {
+			console.error("Le secret généré n'est pas valide");
+			return reply.code(500).send({ error: "Erreur lors de la generation du secret 2FA" });
+		}
+
+		// Générer l'URL pour le QR Code
+		const otplibUrl = otplib.authenticator.keyuri(username, 'MyApp', secret);
+		secret_keys.push([username, secret]);
+		console.log("URL du QR Code generee :", otplibUrl);
+
+		// Utiliser un async/await pour gérer correctement la génération du QR code
+		const dataUrl = await new Promise((resolve, reject) => {
+			qrcode.toDataURL(otplibUrl, (err, url) => {
+				if (err) {
+					console.error("Erreur lors de la generation du QR code:", err);
+					return reject(err);
+				}
+				resolve(url);
+			});
+		});
+
+		// Une fois le QR code généré, on envoie la réponse
+		console.log("QR Code genere avec succes");
+		return reply.send({ otplib_url: otplibUrl, qr_code: dataUrl });
+
+	} catch (err) {
+		console.error("Erreur serveur lors du traitement 2FA:", err);
+		return reply.code(500).send({ error: "Erreur serveur lors de la mise en place du 2FA" });
+	}
+  };
+
+
+async function twofaverify(request, reply) {
+	try {
+		const { username, code } = request.body;
+
+		if (!username || !code) {
+			return reply.status(400).send({ success: false, error: "Username et code requis" });
+		}
+
+		let i = 0;
+		while(secret_keys[i] && secret_keys[i][0] != username){
+			console.log(secret_keys[i]);
+			i++;
+		}
+
+
+		if (!secret_keys[i]) {
+			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+		}
+
+		// Vérifier le code OTP avec la clé secrète
+		const isValid = authenticator.check(code, secret_keys[i][1]);
+
+		if (!isValid) {
+			return reply.status(401).send({ success: false, error: "Code 2FA invalide" });
+		}
+
+		// Répondre avec succès
+		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
+
+	} catch (error) {
+		console.error("Erreur de vérification 2FA:", error);
+		return reply.status(500).send({ success: false, error: "Erreur serveur" });
+	}
+};
+
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify };
