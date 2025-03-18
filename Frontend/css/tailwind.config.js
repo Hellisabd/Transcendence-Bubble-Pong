@@ -9,6 +9,9 @@ module.exports = {
 	],
 	theme: {
 	  extend: {
+		screens: {
+			xs: '340px',
+		  },
 		fontFamily: {
 			mainFont: ['"Oxanium"', 'sans-serif'],
 			secondFont: ['"Press Start 2P"', 'system-ui'],
