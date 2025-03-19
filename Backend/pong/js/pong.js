@@ -1,13 +1,7 @@
 const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
 
-let i = 0;
-
 let lobbies = {};
-
-const clientsWaiting = new Set();
-
-let waitingClient = {}
 
 let move = 5;
 const arena_height = 500;

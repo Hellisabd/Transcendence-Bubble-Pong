@@ -114,14 +114,22 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         Disconnect_from_game();
         ping_Disconnect_from_game();
-        if (page === "waiting_room")
+        if (page === "waiting_room") {
+            initializeAnimationPong();
             play_pong();
-        if (page === "pong_tournament")
+        }
+        if (page === "pong_tournament") {
+            initializeAnimationPong();
             pong_tournament();
-        if (page === "ping_waiting_room")
+        }
+        if (page === "ping_waiting_room") {
+            initializeAnimationPing();
             play_ping();
-        if (page === "ping_tournament")
+        }
+        if (page === "ping_tournament") {
+            initializeAnimationPing();
             ping_tournament();
+        }
         if (page === "social") {
             pending_request();
             console.log("passse dans pending request");

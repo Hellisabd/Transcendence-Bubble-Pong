@@ -5,11 +5,11 @@ let lobbies = {};
 
 const move = Math.PI / 50;
 const paddle_thickness = 15;
-const arena_height = 700;
-const arena_width = 700;
+const arena_height = 1000;
+const arena_width = 1000;
 const ballRadius = 10;
 const bonusRadius = 50;
-const arena_radius = 350;
+const arena_radius = arena_width / 2;
 const bonus = "PPGGS";
 
 fastify.register(async function (fastify) {
@@ -27,13 +27,13 @@ fastify.register(async function (fastify) {
                     players: [],
                     socketOrder: [],
                     gameState: {
-                        ball: { x: 200, y: 400 , oldpos: {x: 350, y: 350} },
+                        ball: { x: arena_radius, y: arena_radius },
                         paddles: { player1: { name: data.username1, angle: Math.PI, size: Math.PI * 0.08 }, player2: { name: data.username2, angle: 0, size: Math.PI * 0.08 } },
                         goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false, right: false, left: false }, player2: { up: false, down: false, right: false, left: false } },
-                        ballSpeed: {ballSpeedX: 3.2, ballSpeedY: 3.2},
-                        speed: Math.sqrt(3.2 * 3.2 + 3.2 * 3.2),
+                        ballSpeed: {ballSpeedX: 3.8, ballSpeedY: 3.8},
+                        speed: Math.sqrt(3.8 * 3.8 + 3.8 * 3.8),
                         playerReady: {player1: false, player2: false},
                         bonus: {tag: null, x: 350, y: 350 },
                         gameinterval: null,
@@ -87,8 +87,8 @@ function resetBall(lobbyKey) {
         return ;
     gameState = lobbies[lobbyKey].gameState;
     randBallPos(gameState);
-    gameState.ballSpeed.ballSpeedX = 3.2;
-    gameState.ballSpeed.ballSpeedY = 3.2;
+    gameState.ballSpeed.ballSpeedX = 3.8;
+    gameState.ballSpeed.ballSpeedY = 3.8;
     gameState.speed = Math.sqrt(gameState.ballSpeed.ballSpeedX * gameState.ballSpeed.ballSpeedX + gameState.ballSpeed.ballSpeedY * gameState.ballSpeed.ballSpeedY);
     let angle;
     if (Math.random() < 0.5) {
@@ -434,8 +434,8 @@ function new_game(lobbyKey) {
 
     gameState.score.player1 = 0;
     gameState.score.player2 = 0;
-    gameState.ballSpeed.ballSpeedX = 3.2;
-    gameState.ballSpeed.ballSpeedY = 3.2;
+    gameState.ballSpeed.ballSpeedX = 3.8;
+    gameState.ballSpeed.ballSpeedY = 3.8;
     resetBall(lobbyKey);
 }
 
@@ -447,8 +447,8 @@ function check_score(lobbyKey) {
     if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
         gameState.playerReady.player1 = false;
         gameState.playerReady.player2 = false;
-        gameState.ballSpeed.ballSpeedX = 3.2
-        gameState.ballSpeed.ballSpeedY = 3.2
+        gameState.ballSpeed.ballSpeedX = 3.8
+        gameState.ballSpeed.ballSpeedY = 3.8
         if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
                 lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: true}));
                 lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: false}));

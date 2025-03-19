@@ -33,6 +33,14 @@ function initializeAnimationPing() {
 	if (ping_ctx) {
         ping_canvas.width = ping_canvas.clientWidth;
         ping_canvas.height = ping_canvas.clientHeight;
+
+        if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") { 
+            const canvasWidth = ping_canvas.offsetWidth;
+            
+            ping_canvas.width = canvasWidth;
+            ping_canvas.height = canvasWidth;
+        }
+
         ping_ballRadius = ping_canvas.width / 70;
         ping_paddle_thickness = ping_canvas.width * 19 / 700;
         ping_arena_radius = ping_canvas.width / 2;
@@ -344,6 +352,14 @@ function ping_draw(): void {
 	ping_ctx.stroke();
 	ping_ctx.closePath();
 	ping_ctx.shadowBlur = 0;
+
+    if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") { 
+        let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
+        ping_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ping_ctx.font = "bold 30px 'Press Start 2P', 'system-ui', sans-serif";
+        ping_ctx.textAlign = "center";
+        ping_ctx.fillText("Waiting for opponent...", ping_canvas.width / 2, ping_canvas.height / 2);
+    } 
 }
 
 function ping_gameLoop() {

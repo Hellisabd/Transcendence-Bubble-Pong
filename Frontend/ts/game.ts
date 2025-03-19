@@ -134,7 +134,8 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 }
 
 function Disconnect_from_game() {
-    animation_pong_stop();
+    if (window.location.pathname !== "/waiting_room" && window.location.pathname !== "/pong_tournament")
+        animation_pong_stop();
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     Wsocket?.close();
@@ -171,11 +172,8 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             return ;
         }
 
-        const canvasWidth = canvas.offsetWidth;
-        const canvasHeight = canvas.offsetHeight;
-        
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
+        animation_pong_stop();
+        document.getElementById("pong_animation")?.classList.add("hidden");
 
         const sock_name = window.location.host
         socket = new WebSocket("wss://" + sock_name + "/ws/pong");
@@ -283,62 +281,70 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             if (!ctx) {
                 return ;
             }
+
+            let canvasWidth: number = canvas.offsetWidth;
+            let canvasHeight: number = canvas.offsetHeight;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            let ratio: number = canvasWidth / 1000;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.beginPath();
-            ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
+            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius  * ratio, 0, Math.PI * 2);
             ctx.fillStyle = "yellow";
             ctx.fill();
 
             ctx.fillStyle = "red";
-            ctx.fillRect(0, gameState.paddles.player1.y, paddleWidth, paddleHeight);
+            ctx.fillRect(0, gameState.paddles.player1.y  * ratio, paddleWidth * ratio, paddleHeight * ratio);
             ctx.fillStyle = "blue";
-            ctx.fillRect(canvas.width - paddleWidth, gameState.paddles.player2.y, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - (paddleWidth * ratio), gameState.paddles.player2.y * ratio, paddleWidth * ratio, paddleHeight * ratio);
 
-            draw_score();
-            draw_winner();
+            draw_score(ratio);
+            draw_winner(ratio);
             if (disp == true) {
-                ctx.font = "bold 30px 'Press Start 2P', 'system-ui', sans-serif";
+                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + (100 * ratio));
             }
         }
         requestAnimationFrame(drawGame);
 
-        function draw_score(): void {
+        function draw_score(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
-            ctx.font = "bold 40px 'Press Start 2P', 'system-ui', sans-serif";
+            ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
             ctx.fillStyle = "red";
-            ctx.fillText(String(gameState.score.player1), canvas.width / 2 - 50, 40);
+            ctx.fillText(String(gameState.score.player1), canvas.width / 2 - (50 * ratio), 40 * ratio);
             ctx.fillStyle = "blue";
-            ctx.fillText(String(gameState.score.player2), canvas.width / 2 + 50, 40);
+            ctx.fillText(String(gameState.score.player2), canvas.width / 2 + (50 * ratio), 40 * ratio);
         }
 
-        function draw_winner(): void {
+        function draw_winner(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             if (win == 1) {
                 ctx.textAlign = "center";
                 ctx.textBaseline = "alphabetic";
-                ctx.font = "bold 40px 'Press Start 2P', 'system-ui', sans-serif";
+                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "green";
-                ctx.fillText(String("YOU WIN!"), canvas.width / 2, canvas.height / 2 - 50);
+                ctx.fillText(String("YOU WIN!"), canvas.width / 2, canvas.height / 2 - (50 * ratio));
             }
             if (win == 2) {
                 ctx.textAlign = "center";
                 ctx.textBaseline = "alphabetic";
-                ctx.font = "bold 40px 'Press Start 2P', 'system-ui', sans-serif";
+                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "red";
-                ctx.fillText(String("YOU LOSE!"), canvas.width / 2, canvas.height / 2 - 50);
+                ctx.fillText(String("YOU LOSE!"), canvas.width / 2, canvas.height / 2 - (50 * ratio));
             }
             if (player_id == 1 && win != 0) {
                 end_game(win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, inTournament);
