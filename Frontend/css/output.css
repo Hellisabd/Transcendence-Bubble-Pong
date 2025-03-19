@@ -667,6 +667,10 @@ video {
   right: 1.25rem;
 }
 
+.right-\[17\.5rem\] {
+  right: 17.5rem;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -701,10 +705,6 @@ video {
 
 .top-40 {
   top: 10rem;
-}
-
-.right-\[17\.5rem\] {
-  right: 17.5rem;
 }
 
 .z-10 {
@@ -862,10 +862,6 @@ video {
   height: 1.5rem;
 }
 
-.h-\[80vh\] {
-  height: 80vh;
-}
-
 .h-auto {
   height: auto;
 }
@@ -965,10 +961,6 @@ video {
   width: 10rem;
 }
 
-.w-\[17\.5rem\] {
-  width: 17.5rem;
-}
-
 .w-\[20rem\] {
   width: 20rem;
 }
@@ -1024,11 +1016,6 @@ video {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
-.-translate-y-1\/2 {
-  --tw-translate-y: -50%;
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
 .translate-x-1 {
   --tw-translate-x: 0.25rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -1064,6 +1051,48 @@ video {
   animation: leftFadeIn 0.5s ease-out;
 }
 
+@keyframes leftFadeInBar {
+  0% {
+    opacity: 1;
+    transform: translateX(-18.75rem);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateX(-1rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-leftFadeInBar {
+  animation: leftFadeInBar 1s ease-out;
+}
+
+@keyframes leftFadeInSideBar {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  90% {
+    opacity: 0.75;
+    transform: translateX(17.75rem);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(18.75rem);
+  }
+}
+
+.animate-leftFadeInSideBar {
+  animation: leftFadeInSideBar 1s ease-out;
+}
+
 @keyframes rightFadeIn {
   0% {
     opacity: 0;
@@ -1083,6 +1112,27 @@ video {
 
 .animate-rightFadeIn {
   animation: rightFadeIn 0.5s ease-out;
+}
+
+@keyframes rightFadeInBar {
+  0% {
+    opacity: 0;
+    transform: translateX(18.75rem);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateX(1rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-rightFadeInBar {
+  animation: rightFadeInBar 1s ease-out;
 }
 
 .cursor-pointer {
@@ -1778,10 +1828,6 @@ video {
 @media (min-width: 340px) {
   .xs\:right-\[18\.75rem\] {
     right: 18.75rem;
-  }
-
-  .xs\:w-\[18\.75rem\] {
-    width: 18.75rem;
   }
 }
 
