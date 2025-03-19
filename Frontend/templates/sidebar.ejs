@@ -1,0 +1,26 @@
+<button id="sidebarButton" onclick="toggleSidebar()" class="absolute z-[9998] text-white right-0 top-1/2 w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-700">
+	<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+		<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+	</svg>
+</button>
+
+
+<div id="sidebar" class="animate-leftFadeInBar hidden h-full w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg">
+	<div class="pl-5 pt-20">
+		<form onsubmit="add_friend(event)">
+			<input type="search" id="friend_username" required class="pl-1 w-[10rem] text-black" placeholder="Ajouter un ami" />
+			<button class="btn" type="submit">Ajouter</button>
+        </form>
+	</div>
+
+	<div class="p-4 mt-10">
+		<h2 class="font-bold text-2xl">Requête en attente:</h2>
+		<div class="border border-slate-500 w-56 mt-2"></div>
+		<canvas id="pending_request" width="300" height="200"></canvas>
+	</div>
+	<div class="p-4 mt-32">
+		<h2 class="font-bold text-center text-2xl">Liste d'amis:</h2>
+		<div class="border justify-self-center border-slate-500 w-40 mt-2"></div>
+		<canvas id="friends_list" width="300" height="200"></canvas>
+	</div>
+</div>
