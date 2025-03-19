@@ -135,6 +135,7 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 
 function Disconnect_from_game() {
     animation_pong_stop();
+    animation_ping_stop();
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     Wsocket?.close();

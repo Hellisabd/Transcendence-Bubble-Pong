@@ -126,7 +126,26 @@ db.prepare(`
 `).run();
     
 fastify.post("/update_history_tournament", async (request, reply) => {
-  const {classement} = request.body;
+  const {classement, gametype} = request.body;
+  if (!gametype) {
+    console.log("ici je plante");
+    console.log(gametype);
+    console.log(classement);
+  }
+  let rank1 = 1;
+  let rank2 = 2;
+  let rank3 = 3;
+  let rank4 = 4;
+  if (classement[0].score == classement[1].score) {
+    rank2 = rank1;
+  }
+  if (classement[1].score == classement[2].score) {
+    rank3 = rank2;
+  }
+  if (classement[2].score == classement[3].score) {
+    rank4 = rank3;
+  }
+  
   db.prepare(`INSERT INTO tournament_history 
             (player1_username, player1_score, player1_ranking,
             player2_username, player2_score, player2_ranking,
@@ -137,11 +156,11 @@ fastify.post("/update_history_tournament", async (request, reply) => {
               ?, ?, ?,
               ?, ?, ?,
               ?, ?, ?, ?)`)
-              .run(classement[0].username, classement[0].score, 1, 
-                  classement[1].username, classement[1].score, 2,
-                  classement[2].username, classement[2].score, 3,
-                  classement[3].username, classement[3].score, 4,
-                  "pong"
+              .run(classement[0].username, classement[0].score, rank1, 
+                  classement[1].username, classement[1].score, rank2,
+                  classement[2].username, classement[2].score, rank3,
+                  classement[3].username, classement[3].score, rank4,
+                  gametype
               );
 });
 
@@ -207,9 +226,6 @@ fastify.post("/get_friends", async (request, reply) => {
       friends.push(friendUsername);
     }
   }
-    const databaseContent = await db.prepare(`
-        SELECT * FROM friends
-        `).all();
     return reply.send(JSON.stringify({success: true, friends: friends}));
 });
 
@@ -339,7 +355,7 @@ fastify.get("/me", async (request, reply) => {
       return reply.send({success: false, error: "Non autorise"});
     }
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
     return reply.send({ success: true, user : decoded});
   } catch {
     return reply.send({ success: false, error: "Token invalide" });
@@ -369,42 +385,120 @@ fastify.post("/get_history", async (request, reply) => {
     OR player4_username = ?
     ORDER BY created_at DESC;
     `).all(username, username, username, username);
-    const stats = await get_stats(history, history_for_tournament, username);
+    const stats = await get_stats(history, history_tournament, username);
     reply.send(JSON.stringify({history: history, history_tournament: history_tournament, stats: stats}));
   });
   
 
-async function get_stats(history, history_tournament, username) {
-  // const user_id = await db.prepare(`
-  //   SELECT user_id FROM users
-  //   WHERE username = ?
-  //   `).get(username);
-  // const raw_stats = await db.prepare(`
-  //   SELECT * from stats
-  //   WHERE user_id = ?
-  //   `).all(user_id);
-  console.log(history);
-  console.log(history_tournament);
-  // let stats = {
-  //   winrate: winrate,
-  //   winrate_blue_side: winrate_blue_side,
-  //   winrate_red_side: winrate_red_side,
-  //   average_bounce_per_game: average_bounce_per_game,
-  //   goal_after_bonus_paddle: goal_after_bonus_paddle,
-  //   goal_after_bonus_goal: goal_after_bonus_goal,
-  //   goal_after_bonus_shield: goal_after_bonus_shield,
-  //   winrate_against_friends: winrate_against_friends
-  // }
-  // return stats;
+function calc_winrate_against_friends(friends, username, history) {
+  let winrate_per_friend = [];
+  for (let i = 0; i < friends.length; i++) {
+    let win_against_friend = 0;
+    let loose_against_friend = 0;
+    history.forEach(match => {
+      if (friends[i].username === match.player1_username || friends[i].username === match.player2_username) {
+        if (match.winner_username === username) {
+          win_against_friend++
+        }
+        else {
+          loose_against_friend++;
+        }
+      }
+    });
+    winrate_per_friend.push({username: friends[i].username, winrate: win_against_friend / (win_against_friend + loose_against_friend) * 100});
+  }
+  return winrate_per_friend;
 }
 
-async function history_for_tournament(history) {
+async function get_stats(history, history_tournament, username) {
+  const user = await db.prepare(`
+    SELECT id FROM users
+    WHERE username = ?
+    `).get(username);
+  if (!user) {
+    return reply.send(JSON.stringify({success: false, message: "user not found in db"}));
+  }
+  const user_id = user.id;
+  let friends = [];
+  const friend1 = await db.prepare(`
+    SELECT friend_id FROM friends
+    WHERE (user_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friend2 = await db.prepare(`
+    SELECT user_id FROM friends
+    WHERE (friend_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friendIds = friend1.map(f => f.friend_id).concat(friend2.map(f => f.user_id));
+  for (let i = 0; i < friendIds.length; i++) {
+    const friendUsername = await db.prepare(`
+      SELECT username FROM users
+      WHERE id = ?
+      `).get(friendIds[i]);
+    if (friendUsername) {
+      friends.push(friendUsername);
+    }
+  }
+  
+  let win = 0;
+  let loose = 0;
+  history.forEach(match => {
+    if (match.winner_username === username) {
+      win++
+    }
+    else {
+      loose++;
+    }
+  });
+  let place_in_tournament = [];
+  let score_in_tournament = [];
+  let nbr_of_tournament_won = 0;
+  console.log (history_tournament);
+  history_tournament.forEach(classement => {
+      for (let i = 1; i < 5; i++) {
+        const usernameKey = `player${i}_username`;
+        const scoreKey = `player${i}_score`;
+        const rankingKey = `player${i}_ranking`;
+        console.log("username: ", classement[usernameKey]);
+        console.log("score: ", classement[scoreKey]);
+        console.log("ranking: ", classement[rankingKey]);
+        if (classement[usernameKey] === username) {
+          if (classement[rankingKey] === 1) {
+            nbr_of_tournament_won++;
+          }
+          place_in_tournament.push(classement[rankingKey]);
+          score_in_tournament.push(classement[scoreKey]);
+        }
+      }
+  });
+  let stats = {
+    winrate: win / (win + loose) * 100 || 0,
+    // average_bounce_per_game: average_bounce_per_game,
+    // goal_after_bonus_paddle: goal_after_bonus_paddle,
+    // goal_after_bonus_goal: goal_after_bonus_goal,
+    // goal_after_bonus_shield: goal_after_bonus_shield,
+    winrate_against_friends: calc_winrate_against_friends(friends, username, history) || 0,
+    average_place_in_tournament: calc_average(place_in_tournament) || 0,
+    average_score_in_tournament: calc_average(score_in_tournament) || 0,
+    nbr_of_tournament_won: nbr_of_tournament_won || 0,
+  }
+  console.log(stats);
+  return stats;
+}
+
+function calc_average(tab) {
+  let sum_of_element = 0;
+  for (let i = 0; i < tab.length; i++) {
+    sum_of_element += tab[i];
+  }
+  return sum_of_element / tab.length;
+}
+
+async function history_for_tournament(history, gametype) {
   for (const match of history) { 
     const player1 = match.myusername;
     const player2 = match.otherusername;
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
-    const gametype = history.gametype;
     if (score_player1 !== 3 && score_player2 !== 3) {
       return;
     }
@@ -432,7 +526,7 @@ async function history_for_tournament(history) {
       continue;
     }
 
-    await db.prepare(`INSERT INTO match_history 
+    db.prepare(`INSERT INTO match_history 
               (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
               VALUES (?, ?, ?, ?, ?, ?, ?)`)
               .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
@@ -440,16 +534,16 @@ async function history_for_tournament(history) {
 }
 
 fastify.post("/update_history", async (request, reply) => {
-  const {history, tournament} = request.body;
+  const {history, tournament, gametype} = request.body;
   if (tournament) {
-    history_for_tournament(history);
+    history_for_tournament(history, gametype);
     return ;
   }
   const player1 = history.myusername;
   const player2 = history.otherusername;
-  const score_player1 = history.myscore;
+  const score_player1 = history.myscore; 
   const score_player2 = history.otherscore;
-  const gametype = history.gametype;
+  const gametypesologame = history.gametype;
   if (score_player1 != 3 && score_player2 != 3) {
     return;
   }
@@ -478,7 +572,7 @@ fastify.post("/update_history", async (request, reply) => {
   await db.prepare(`INSERT INTO match_history
             (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
             VALUES (?, ?, ?, ?, ?, ?, ?)`)
-            .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
+            .run(player1, player2, winner, looser, score_player1, score_player2, gametypesologame);
 });
 
 // 🔹 Route POST pour créer un compte

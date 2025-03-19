@@ -73,7 +73,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         else {
             if (url == "/end_tournament") {
-                console.log("wtf?");
                 url = "/";
                 page = "index";
             }
@@ -111,6 +110,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         Disconnect_from_game();
         ping_Disconnect_from_game();
+        console.log("my page: ", page);
         if (page === "waiting_room")
             play_pong();
         if (page === "pong_tournament")

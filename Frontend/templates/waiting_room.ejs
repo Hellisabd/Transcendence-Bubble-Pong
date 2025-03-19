@@ -5,14 +5,8 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Pong Queues</title>
       <%- include('links.ejs') %>
-</head>
+</head> 
 <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("pong_game"); // Appelle la fonction au chargement de la page
-      set_up_friend_list();
-    });
-  </script>
   <div id="content">
     <%- include('navbar.ejs') %>
     <button class="btn" onclick="navigateTo('index')">HOME</button>
@@ -24,4 +18,10 @@
   </div>
   <%- include('scripts.ejs') %>
 </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // navigateTo("waiting_room"); // Appelle la fonction au chargement de la page
+      set_up_friend_list();
+    });
+  </script>
 </html>

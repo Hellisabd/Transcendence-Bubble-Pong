@@ -79,8 +79,8 @@ fastify.register(async function (fastify) {
       Websocket_handling(data.username, connection);
       send_to_friend();
       display_friends(data.username, connection);
-    })
-  });
+    }) 
+  }); 
 });
 
 fastify.post("/create_account", create_account);
@@ -88,7 +88,7 @@ fastify.post("/create_account", create_account);
 fastify.post("/update_avatar", update_avatar);
 
 fastify.post("/pending_request", pending_request);
-
+ 
 fastify.post("/settings", settings);
 
 fastify.post("/update_history", update_history);
