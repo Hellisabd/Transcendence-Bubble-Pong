@@ -107,9 +107,20 @@ async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
 
-        const response = await axios.post("http://users:5000/create_account", req.body, {
-            withCredentials: true
-        });
+		const { username, password, email } = req.body;
+		let i = 0;
+		while(secret_keys[i] && secret_keys[i][0] != username){
+			i++;
+		}
+
+		if (!secret_keys[i]) {
+			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+		}
+		const response = await axios.post("http://users:5000/create_account",
+			{username, password, email, secretKey: secret_keys[i][1]},
+			{ headers: { "Content-Type": "application/json" } }
+
+        );
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
@@ -325,10 +336,8 @@ async function twofaverify(request, reply) {
 
 		let i = 0;
 		while(secret_keys[i] && secret_keys[i][0] != username){
-			console.log(secret_keys[i]);
 			i++;
 		}
-
 
 		if (!secret_keys[i]) {
 			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
@@ -342,6 +351,9 @@ async function twofaverify(request, reply) {
 		}
 
 		// Répondre avec succès
+
+		// ajouter secret dans BD ici !
+
 		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
 
 	} catch (error) {

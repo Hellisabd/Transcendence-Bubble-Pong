@@ -71,7 +71,6 @@ async function create_account(event: Event): Promise<void> {
 
 		if (rep.ok) { // Vérifie que la réponse a un statut 2xx
 			const text = await rep.text(); // Utilise text() pour vérifier la réponse brute
-			console.log("Réponse brute:", text);
 			interface TwoFAResponse {
 				otplib_url: string;
 				qr_code: string;

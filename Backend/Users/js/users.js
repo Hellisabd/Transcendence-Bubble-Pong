@@ -16,6 +16,7 @@ const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const jwt = require("jsonwebtoken");
 const SALT_ROUNDS = 10;
@@ -436,7 +437,7 @@ fastify.post("/update_history", async (request, reply) => {
 });
 // 🔹 Route POST pour créer un compte
 fastify.post("/create_account", async (request, reply) => {
-  const { username, email, password } = request.body;
+  const { username, email, password, secretKey } = request.body;
   if (!username || !email || !password) {
     return reply.code(400).send({ success: false, error: "Champs manquants" });
   }
@@ -452,8 +453,10 @@ fastify.post("/create_account", async (request, reply) => {
       return reply.code(409).send({ success: false });
     }
     const hashedpasswrd = await bcrypt.hash(password, SALT_ROUNDS);
+	const hashedSecret = crypto.createHash("sha1").update(secretKey).digest("hex");
+
     // 🔹 Insérer le nouvel utilisateur
-    db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)").run(username, email, hashedpasswrd);
+    db.prepare("INSERT INTO users (username, email, password, secret) VALUES (?, ?, ?, ?)").run(username, email, hashedpasswrd, secretKey);
 
     return reply.send({ success: true, message: "Compte créé avec succès !" });
 
