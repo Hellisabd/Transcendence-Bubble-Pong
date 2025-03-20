@@ -252,7 +252,7 @@ function ping_resetBall() {
 }
 
 
-function ping_draw(): void {
+function ping_draw(ratio: number): void {
 	if (!ping_ctx || !ping_canvas) {
 		return ;
 	}
@@ -356,18 +356,20 @@ function ping_draw(): void {
     if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") { 
         let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
         ping_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        ping_ctx.font = "bold 30px 'Press Start 2P', 'system-ui', sans-serif";
+        ping_ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
         ping_ctx.textAlign = "center";
         ping_ctx.fillText("Waiting for opponent...", ping_canvas.width / 2, ping_canvas.height / 2);
     } 
 }
 
 function ping_gameLoop() {
-	if (!ping_ctx) {
+	if (!ping_ctx || !ping_canvas) {
 		return;
 	}
+    let canvasWidth: number = ping_canvas.offsetWidth;
+    let ratio: number = canvasWidth / 1000;
 	ping_update();
-	ping_draw();
+	ping_draw(ratio);
 	requestAnimationFrame(ping_gameLoop);
 }
 
