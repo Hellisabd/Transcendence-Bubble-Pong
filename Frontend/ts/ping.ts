@@ -121,6 +121,8 @@ function ping_end_game(ping_win: number, user: string | null, otheruser: string,
 }
 
 function ping_Disconnect_from_game() {
+    if (window.location.pathname !== "/ping_waiting_room" && window.location.pathname !== "/ping_tournament")
+        animation_ping_stop();
     if (!ping_Wsocket && !ping_socket && !ping_lobbyKey && !ping_Tsocket)
         return;
     ping_Wsocket?.close();
@@ -157,6 +159,15 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         if (!ctx) {
             return ;
         }
+
+        const canvasWidth = canvas.offsetWidth;
+        
+        canvas.width = canvasWidth;
+        canvas.height = canvasWidth;
+
+        animation_ping_stop();
+        document.getElementById("ping_animation")?.classList.add("hidden");
+
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
         if (!ping_socket)
@@ -189,6 +200,19 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             bonus: {tag: null, x: 350, y: 350 },
             playerReady: { player1: false, player2: false }
         };
+
+        function ping_player_one(): string {
+            return gameState.paddles.player1.name;
+        }
+        function ping_player_two(): string {
+            return gameState.paddles.player2.name;
+        }
+      
+        const playerOneElement = document.querySelector("#playerOne") as HTMLElement;
+        const playerTwoElement = document.querySelector("#playerTwo") as HTMLElement;
+        
+        playerOneElement.innerText = `${ping_player_one()}`;
+        playerTwoElement.innerText = `${ping_player_two()}`;
 
         ping_socket.onmessage = (event) => {
             let gs = JSON.parse(event.data);
@@ -264,6 +288,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            let canvasWidth: number = canvas.offsetWidth;
+            let canvasHeight: number = canvas.offsetHeight;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            let ratio: number = canvasWidth / 1000;
+
             //ARENA
             ctx.beginPath();
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
@@ -273,7 +305,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             ctx.beginPath();
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "white";
             ctx.shadowBlur = 10;
             ctx.shadowColor = ctx.strokeStyle;
@@ -294,7 +326,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = "#00CDFF";
             }
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "red";
             ctx.stroke();
             ctx.stroke();
@@ -315,7 +347,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = "#FF9F00";
             }
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "blue";
             ctx.stroke();
             ctx.stroke();
@@ -325,7 +357,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             //BALL
             ctx.beginPath();
-            ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
+            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
             ctx.strokeStyle = "yellow";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
@@ -338,14 +370,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 19,
+                canvas.width / 2 - (19 * ratio),
                 gameState.paddles.player1.angle - gameState.paddles.player1.size,
                 gameState.paddles.player1.angle + gameState.paddles.player1.size
             );
             ctx.strokeStyle = "red";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
-            ctx.lineWidth = 20
+            ctx.lineWidth = 20 * ratio;
             ctx.stroke();
             ctx.closePath();
             ctx.shadowBlur = 0;
@@ -355,14 +387,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 19,
+                canvas.width / 2 - (19 * ratio),
                 gameState.paddles.player2.angle - gameState.paddles.player2.size,
                 gameState.paddles.player2.angle + gameState.paddles.player2.size
             );
             ctx.strokeStyle = "blue";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
-            ctx.lineWidth = 20
+            ctx.lineWidth = 20 * ratio;
             ctx.stroke();
             ctx.closePath();
             ctx.shadowBlur = 0;
@@ -370,7 +402,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             //BONUS
             if (gameState.bonus.tag == 'P') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -382,7 +414,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -392,7 +423,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
             if (gameState.bonus.tag == 'G') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -404,7 +435,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -415,7 +445,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             if (gameState.bonus.tag == 'S') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -427,7 +457,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -436,57 +465,52 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 0;
             }
 
-            draw_score();
-            draw_winner();
+            draw_score(ratio);
+            draw_winner(ratio);
             if (ping_disp == true) {
-                ctx.font = "30px Arial";
+                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
-                ctx.fillStyle = "#FFFFFF";
                 ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
             }
         }
         requestAnimationFrame(drawGame);
 
-        function draw_score(): void {
+        function draw_score(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
-            ctx.font = "40px Arial";
-            ctx.fillStyle = "#810000";
+            ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+            ctx.fillStyle = "red";
             ctx.fillText(String(gameState.score.player1), 50, 40);
-            // ctx.fillText(String(gameState.paddles.player1.name), canvas.width / 2 - 200, 40);
-            ctx.fillStyle = "#00009c";
+            ctx.fillStyle = "blue";
             ctx.fillText(String(gameState.score.player2), canvas.width - 50, 40);
-            // ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
         }
 
-        function draw_winner(): void {
+        function draw_winner(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             if (ping_win == 1) {
-                ctx.textAlign = "start";
+                ctx.textAlign = "center";
                 ctx.textBaseline = "alphabetic";
-                ctx.font = "40px Arial";
+                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "#008100";
-                ctx.fillText(String("YOU WIN!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+                ctx.fillText(String("YOU WIN!"), canvas.width / 2 , canvas.height / 2 - 50);
             }
             if (ping_win == 2) {
-                ctx.textAlign = "start";
+                ctx.textAlign = "center";
                 ctx.textBaseline = "alphabetic";
-                ctx.font = "40px Arial";
+                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
                 ctx.fillStyle = "#810000";
-                ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+                ctx.fillText(String("YOU LOSE!"), canvas.width / 2, canvas.height / 2 - 50);
             }
             if (ping_player_id == 1 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, ping_inTournament);
             }
             else if (ping_player_id == 2 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, ping_inTournament);
             }
         }
