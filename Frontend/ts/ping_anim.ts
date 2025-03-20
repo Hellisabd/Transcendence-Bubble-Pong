@@ -150,35 +150,35 @@ function ping_update() {
     if (lim_inf_goal2 > 2 * Math.PI)
         lim_inf_goal2 -= 2 * Math.PI;
 
-    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
-        if (lim_inf_goal1 < lim_sup_goal1) {
-            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
-                ping_resetBall();
-                ping_resetParam();
-            }
-        }
-        else {
-            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
-                ping_resetBall();
-                ping_resetParam();
-            } 
-        }
-    }
+    // if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+    //     if (lim_inf_goal1 < lim_sup_goal1) {
+    //         if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+    //             ping_resetBall();
+    //             ping_resetParam();
+    //         }
+    //     }
+    //     else {
+    //         if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+    //             ping_resetBall();
+    //             ping_resetParam();
+    //         } 
+    //     }
+    // }
  
-    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
-        if (lim_inf_goal2 < lim_sup_goal2) {
-            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
-                ping_resetBall();
-                ping_resetParam();
-            }
-        }
-        else {
-            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
-                ping_resetBall();
-                ping_resetParam();
-            } 
-        }
-    }
+    // if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
+    //     if (lim_inf_goal2 < lim_sup_goal2) {
+    //         if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+    //             ping_resetBall();
+    //             ping_resetParam();
+    //         }
+    //     }
+    //     else {
+    //         if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+    //             ping_resetBall();
+    //             ping_resetParam();
+    //         } 
+    //     }
+    // }
 
     if (ball_dist + ping_ballRadius + 5 > ping_arena_radius && Date.now() > lastBounce ) {
         bounce();
