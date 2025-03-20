@@ -106,21 +106,29 @@ async function log(req, reply) {
 async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
+		let response;
 
-		const { username, password, email } = req.body;
+		const { username, password, email, activeFA } = req.body;
+
 		let i = 0;
-		while(secret_keys[i] && secret_keys[i][0] != username){
-			i++;
-		}
+		if(activeFA){
+			while(secret_keys[i] && secret_keys[i][0] != username){
+				i++;
+			}
 
-		if (!secret_keys[i]) {
-			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
-		}
-		const response = await axios.post("http://users:5000/create_account",
+			if (!secret_keys[i]) {
+				return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+			}
+			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
-			{ headers: { "Content-Type": "application/json" } }
+			{ headers: { "Content-Type": "application/json" } })
+		}
+		else{
+			response = await axios.post("http://users:5000/create_account",
+				{username, password, email},
+				{ headers: { "Content-Type": "application/json" } }
+		)};
 
-        );
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
