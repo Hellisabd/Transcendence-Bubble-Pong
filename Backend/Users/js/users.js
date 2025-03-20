@@ -453,10 +453,16 @@ fastify.post("/create_account", async (request, reply) => {
       return reply.code(409).send({ success: false });
     }
     const hashedpasswrd = await bcrypt.hash(password, SALT_ROUNDS);
-	const hashedSecret = crypto.createHash("sha1").update(secretKey).digest("hex");
 
-    // 🔹 Insérer le nouvel utilisateur
-    db.prepare("INSERT INTO users (username, email, password, secret) VALUES (?, ?, ?, ?)").run(username, email, hashedpasswrd, secretKey);
+	// 🔹 Insérer le nouvel utilisateur
+	if (secretKey){
+		const hashedSecret = crypto.createHash("sha1").update(secretKey).digest("hex");
+		db.prepare("INSERT INTO users (username, email, password, secret) VALUES (?, ?, ?, ?)").run(username, email, hashedpasswrd, hashedSecret);
+	}
+	else{
+		db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)").run(username, email, hashedpasswrd);
+	}
+
 
     return reply.send({ success: true, message: "Compte créé avec succès !" });
 
@@ -464,6 +470,21 @@ fastify.post("/create_account", async (request, reply) => {
     console.error("❌ Erreur lors de la création du compte :", error.message);
     return reply.code(500).send({ error: "Erreur interne du serveur" });
   }
+});
+
+fastify.post('/userExists', async (request, reply) => {
+	const { username } = request.body;
+	try {
+		const row = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
+		console.log("Test row : ", row);
+		if (row) {
+			reply.send({ success: true, user: row });
+		} else {
+			reply.code(404).send({ success: false, message: "User.js : Utilisateur non trouvé" });
+		}
+	} catch (err) {
+		reply.code(500).send({ success: false, message: "Erreur serveur" });
+	}
 });
 
 fastify.post("/get_avatar",  async (request, reply) => {

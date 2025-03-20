@@ -69,15 +69,21 @@ async function create_account(event: Event): Promise<void> {
 			body: JSON.stringify({ username })
 		});
 
-		if (rep.ok) { // Vérifie que la réponse a un statut 2xx
-			const text = await rep.text(); // Utilise text() pour vérifier la réponse brute
-			interface TwoFAResponse {
-				otplib_url: string;
-				qr_code: string;
-			}
-			if (text) {
+		const repjson = await rep.json();
+		if (repjson.success == false){
+			alert(repjson.message);
+			return ;
+		}
+
+		// if (rep.ok) { // Vérifie que la réponse a un statut 2xx
+		// 	const text = await rep.text(); // Utilise text() pour vérifier la réponse brute
+		// 	interface TwoFAResponse {
+		// 		otplib_url: string;
+		// 		qr_code: string;
+		// 	}
+			// if (text) {
 				try {
-					repResult = JSON.parse(text);
+					repResult = repjson;
 					if (repResult) {
 						alert("2FA setup completed! Scan this QR code to complete the setup.");
 						// Affiche le QR code dans une modal
@@ -99,12 +105,12 @@ async function create_account(event: Event): Promise<void> {
 				} catch (e) {
 					console.error("Erreur de parsing JSON pour 2FA setup:", e);
 				}
-			} else {
-				console.error("La réponse du serveur est vide.");
-			}
-		} else {
-			console.error("Erreur serveur pour 2FA setup:", rep.statusText);
-		}
+			// } else {
+			// 	console.error("La réponse du serveur est vide.");
+			// }
+		// } else {
+		// 	console.error("Erreur serveur pour 2FA setup:", rep.statusText);
+		// }
 	}
 
 	// Si 2FA est activé et que le setup a fourni un résultat, demande la vérification du code

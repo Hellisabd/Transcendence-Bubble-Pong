@@ -291,6 +291,10 @@ async function setup2fa(request, reply) {
 		return reply.code(400).send({ error: 'Username inexistant.' });
 	}
 
+	if (checkUserExists(username)){
+		return reply.send({ success: false, message: "Check user : Utilisateur deja existant." });
+	}
+
 	try {
 		// Générer le secret 2FA
 		const secret = otplib.authenticator.generateSecret();
@@ -351,9 +355,6 @@ async function twofaverify(request, reply) {
 		}
 
 		// Répondre avec succès
-
-		// ajouter secret dans BD ici !
-
 		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
 
 	} catch (error) {
@@ -362,4 +363,20 @@ async function twofaverify(request, reply) {
 	}
 };
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify };
+async function checkUserExists(username) {
+    try {
+        const response = await axios.post("http://users:5000/userExists",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		);
+
+        const data = await response.data;
+        console.log("Utilisateur trouvé:", data);
+        return data.success;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists };
