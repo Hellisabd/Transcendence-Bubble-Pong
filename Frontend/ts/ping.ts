@@ -23,6 +23,10 @@ let ping_win: number = 0;
 let bonus_glowing: number = 0;
 let up_down: boolean = true;
 
+let bounce: number = 0;
+
+let bonus_stats: any = null;
+
 async function play_ping() {
     ping_Disconnect_from_game();
     const user = await get_user();
@@ -101,15 +105,16 @@ async function ping_tournament() {
 function ping_end_game(ping_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  ping_inTournament: boolean) {
     if (ping_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
         console.log("endgame on tournament: ", ping_id_tournament);
-        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}}));
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping", bounce: bounce, bonus_stats: bonus_stats}}));
         ping_socket?.close();
     }
     else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
-        console.log("update normal game history"); 
+        console.log("bonus_stat_front: ", bonus_stats); 
+
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ history:{"win": ping_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}})
+            body: JSON.stringify({ history:{"win": ping_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "ping", bounce: bounce, bonus_stats: bonus_stats}})
         });
     }
     ping_win = 0;
@@ -193,8 +198,11 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             if (gs.start == "start") {
                 ping_disp = false;
             }
-            else if (gs.start == "stop")
+            else if (gs.start == "stop") {
                 ping_disp = true;
+                bounce = gs.bounce;
+                bonus_stats = gs.bonus_stats;
+            }
             if (gs.ping_lobbyKey === ping_lobbyKey) {
                 gameState = gs.gameState;
                 drawGame();

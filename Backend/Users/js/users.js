@@ -63,6 +63,19 @@ db.prepare(`
     player1_score INTEGER NOT NULL DEFAULT 0,
     player2_score INTEGER NOT NULL DEFAULT 0,
     gametype TEXT NOT NULL,
+    bounce INTEGER NOT NULL DEFAULT 0,
+    player1_bonus_paddles_goal_scored NOT NULL DEFAULT 0,
+    player1_bonus_paddles_goal_taken NOT NULL DEFAULT 0,
+    player1_bonus_shield_goal_scored NOT NULL DEFAULT 0,
+    player1_bonus_shield_goal_taken NOT NULL DEFAULT 0,
+    player1_bonus_goal_goal_scored NOT NULL DEFAULT 0,
+    player1_bonus_goal_goal_taken NOT NULL DEFAULT 0,
+    player2_bonus_paddles_goal_scored NOT NULL DEFAULT 0,
+    player2_bonus_paddles_goal_taken NOT NULL DEFAULT 0,
+    player2_bonus_shield_goal_scored NOT NULL DEFAULT 0,
+    player2_bonus_shield_goal_taken NOT NULL DEFAULT 0,
+    player2_bonus_goal_goal_scored NOT NULL DEFAULT 0,
+    player2_bonus_goal_goal_taken NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
@@ -99,29 +112,6 @@ db.prepare(`
     status TEXT CHECK(status IN ('pending', 'accepted', 'blocked')) DEFAULT 'pending',
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY(friend_id) REFERENCES users(id) ON DELETE CASCADE
-    )
-`).run();
-
-db.prepare(` 
-  CREATE TABLE IF NOT EXISTS stats (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    win_blue_side_pong INTEGER DEFAULT 0,
-    win_red_side_pong INTEGER DEFAULT 0,
-    loose_red_side_pong INTEGER DEFAULT 0,
-    loose_blue_side_pong INTEGER DEFAULT 0,
-    win_blue_side_ping INTEGER DEFAULT 0,
-    win_red_side_ping INTEGER DEFAULT 0,
-    loose_blue_side_ping INTEGER DEFAULT 0,
-    loose_red_side_ping INTEGER DEFAULT 0,
-    average_bounce_pong REAL DEFAULT 0,
-    average_bounce_ping REAL DEFAULT 0,
-    goal_after_bonus_paddle INTEGER DEFAULT 0,
-    goal_after_bonus_goal INTEGER DEFAULT 0,
-    goal_after_bonus_shield INTEGER DEFAULT 0,
-    goal_taken_after_bonus_paddle INTEGER DEFAULT 0,
-    goal_taken_after_bonus_goal INTEGER DEFAULT 0,
-    goal_taken_after_bonus_shield INTEGER DEFAULT 0
     )
 `).run();
     
@@ -226,6 +216,7 @@ fastify.post("/get_friends", async (request, reply) => {
       friends.push(friendUsername);
     }
   }
+
     return reply.send(JSON.stringify({success: true, friends: friends}));
 });
 
@@ -390,24 +381,44 @@ fastify.post("/get_history", async (request, reply) => {
   });
   
 
-function calc_winrate_against_friends(friends, username, history) {
+function calc_winrate_against_friends(friends, username, history, tri) {
   let winrate_per_friend = [];
+  let winrate_per_friend_pong = [];
+  let winrate_per_friend_ping = [];
   for (let i = 0; i < friends.length; i++) {
     let win_against_friend = 0;
     let loose_against_friend = 0;
+    let win_against_friend_pong = 0;
+    let loose_against_friend_pong = 0;
+    let win_against_friend_ping = 0;
+    let loose_against_friend_ping = 0;
     history.forEach(match => {
       if (friends[i].username === match.player1_username || friends[i].username === match.player2_username) {
         if (match.winner_username === username) {
+          if (match.gametype == "pong")
+            win_against_friend_pong++;
+          else
+            win_against_friend_ping++;
           win_against_friend++
         }
         else {
+          if (match.gametype == "pong")
+            loose_against_friend_pong++;
+          else
+            loose_against_friend_ping++;
           loose_against_friend++;
         }
       }
     });
     winrate_per_friend.push({username: friends[i].username, winrate: win_against_friend / (win_against_friend + loose_against_friend) * 100});
+    winrate_per_friend_pong.push({username: friends[i].username, winrate: win_against_friend_pong / (win_against_friend_pong + loose_against_friend_pong) * 100});
+    winrate_per_friend_ping.push({username: friends[i].username, winrate: win_against_friend_ping / (win_against_friend_ping + loose_against_friend_ping) * 100});
   }
-  return winrate_per_friend;
+  if (!tri)
+    return winrate_per_friend;
+  else if (tri == 1)
+    return winrate_per_friend_pong;
+  return winrate_per_friend_ping
 }
 
 async function get_stats(history, history_tournament, username) {
@@ -441,46 +452,116 @@ async function get_stats(history, history_tournament, username) {
   
   let win = 0;
   let loose = 0;
+  let win_pong = 0;
+  let loose_pong = 0;
+  let win_ping = 0;
+  let loose_ping = 0;
+  let bounce = [];
+  let goal_after_bonus_paddle = 0;
+  let goal_taken_after_bonus_paddle = 0;
+  let goal_after_bonus_goal = 0;
+  let goal_taken_after_bonus_goal = 0;
+  let goal_after_bonus_shield = 0;
+  let goal_taken_after_bonus_shield = 0;
   history.forEach(match => {
+    if (match.player1_username === username) {
+      goal_after_bonus_paddle += match.player1_bonus_paddles_goal_scored;
+      goal_taken_after_bonus_paddle += match.player1_bonus_paddles_goal_taken;
+      goal_after_bonus_goal += match.player1_bonus_goal_goal_scored;
+      goal_taken_after_bonus_goal += match.player1_bonus_goal_goal_taken;
+      goal_after_bonus_shield += match.player1_bonus_shield_goal_scored;
+      goal_taken_after_bonus_shield += match.player1_bonus_shield_goal_taken;
+    }
+    else if (match.player2_username === username) {
+      goal_after_bonus_paddle += match.player2_bonus_paddles_goal_scored;
+      goal_taken_after_bonus_paddle += match.player2_bonus_paddles_goal_taken;
+      goal_after_bonus_goal += match.player2_bonus_goal_goal_scored;
+      goal_taken_after_bonus_goal += match.player2_bonus_goal_goal_taken;
+      goal_after_bonus_shield += match.player2_bonus_shield_goal_scored;
+      goal_taken_after_bonus_shield += match.player2_bonus_shield_goal_taken;
+    }
     if (match.winner_username === username) {
+      if (match.gametype == "pong")
+        win_pong++;
+      else
+        win_ping++;
       win++
     }
     else {
+      if (match.gametype == "pong")
+        loose_pong++;
+      else
+        loose_ping++;
       loose++;
     }
+    if (match.gametype == "ping")
+      bounce.push(match.bounce);
   });
+  
   let place_in_tournament = [];
   let score_in_tournament = [];
+  let place_in_tournament_pong = [];
+  let score_in_tournament_pong = [];
+  let place_in_tournament_ping = [];
+  let score_in_tournament_ping = [];
   let nbr_of_tournament_won = 0;
-  console.log (history_tournament);
+  let nbr_of_tournament_won_pong = 0;
+  let nbr_of_tournament_won_ping = 0;
   history_tournament.forEach(classement => {
       for (let i = 1; i < 5; i++) {
         const usernameKey = `player${i}_username`;
         const scoreKey = `player${i}_score`;
         const rankingKey = `player${i}_ranking`;
-        console.log("username: ", classement[usernameKey]);
-        console.log("score: ", classement[scoreKey]);
-        console.log("ranking: ", classement[rankingKey]);
         if (classement[usernameKey] === username) {
           if (classement[rankingKey] === 1) {
             nbr_of_tournament_won++;
+            if (classement.gametype === "pong") {
+              nbr_of_tournament_won_pong++;
+            }
+            else {
+              nbr_of_tournament_won_ping++;
+            }
           }
           place_in_tournament.push(classement[rankingKey]);
           score_in_tournament.push(classement[scoreKey]);
+          if (classement.gametype === "pong") {
+            place_in_tournament_pong.push(classement[rankingKey]);
+            score_in_tournament_pong.push(classement[scoreKey]);
+          }
+          else {
+            place_in_tournament_ping.push(classement[rankingKey]);
+            score_in_tournament_ping.push(classement[scoreKey]);
+          }
         }
       }
   });
   let stats = {
     winrate: win / (win + loose) * 100 || 0,
-    // average_bounce_per_game: average_bounce_per_game,
-    // goal_after_bonus_paddle: goal_after_bonus_paddle,
-    // goal_after_bonus_goal: goal_after_bonus_goal,
-    // goal_after_bonus_shield: goal_after_bonus_shield,
-    winrate_against_friends: calc_winrate_against_friends(friends, username, history) || 0,
+    winrate_ping: win_ping / (win_ping + loose_ping) * 100 || 0,
+    winrate_pong: win_pong / (win_pong + loose_pong) * 100 || 0,
+    average_bounce_per_game: calc_average(bounce),
+    goal_after_bonus_paddle: goal_after_bonus_paddle / (goal_after_bonus_paddle + goal_taken_after_bonus_paddle) * 100 || 0,
+    goal_after_bonus_goal: goal_after_bonus_goal / (goal_after_bonus_goal + goal_taken_after_bonus_goal) * 100 || 0,
+    goal_after_bonus_shield: goal_after_bonus_shield / (goal_after_bonus_shield + goal_taken_after_bonus_shield) * 100 || 0,
+    winrate_against_friends: calc_winrate_against_friends(friends, username, history, 0) || 0,
+    winrate_against_friends_pong: calc_winrate_against_friends(friends, username, history, 1) || 0,
+    winrate_against_friends_ping: calc_winrate_against_friends(friends, username, history, 2) || 0,
     average_place_in_tournament: calc_average(place_in_tournament) || 0,
     average_score_in_tournament: calc_average(score_in_tournament) || 0,
+    average_place_in_tournament_pong: calc_average(place_in_tournament_pong) || 0,
+    average_score_in_tournament_pong: calc_average(score_in_tournament_pong) || 0,
+    average_place_in_tournament_ping: calc_average(place_in_tournament_ping) || 0,
+    average_score_in_tournament_ping: calc_average(score_in_tournament_ping) || 0,
     nbr_of_tournament_won: nbr_of_tournament_won || 0,
+    nbr_of_tournament_won_pong: nbr_of_tournament_won_pong || 0,
+    nbr_of_tournament_won_ping: nbr_of_tournament_won_ping || 0,
   }
+  console.log("goal_after_bonus_paddle: ", goal_after_bonus_paddle);
+  console.log("goal_taken_after_bonus_paddle: ", goal_taken_after_bonus_paddle);
+  console.log("goal_after_bonus_goal: ", goal_after_bonus_goal);
+  console.log("goal_taken_after_bonus_goal: ", goal_taken_after_bonus_goal);
+  console.log("goal_after_bonus_shield: ", goal_after_bonus_shield);
+  console.log("goal_taken_after_bonus_shield: ", goal_taken_after_bonus_shield);
   console.log(stats);
   return stats;
 }
@@ -499,6 +580,7 @@ async function history_for_tournament(history, gametype) {
     const player2 = match.otherusername;
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
+    const bounce = match.bounce;
     if (score_player1 !== 3 && score_player2 !== 3) {
       return;
     }
@@ -527,10 +609,82 @@ async function history_for_tournament(history, gametype) {
     }
 
     db.prepare(`INSERT INTO match_history 
-              (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
-              VALUES (?, ?, ?, ?, ?, ?, ?)`)
-              .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
+              (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype, bounce)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+              .run(player1, player2, winner, looser, score_player1, score_player2, gametype, bounce);
   }
+}
+
+function extract_bonus_data(bonus_stats, player1, player2) {
+  let tab = {
+    player1_bonus_paddles_goal_scored : 0,
+    player1_bonus_paddles_goal_taken : 0,
+    player1_bonus_shield_goal_scored : 0,
+    player1_bonus_shield_goal_taken : 0,
+    player1_bonus_goal_goal_scored : 0,
+    player1_bonus_goal_goal_taken : 0,
+    player2_bonus_paddles_goal_scored : 0,
+    player2_bonus_paddles_goal_taken : 0,
+    player2_bonus_shield_goal_scored : 0,
+    player2_bonus_shield_goal_taken : 0,
+    player2_bonus_goal_goal_scored : 0,
+    player2_bonus_goal_goal_taken : 0
+  }
+  for (let i = 0; i < bonus_stats.length; i++) {
+    if (bonus_stats[i].player_who_scored == player1) {
+      if (bonus_stats[i].bonus_name == "paddles") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_paddles_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_paddles_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "shield") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_shield_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_shield_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "goal") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_goal_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_goal_goal_taken++;
+        }
+      }
+    }
+    if (bonus_stats[i].player_who_scored == player2) {
+      if (bonus_stats[i].bonus_name == "paddles") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_paddles_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_paddles_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "shield") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_shield_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_shield_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "goal") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_goal_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_goal_goal_taken++;
+        }
+      }
+    }
+  }
+  return tab;
 }
 
 fastify.post("/update_history", async (request, reply) => {
@@ -541,9 +695,12 @@ fastify.post("/update_history", async (request, reply) => {
   }
   const player1 = history.myusername;
   const player2 = history.otherusername;
+  const bonus_stat = extract_bonus_data(history.bonus_stats, player1, player2);
+  console.log("bonus_stat: ", bonus_stat);
   const score_player1 = history.myscore; 
   const score_player2 = history.otherscore;
   const gametypesologame = history.gametype;
+  const bounce = history.bounce ?? 0;
   if (score_player1 != 3 && score_player2 != 3) {
     return;
   }
@@ -568,11 +725,50 @@ fastify.post("/update_history", async (request, reply) => {
   if (recentMatch) {
     return ;
   }
-
+  
   await db.prepare(`INSERT INTO match_history
-            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`)
-            .run(player1, player2, winner, looser, score_player1, score_player2, gametypesologame);
+            (player1_username,
+            player2_username,
+            winner_username,
+            looser_username,
+            player1_score,
+            player2_score,
+            gametype,
+            bounce, 
+            player1_bonus_paddles_goal_scored,
+            player1_bonus_paddles_goal_taken,
+            player1_bonus_shield_goal_scored,
+            player1_bonus_shield_goal_taken,
+            player1_bonus_goal_goal_scored,
+            player1_bonus_goal_goal_taken,
+            player2_bonus_paddles_goal_scored,
+            player2_bonus_paddles_goal_taken,
+            player2_bonus_shield_goal_scored,
+            player2_bonus_shield_goal_taken,
+            player2_bonus_goal_goal_scored,
+            player2_bonus_goal_goal_taken)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1,
+                player2,
+                winner,
+                looser,
+                score_player1,
+                score_player2,
+                gametypesologame,
+                bounce,
+                bonus_stat.player1_bonus_paddles_goal_scored,
+                bonus_stat.player1_bonus_paddles_goal_taken,
+                bonus_stat.player1_bonus_shield_goal_scored,
+                bonus_stat.player1_bonus_shield_goal_taken,
+                bonus_stat.player1_bonus_goal_goal_scored,
+                bonus_stat.player1_bonus_goal_goal_taken,
+                bonus_stat.player2_bonus_paddles_goal_scored,
+                bonus_stat.player2_bonus_paddles_goal_taken,
+                bonus_stat.player2_bonus_shield_goal_scored,
+                bonus_stat.player2_bonus_shield_goal_taken,
+                bonus_stat.player2_bonus_goal_goal_scored,
+                bonus_stat.player2_bonus_goal_goal_taken
+              );
 });
 
 // 🔹 Route POST pour créer un compte

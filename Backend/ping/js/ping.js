@@ -40,8 +40,11 @@ fastify.register(async function (fastify) {
                         lastBounce: Date.now(),
                         bounceInterval : 500,
                         bounce: 0,
+                        totalBounce: 0,
                         bonus_bool: 0,
-                        last_player: null
+                        last_player: null,
+                        player_and_bonus : {player : null, bonus: null}, 
+                        bonus_stats: []
                     }
                 }
             }
@@ -65,6 +68,7 @@ function resetParam (lobbyKey) {
     if (!lobbies[lobbyKey])
         return ;
     gameState = lobbies[lobbyKey].gameState;
+    gameState.totalBounce += gameState.bounce;
     gameState.bounce = 0;
     gameState.bonus_bool = 0;
     gameState.bonus.tag = null;
@@ -235,6 +239,9 @@ function update(lobbyKey) {
     if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal1 < lim_sup_goal1) {
             if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                if (gameState.player_and_bonus.bonus) {
+                    gameState.bonus_stats.push({player_who_scored: gameState.paddles.player2.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
+                }
                 resetBall(lobbyKey);
                 gameState.score.player2++;
                 resetParam(lobbyKey);
@@ -242,6 +249,9 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                if (gameState.player_and_bonus.bonus) {
+                    gameState.bonus_stats.push({player_who_scored: gameState.paddles.player2.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
+                }
                 resetBall(lobbyKey);
                 gameState.score.player2++;
                 resetParam(lobbyKey);
@@ -252,6 +262,7 @@ function update(lobbyKey) {
     if (gameState.goals.player1.protected == true && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal1 < lim_sup_goal1) {
             if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                gameState.bounce++;
                 gameState.goals.player1.protected = false;
                 gameState.lastBounce = Date.now() + gameState.bounceInterval;
                 let normalX = dx / ball_dist;
@@ -265,6 +276,7 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                gameState.bounce++;
                 gameState.goals.player1.protected = false;
                 gameState.lastBounce = Date.now() + gameState.bounceInterval;
                 let normalX = dx / ball_dist;
@@ -277,10 +289,12 @@ function update(lobbyKey) {
             } 
         }
     } 
-    
     if (gameState.goals.player2.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal2 < lim_sup_goal2) {
             if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                if (gameState.player_and_bonus.bonus) {
+                    gameState.bonus_stats.push({player_who_scored: gameState.paddles.player1.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
+                }
                 resetBall(lobbyKey);
                 gameState.score.player1++;
                 resetParam(lobbyKey);
@@ -288,6 +302,9 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                if (gameState.player_and_bonus.bonus) {
+                    gameState.bonus_stats.push({player_who_scored: gameState.paddles.player1.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
+                }
                 resetBall(lobbyKey);
                 gameState.score.player1++;
                 resetParam(lobbyKey);
@@ -298,6 +315,7 @@ function update(lobbyKey) {
     if (gameState.goals.player2.protected == true && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal2 < lim_sup_goal2) {
             if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                gameState.bounce++;
                 gameState.goals.player2.protected = false;
                 gameState.lastBounce = Date.now() + gameState.bounceInterval;
                 let normalX = dx / ball_dist;
@@ -311,6 +329,7 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                gameState.bounce++;
                 gameState.goals.player2.protected = false;
                 gameState.lastBounce = Date.now() + gameState.bounceInterval;
                 let normalX = dx / ball_dist;
@@ -376,22 +395,40 @@ function bonusManager(gameState) {
         let dist_ball_bonus = Math.sqrt(((gameState.ball.x - gameState.bonus.x) * (gameState.ball.x - gameState.bonus.x)) + ((gameState.ball.y - gameState.bonus.y) * (gameState.ball.y - gameState.bonus.y)));
         if (dist_ball_bonus <= ballRadius + bonusRadius) {
             if (gameState.bonus.tag == 'P') {
-                if (gameState.last_player == "player1")
+                if (gameState.last_player == "player1") {
+                    gameState.player_and_bonus.player = gameState.paddles.player1.name;
+                    gameState.player_and_bonus.bonus = "paddles";
                     gameState.paddles.player1.size = Math.PI * 0.12;
-                if (gameState.last_player == "player2")
+                }
+                if (gameState.last_player == "player2") {
+                    gameState.player_and_bonus.player = gameState.paddles.player2.name;
+                    gameState.player_and_bonus.bonus = "paddles";
                     gameState.paddles.player2.size = Math.PI * 0.12;
+                }
             }
             if (gameState.bonus.tag == 'G') {
-                if (gameState.last_player == "player1")
+                if (gameState.last_player == "player1") {
                     gameState.goals.player2.size = Math.PI / 2;
-                if (gameState.last_player == "player2")
+                    gameState.player_and_bonus.player = gameState.paddles.player1.name;
+                    gameState.player_and_bonus.bonus = "goal";
+                }
+                if (gameState.last_player == "player2") {
                     gameState.goals.player1.size = Math.PI / 2;
+                    gameState.player_and_bonus.player = gameState.paddles.player2.name;
+                    gameState.player_and_bonus.bonus = "goal";
+                }
             }
             if (gameState.bonus.tag == 'S') {
-                if (gameState.last_player == "player1")
+                if (gameState.last_player == "player1") {
+                    gameState.player_and_bonus.player = gameState.paddles.player1.name;
+                    gameState.player_and_bonus.bonus = "shield";
                     gameState.goals.player1.protected = true;
-                if (gameState.last_player == "player2")
+                }
+                if (gameState.last_player == "player2") {
+                    gameState.player_and_bonus.player = gameState.paddles.player2.name;
+                    gameState.player_and_bonus.bonus = "shield";
                     gameState.goals.player2.protected = true;
+                }
             }
             gameState.bonus.tag = null;
         }
@@ -450,12 +487,12 @@ function check_score(lobbyKey) {
         gameState.ballSpeed.ballSpeedX = 3.2
         gameState.ballSpeed.ballSpeedY = 3.2
         if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
-                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: true}));
-                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: false}));
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: true, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: false, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));
         }
         else {
-            lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: false}));
-            lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: true}));
+            lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: false, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));
+            lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: true, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));
         }
     }
 }

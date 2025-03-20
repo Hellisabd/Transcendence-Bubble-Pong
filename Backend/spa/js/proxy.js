@@ -171,9 +171,7 @@ async function get_history(req, reply) {
         { headers: { "Content-Type": "application/json" } }
     );
     const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-    // reply.send(finalFile);
-    console.log("ping_tab", response.data.ping_history);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, ping_history: response.data.ping_history, history_ping_tournament: response.data.history_ping_tournament });
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }
 
 async function end_tournament(req, reply) {
