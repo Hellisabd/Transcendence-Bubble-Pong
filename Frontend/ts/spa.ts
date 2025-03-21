@@ -7,6 +7,7 @@ declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
+declare function get_stats(): void;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -137,6 +138,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (page === "pong_game") {
             initializeAnimationPong();
             initializeAnimationPing();
+        }
+        if (page === "dashboard") {
+            get_stats(username);
+            console.log("passse dans dashboard");
         }
         display_friends();
 

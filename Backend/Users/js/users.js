@@ -63,19 +63,19 @@ db.prepare(`
     player1_score INTEGER NOT NULL DEFAULT 0,
     player2_score INTEGER NOT NULL DEFAULT 0,
     gametype TEXT NOT NULL,
-    bounce INTEGER NOT NULL DEFAULT 0,
-    player1_bonus_paddles_goal_scored NOT NULL DEFAULT 0,
-    player1_bonus_paddles_goal_taken NOT NULL DEFAULT 0,
-    player1_bonus_shield_goal_scored NOT NULL DEFAULT 0,
-    player1_bonus_shield_goal_taken NOT NULL DEFAULT 0,
-    player1_bonus_goal_goal_scored NOT NULL DEFAULT 0,
-    player1_bonus_goal_goal_taken NOT NULL DEFAULT 0,
-    player2_bonus_paddles_goal_scored NOT NULL DEFAULT 0,
-    player2_bonus_paddles_goal_taken NOT NULL DEFAULT 0,
-    player2_bonus_shield_goal_scored NOT NULL DEFAULT 0,
-    player2_bonus_shield_goal_taken NOT NULL DEFAULT 0,
-    player2_bonus_goal_goal_scored NOT NULL DEFAULT 0,
-    player2_bonus_goal_goal_taken NOT NULL DEFAULT 0,
+    bounce INTEGER DEFAULT 0,
+    player1_bonus_paddles_goal_scored DEFAULT 0,
+    player1_bonus_paddles_goal_taken DEFAULT 0,
+    player1_bonus_shield_goal_scored DEFAULT 0,
+    player1_bonus_shield_goal_taken DEFAULT 0,
+    player1_bonus_goal_goal_scored DEFAULT 0,
+    player1_bonus_goal_goal_taken DEFAULT 0,
+    player2_bonus_paddles_goal_scored DEFAULT 0,
+    player2_bonus_paddles_goal_taken DEFAULT 0,
+    player2_bonus_shield_goal_scored DEFAULT 0,
+    player2_bonus_shield_goal_taken DEFAULT 0,
+    player2_bonus_goal_goal_scored DEFAULT 0,
+    player2_bonus_goal_goal_taken DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
@@ -581,6 +581,7 @@ async function history_for_tournament(history, gametype) {
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
     const bounce = match.bounce;
+    const bonus_stat = extract_bonus_data(match.bonus_stats, player1, player2);
     if (score_player1 !== 3 && score_player2 !== 3) {
       return;
     }
@@ -608,10 +609,49 @@ async function history_for_tournament(history, gametype) {
       continue;
     }
 
-    db.prepare(`INSERT INTO match_history 
-              (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype, bounce)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-              .run(player1, player2, winner, looser, score_player1, score_player2, gametype, bounce);
+    await db.prepare(`INSERT INTO match_history
+      (player1_username,
+      player2_username,
+      winner_username,
+      looser_username,
+      player1_score,
+      player2_score,
+      gametype,
+      bounce, 
+      player1_bonus_paddles_goal_scored,
+      player1_bonus_paddles_goal_taken,
+      player1_bonus_shield_goal_scored,
+      player1_bonus_shield_goal_taken,
+      player1_bonus_goal_goal_scored,
+      player1_bonus_goal_goal_taken,
+      player2_bonus_paddles_goal_scored,
+      player2_bonus_paddles_goal_taken,
+      player2_bonus_shield_goal_scored,
+      player2_bonus_shield_goal_taken,
+      player2_bonus_goal_goal_scored,
+      player2_bonus_goal_goal_taken)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(player1,
+          player2,
+          winner,
+          looser,
+          score_player1,
+          score_player2,
+          gametype,
+          bounce,
+          bonus_stat.player1_bonus_paddles_goal_scored,
+          bonus_stat.player1_bonus_paddles_goal_taken,
+          bonus_stat.player1_bonus_shield_goal_scored,
+          bonus_stat.player1_bonus_shield_goal_taken,
+          bonus_stat.player1_bonus_goal_goal_scored,
+          bonus_stat.player1_bonus_goal_goal_taken,
+          bonus_stat.player2_bonus_paddles_goal_scored,
+          bonus_stat.player2_bonus_paddles_goal_taken,
+          bonus_stat.player2_bonus_shield_goal_scored,
+          bonus_stat.player2_bonus_shield_goal_taken,
+          bonus_stat.player2_bonus_goal_goal_scored,
+          bonus_stat.player2_bonus_goal_goal_taken
+        );
   }
 }
 
@@ -630,6 +670,8 @@ function extract_bonus_data(bonus_stats, player1, player2) {
     player2_bonus_goal_goal_scored : 0,
     player2_bonus_goal_goal_taken : 0
   }
+  if (!bonus_stats)
+    return tab;
   for (let i = 0; i < bonus_stats.length; i++) {
     if (bonus_stats[i].player_who_scored == player1) {
       if (bonus_stats[i].bonus_name == "paddles") {
@@ -696,7 +738,7 @@ fastify.post("/update_history", async (request, reply) => {
   const player1 = history.myusername;
   const player2 = history.otherusername;
   const bonus_stat = extract_bonus_data(history.bonus_stats, player1, player2);
-  console.log("bonus_stat: ", bonus_stat);
+
   const score_player1 = history.myscore; 
   const score_player2 = history.otherscore;
   const gametypesologame = history.gametype;

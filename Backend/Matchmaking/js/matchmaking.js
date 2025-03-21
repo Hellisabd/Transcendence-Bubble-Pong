@@ -360,7 +360,7 @@ fastify.register(async function (fastify) {
                     console.log("avant de push username: ", data.username);
                     console.log("avant de push back history: ", currentTournament.history[data.username]);
                     currentTournament.history[data.username].push(data.history);
-                    if (data.history.win == 2) {
+                    if (data.history.win == 1) {
                         for (let i = 0; i < 4; i++) {
                             if (data.username == currentTournament.classements[i].username) {
                                 currentTournament.classements[i].score += 1;

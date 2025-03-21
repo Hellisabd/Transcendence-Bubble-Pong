@@ -32,8 +32,8 @@ fastify.register(async function (fastify) {
                         goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
                         score: { player1: 0, player2: 0 },
                         moving: { player1: { up: false, down: false, right: false, left: false }, player2: { up: false, down: false, right: false, left: false } },
-                        ballSpeed: {ballSpeedX: 3.8, ballSpeedY: 3.8},
-                        speed: Math.sqrt(3.8 * 3.8 + 3.8 * 3.8),
+                        ballSpeed: {ballSpeedX: 4.5, ballSpeedY: 4.5},
+                        speed: Math.sqrt(4.5 * 4.5 + 4.5 * 4.5),
                         playerReady: {player1: false, player2: false},
                         bonus: {tag: null, x: 350, y: 350 },
                         gameinterval: null,
@@ -91,8 +91,8 @@ function resetBall(lobbyKey) {
         return ;
     gameState = lobbies[lobbyKey].gameState;
     randBallPos(gameState);
-    gameState.ballSpeed.ballSpeedX = 3.8;
-    gameState.ballSpeed.ballSpeedY = 3.8;
+    gameState.ballSpeed.ballSpeedX = 4.5;
+    gameState.ballSpeed.ballSpeedY = 4.5;
     gameState.speed = Math.sqrt(gameState.ballSpeed.ballSpeedX * gameState.ballSpeed.ballSpeedX + gameState.ballSpeed.ballSpeedY * gameState.ballSpeed.ballSpeedY);
     let angle;
     if (Math.random() < 0.5) {
@@ -471,8 +471,8 @@ function new_game(lobbyKey) {
 
     gameState.score.player1 = 0;
     gameState.score.player2 = 0;
-    gameState.ballSpeed.ballSpeedX = 3.8;
-    gameState.ballSpeed.ballSpeedY = 3.8;
+    gameState.ballSpeed.ballSpeedX = 4.5;
+    gameState.ballSpeed.ballSpeedY = 4.5;
     resetBall(lobbyKey);
 }
 
@@ -484,8 +484,8 @@ function check_score(lobbyKey) {
     if (gameState.score.player1 == 3 || gameState.score.player2 == 3) {
         gameState.playerReady.player1 = false;
         gameState.playerReady.player2 = false;
-        gameState.ballSpeed.ballSpeedX = 3.8
-        gameState.ballSpeed.ballSpeedY = 3.8
+        gameState.ballSpeed.ballSpeedX = 4.5
+        gameState.ballSpeed.ballSpeedY = 4.5
         if ((gameState.score.player1 == 3 && gameState.paddles.player1.name == lobbies[lobbyKey].socketOrder[0]) || (gameState.score.player2 == 3 && gameState.paddles.player2.name == lobbies[lobbyKey].socketOrder[0])) {
                 lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ start: "stop", winner: true, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));
                 lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ start: "stop", winner: false, bounce: gameState.totalBounce, bonus_stats: gameState.bonus_stats}));

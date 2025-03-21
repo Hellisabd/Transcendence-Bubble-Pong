@@ -154,6 +154,17 @@ async function update_history(req, reply) {
     reply.send(response.data);
 }
 
+async function get_stats(req, reply) {
+    const {username} = req.body;
+
+
+    const response = await axios.post("http://users:5000/get_history",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return reply.send(response.data.stats);
+}
+
 async function get_history(req, reply) {
     const token = req.cookies.session;
     if (!token) {
@@ -170,7 +181,6 @@ async function get_history(req, reply) {
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
     return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }
 
@@ -265,4 +275,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, get_stats, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };

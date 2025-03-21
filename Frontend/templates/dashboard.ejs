@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Dashboard</title>
+      <%- include('links.ejs') %>
+</head>
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+	  set_up_friend_list();
+    });
+  </script>
+  <div id="content">
+	<%- include('navbar.ejs') %>
+  <div class="relative flex flex-row lg:flex-col items-center justify-center min-h-screen">
+    <div class="relative flex w-[1000px] h-[1250]">
+      <div class="absolute top-16 left-14">
+        <button 
+          onclick="display_dashboard_menu()" 
+          id="dropdownButton"
+          type="button"
+          class="px-4 py-2 bg-gray-800 text-white font-secondFont rounded-lg shadow-md 
+                hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-800 
+                focus:ring-opacity-75 transition duration-200">
+          Mode ▼
+        </button>
+        <div id="dropdownMenu" class="absolute left-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg hidden 
+                  dark:bg-gray-800 dark:border-gray-700">
+          <a onclick="display_canvas('general')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">General</a>
+          <a onclick="display_canvas('pong')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">Pong</a>
+          <a onclick="display_canvas('ping')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">Ping</a>
+        </div>
+
+      </div>
+  	  <canvas style="border-color: black;" id="general_stats" width="1000" height="1000"></canvas>
+  	  <canvas style="border-color: black;" id="pong_stats" width="1000" height="1000"></canvas>
+  	  <canvas style="border-color: black;" id="ping_stats" width="1000" height="1250"></canvas>
+    </div>
+	</div>
+	</div>
+<%- include('scripts.ejs') %>
+</body>
+</html>
