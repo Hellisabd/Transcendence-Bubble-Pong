@@ -1,6 +1,8 @@
 console.log("Script spa.ts chargé !");
 
 declare function display_friends(): void;
+declare function set_up_friend_list(user: string | null);
+
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
@@ -127,7 +129,8 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             initializeAnimationPong();
             initializeAnimationPing();
         }
-        display_friends();
+		display_friends();
+        pending_request();
 
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
