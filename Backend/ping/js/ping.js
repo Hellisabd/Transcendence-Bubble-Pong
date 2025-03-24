@@ -125,16 +125,16 @@ function update(lobbyKey) {
         lim_inf_player1 += 2 * Math.PI;
 
     let lim_sup_player1 = gameState.paddles.player1.angle + gameState.paddles.player1.size;
-    // if (lim_sup_player1 > 2 * Math.Pi)
-    //     lim_sup_player1 -= 2 * Math.PI;
+    if (lim_sup_player1 > 2 * Math.PI)
+        lim_sup_player1 -= 2 * Math.PI;
 
     let lim_inf_player2 = gameState.paddles.player2.angle - gameState.paddles.player2.size;
     if (lim_inf_player2 < 0)
         lim_inf_player2 += 2 * Math.PI;
 
     let lim_sup_player2 = gameState.paddles.player2.angle + gameState.paddles.player2.size;
-    // if (lim_sup_player2 > 2 * Math.Pi)
-    //     lim_sup_player2 -= 2 * Math.PI;
+    if (lim_sup_player2 > 2 * Math.PI)
+        lim_sup_player2 -= 2 * Math.PI;
 
     if (ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness && Date.now() > gameState.lastBounce) {
         if (lim_inf_player1 < lim_sup_player1) {
@@ -334,6 +334,8 @@ function update(lobbyKey) {
     
         gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
         gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+        lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y }));
+        lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y }));
     }
 
     if (gameState.bounce == 20) {

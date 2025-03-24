@@ -163,6 +163,11 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
         let ratio: number = canvasWidth / 1000;
 
+        const bounceImage = new Image();
+        bounceImage.src = "Frontend/assets/PING.png";
+
+        let image_refresh: number = 0;
+        
         animation_ping_stop();
         document.getElementById("ping_animation")?.classList.add("hidden");
 
@@ -186,6 +191,9 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         
         const ballRadius = 10;
         const bonusRadius = 50;
+        let draw_bounce: boolean = false;
+        let x_bounce: number = 0;
+        let y_bounce: number = 0;
 
         let gameState = {
             ball: { x: canvas.width / 2, y: canvas.height / 2 },
@@ -196,7 +204,8 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
             score: { player1: 0, player2: 0 },
             bonus: {tag: null, x: 350, y: 350 },
-            playerReady: { player1: false, player2: false }
+            playerReady: { player1: false, player2: false },
+            draw_bounce: { draw: false, x: 0, y: 0 }
         };
 
         function ping_player_one(): string {
@@ -233,6 +242,12 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             else if (gs.winner == false) {
                 ping_win = 2;
                 draw_winner(ratio);
+            }
+            else if (gs.draw_bounce == true) {
+                console.log(gs);
+                draw_bounce = true;
+                x_bounce = gs.x_bounce;
+                y_bounce = gs.y_bounce;
             }
         };
 
@@ -458,6 +473,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
+            }
+            if (draw_bounce == true) {
+                ctx.drawImage(bounceImage, (x_bounce - 75) * ratio, (y_bounce - 75) * ratio, 150, 150);
+                image_refresh++;
+                if (image_refresh == 60) {
+                    draw_bounce = false;
+                    image_refresh = 0;
+                }
             }
 
             draw_score(ratio);
