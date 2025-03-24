@@ -155,10 +155,13 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             return ;
         }
 
-        const canvasWidth = canvas.offsetWidth;
+        let canvasWidth: number = canvas.offsetWidth;
+        let canvasHeight: number = canvas.offsetHeight;
         
         canvas.width = canvasWidth;
-        canvas.height = canvasWidth;
+        canvas.height = canvasHeight;
+
+        let ratio: number = canvasWidth / 1000;
 
         animation_ping_stop();
         document.getElementById("ping_animation")?.classList.add("hidden");
@@ -225,11 +228,11 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
             if (gs.winner == true) {
                 ping_win = 1;
-                draw_winner();
+                draw_winner(ratio);
             }
             else if (gs.winner == false) {
                 ping_win = 2;
-                draw_winner();
+                draw_winner(ratio);
             }
         };
 

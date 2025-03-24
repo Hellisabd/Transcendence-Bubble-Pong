@@ -21,3 +21,7 @@ canvas {
 #ping_animation {
 	border: 0px solid rgb(0, 0, 0);
 }
+
+#solopingCanvas {
+	border: 0px solid rgb(0, 0, 0);
+}

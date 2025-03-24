@@ -49,7 +49,8 @@ db.prepare(`
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    avatar_name TEXT DEFAULT 'default.jpg'
+    avatar_name TEXT DEFAULT 'default.jpg',
+    high_score INTEGER NOT NULL DEFAULT 0
   )
 `).run();
 

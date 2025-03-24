@@ -138,6 +138,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             initializeAnimationPong();
             initializeAnimationPing();
         }
+        if (page === "solo_ping") {
+            soloping_initializeGame();
+        }
         display_friends();
 
     } catch (error) {

@@ -221,16 +221,16 @@ function update(lobbyKey) {
         lim_inf_goal1 += 2 * Math.PI;
 
     let lim_sup_goal1 = gameState.goals.player1.angle + gameState.goals.player1.size / 2;
-    if (lim_inf_goal1 > 2 * Math.PI)
-        lim_inf_goal1 -= 2 * Math.PI;
+    if (lim_sup_goal1 > 2 * Math.PI)
+        lim_sup_goal1 -= 2 * Math.PI;
 
     let lim_inf_goal2 = gameState.goals.player2.angle - gameState.goals.player2.size / 2;
     if (lim_inf_goal2 < 0)
         lim_inf_goal2 += 2 * Math.PI;
 
     let lim_sup_goal2 = gameState.goals.player2.angle + gameState.goals.player2.size / 2;
-    if (lim_inf_goal2 > 2 * Math.PI)
-        lim_inf_goal2 -= 2 * Math.PI;
+    if (lim_sup_goal2 > 2 * Math.PI)
+        lim_sup_goal2 -= 2 * Math.PI;
 
     if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal1 < lim_sup_goal1) {
