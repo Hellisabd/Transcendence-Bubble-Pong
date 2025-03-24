@@ -229,6 +229,6 @@ document.addEventListener("click", function(event: MouseEvent) {
 	const MenufriendsButton = document.getElementById("friend-menu-button");
 
 	if (!Menufriends?.contains(event.target as Node) && !MenufriendsButton?.contains(event.target as Node)) {
-		Menufriends?.classList.add("hidden");
+		Menufriends?.classList.add("hidden"); 
 	}
 });

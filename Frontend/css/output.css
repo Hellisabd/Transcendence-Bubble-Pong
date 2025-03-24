@@ -663,8 +663,40 @@ video {
   left: 3.5rem;
 }
 
+.left-20 {
+  left: 5rem;
+}
+
+.left-4 {
+  left: 1rem;
+}
+
+.left-40 {
+  left: 10rem;
+}
+
+.left-48 {
+  left: 12rem;
+}
+
+.left-5 {
+  left: 1.25rem;
+}
+
+.left-52 {
+  left: 13rem;
+}
+
+.left-8 {
+  left: 2rem;
+}
+
 .right-0 {
   right: 0px;
+}
+
+.right-5 {
+  right: 1.25rem;
 }
 
 .right-\[17\.5rem\] {
@@ -693,38 +725,6 @@ video {
 
 .top-20 {
   top: 5rem;
-}
-
-.right-5 {
-  right: 1.25rem;
-}
-
-.left-8 {
-  left: 2rem;
-}
-
-.left-20 {
-  left: 5rem;
-}
-
-.left-40 {
-  left: 10rem;
-}
-
-.left-5 {
-  left: 1.25rem;
-}
-
-.left-52 {
-  left: 13rem;
-}
-
-.left-4 {
-  left: 1rem;
-}
-
-.left-48 {
-  left: 12rem;
 }
 
 .z-\[9998\] {
@@ -854,6 +854,10 @@ video {
   height: 100%;
 }
 
+.h-11 {
+  height: 2.75rem;
+}
+
 .max-h-full {
   max-height: 100%;
 }
@@ -916,6 +920,10 @@ video {
 
 .w-screen {
   width: 100vw;
+}
+
+.w-11 {
+  width: 2.75rem;
 }
 
 .max-w-7xl {
@@ -1302,6 +1310,10 @@ video {
   --tw-gradient-to: #082f49 var(--tw-gradient-to-position);
 }
 
+.fill-emerald-600 {
+  fill: #059669;
+}
+
 .stroke-emerald-600 {
   stroke: #059669;
 }
@@ -1312,6 +1324,10 @@ video {
 
 .stroke-\[1\.5\] {
   stroke-width: 1.5;
+}
+
+.stroke-\[5\] {
+  stroke-width: 5;
 }
 
 .p-2 {
@@ -1667,6 +1683,10 @@ video {
 
 .focus\:ring-offset-gray-800:focus {
   --tw-ring-offset-color: #1f2937;
+}
+
+.group:hover .group-hover\:fill-emerald-600 {
+  fill: #059669;
 }
 
 .group:hover .group-hover\:stroke-emerald-600 {
