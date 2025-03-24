@@ -487,3 +487,35 @@ fastify.post("/update_avatar",  async (request, reply) => {
       return reply.send({success: true, avatar_name: avatar_name});
     return reply.send({success: false});
 });
+
+fastify.post("/update_solo_score",  async (request, reply) => {
+  try {
+    const {username, score} = request.body;
+    if (!score || !username)
+      return reply.send({success: false});
+
+    const parsedScore = parseInt(score, 10);
+    if (isNaN(parsedScore) || parsedScore < 0) {
+      return reply.send({ success: false, message: "Invalid score" });
+    }
+
+    const user = await db.prepare("SELECT high_score FROM users WHERE username = ?").get(username);
+    if (!user) {
+      return reply.send({ success: false, message: "User not found" });
+    }
+
+    if (parsedScore > user.high_score) {
+      const result = await db.prepare(`
+        UPDATE users SET high_score = ? WHERE username = ?
+      `).run(parsedScore, username);
+      if (result.changes > 0) {
+        return reply.send({success: true, new_high_score: parsedScore});
+      }
+      return reply.send({success: false});
+    }
+  }
+  catch (error) {
+    console.error(error);
+    return reply.status(500).send({ success: false, message: "Internal server error" });
+  }
+});

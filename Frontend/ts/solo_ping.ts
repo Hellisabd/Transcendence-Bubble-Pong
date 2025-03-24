@@ -36,10 +36,10 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         let bonus_glowing: number = 0;
         let up_down: boolean = true;
 
-        let ball = {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5}
+        let ball: {x:number, y: number, speedX: number, speedY: number} = {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5}
 		let speed: number = Math.sqrt(ball.speedX ** 2 + ball.speedY ** 2);
-        let player = { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} }
-        let goal = { angle: Math.PI, size: Math.PI / 3, protected: false }
+        let player: {angle: number, size: number, move: {up: boolean, down: boolean, right: boolean, left: boolean}} = { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} }
+        let goal: {angle: number, size: number, protected: boolean} = { angle: Math.PI, size: Math.PI / 3, protected: false }
         let bonus: { tag: string | null; x: number; y: number } = { tag: null, x: arena_radius, y: arena_radius };
 		let last_bounce: number = Date.now();
 		let bounceInterval: number = 500;
@@ -325,6 +325,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
+                        send_score();
                     }
                 }
                 else {
@@ -335,6 +336,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
+                        send_score();
                     } 
                 }
             }
@@ -463,6 +465,23 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             requestAnimationFrame(solo_loop);
         }
         solo_loop();
+
+        async function send_score() {
+            const player = await get_user();
+            try {
+                const response = await fetch('/update_solo_score', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ username: player, score: Math.round(score) })
+                });
+        
+                const data = await response.json();
+                console.log(data);
+            }
+            catch (error) {
+                console.log('Error sending score to db', error);
+            }
+        }
     } 
     else {
         console.error("Erreur : Le canvas n'a pas été trouvé.");

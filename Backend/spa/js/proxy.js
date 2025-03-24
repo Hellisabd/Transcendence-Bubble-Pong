@@ -23,6 +23,10 @@ async function get_avatar(request, reply) {
     return reply.send(response.data.avatar_name);
 }
 
+async function update_solo_score(req, reply) {
+
+}
+
 async function update_avatar(req, reply) {
     try {
       const token = req.cookies.session; 
@@ -147,7 +151,11 @@ async function settings(req, reply) {
     }
     return reply.send(response.data);
 }
-  
+
+async function update_solo_score(req, reply) {
+    const response = await axios.post("http://users:5000/update_solo_score", req.body);
+    reply.send(response.data);
+}  
 
 async function update_history(req, reply) {
     const response = await axios.post("http://users:5000/update_history", req.body);
@@ -267,4 +275,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
