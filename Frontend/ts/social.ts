@@ -16,15 +16,18 @@ async function display_friends() {
 			avatarDiv.classList.add("relative");
 			const avatarPath = `./Frontend/avatar/${friends[i].username}.jpg`;
 			const avatar = document.createElement("img");
-			fetch(avatarPath, { method: "HEAD" }).then(response => {
-				if (response.ok) {
-					avatar.src = avatarPath;
-				} else {
-					avatar.src = "./Frontend/avatar/default.jpg";
-				}
-			}).catch(() => {
-				avatar.src = "./Frontend/avatar/default.jpg";
+
+
+			const response = await fetch("/get_avatar", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username: friends[i].username})
 			});
+			const response_avatar = await response.json();
+			const avatar_name = await response_avatar.avatar_name;
+			avatar.src = `./Frontend/avatar/${avatar_name}`;
+
+
 			const friendDiv = document.createElement("div");
 			friendDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
 			const name = document.createElement("p");
@@ -93,13 +96,17 @@ async function display_pending(user: string[]) {
 			const avatar = document.createElement("img");
 			avatar.classList.add("w-8", "h-8", "rounded-full");
 
-			const avatarPath = `./Frontend/avatar/${username}.jpg`;
-			try {
-				const response = await fetch(avatarPath, { method: "HEAD" });
-				avatar.src = response.ok ? avatarPath : "./Frontend/avatar/default.jpg";
-			} catch {
-				avatar.src = "./Frontend/avatar/default.jpg";
-			}
+
+			const response = await fetch("/get_avatar", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username: username})
+			});
+			const response_avatar = await response.json();
+			const avatar_name = await response_avatar.avatar_name;
+			avatar.src = `./Frontend/avatar/${avatar_name}`;
+
+
 			const parag = document.createElement("p");
 			parag.textContent = username;
 			parag.classList.add("ml-4", "mr-4", "text-xl", "font-semibold");
