@@ -395,6 +395,7 @@ function calc_winrate_against_friends(friends, username, history, tri) {
     history.forEach(match => {
       if (friends[i].username === match.player1_username || friends[i].username === match.player2_username) {
         if (match.winner_username === username) {
+          console.log(match.gametype);
           if (match.gametype == "pong")
             win_against_friend_pong++;
           else
@@ -410,9 +411,9 @@ function calc_winrate_against_friends(friends, username, history, tri) {
         }
       }
     });
-    winrate_per_friend.push({username: friends[i].username, winrate: win_against_friend / (win_against_friend + loose_against_friend) * 100});
-    winrate_per_friend_pong.push({username: friends[i].username, winrate: win_against_friend_pong / (win_against_friend_pong + loose_against_friend_pong) * 100});
-    winrate_per_friend_ping.push({username: friends[i].username, winrate: win_against_friend_ping / (win_against_friend_ping + loose_against_friend_ping) * 100});
+    winrate_per_friend.push({username: friends[i].username, winrate: win_against_friend / (win_against_friend + loose_against_friend) * 100 || 0});
+    winrate_per_friend_pong.push({username: friends[i].username, winrate: win_against_friend_pong / (win_against_friend_pong + loose_against_friend_pong) * 100 || 0});
+    winrate_per_friend_ping.push({username: friends[i].username, winrate: win_against_friend_ping / (win_against_friend_ping + loose_against_friend_ping) * 100 || 0});
   }
   if (!tri)
     return winrate_per_friend;
@@ -539,7 +540,7 @@ async function get_stats(history, history_tournament, username) {
     winrate: win / (win + loose) * 100 || 0,
     winrate_ping: win_ping / (win_ping + loose_ping) * 100 || 0,
     winrate_pong: win_pong / (win_pong + loose_pong) * 100 || 0,
-    average_bounce_per_game: calc_average(bounce),
+    average_bounce_per_game: calc_average(bounce) || 0,
     goal_after_bonus_paddle: goal_after_bonus_paddle / (goal_after_bonus_paddle + goal_taken_after_bonus_paddle) * 100 || 0,
     goal_after_bonus_goal: goal_after_bonus_goal / (goal_after_bonus_goal + goal_taken_after_bonus_goal) * 100 || 0,
     goal_after_bonus_shield: goal_after_bonus_shield / (goal_after_bonus_shield + goal_taken_after_bonus_shield) * 100 || 0,
