@@ -14,9 +14,7 @@ async function display_friends() {
         for (let i = 0; i < friends.length; i++) {
 			const avatarDiv = document.createElement("div");
 			avatarDiv.classList.add("relative");
-			const avatarPath = `./Frontend/avatar/${friends[i].username}.jpg`;
 			const avatar = document.createElement("img");
-
 
 			const response = await fetch("/get_avatar", {
 				method: "POST",
@@ -27,7 +25,6 @@ async function display_friends() {
 			const avatar_name = await response_avatar.avatar_name;
 			avatar.src = `./Frontend/avatar/${avatar_name}`;
 
-
 			const friendDiv = document.createElement("div");
 			friendDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
 			const name = document.createElement("p");
@@ -35,7 +32,6 @@ async function display_friends() {
 
 			name.classList.add("ml-4", "text-xl", "font-semibold");
 			avatar.classList.add("w-10", "h-10", "rounded-full");
-			avatar.src = avatarPath;
 
 			const badge = document.createElement("div");
 			if (friends[i].status == "online") {
@@ -118,6 +114,16 @@ async function display_pending(user: string[]) {
 				"hover:bg-green-600", "transition", "duration-200"
 			);
 			addFriend.onclick = () => valid_friend(username);
+
+			const declineFriend = document.createElement("button");
+			declineFriend.classList.add(
+				"flex", "items-center", "justify-center",
+				"bg-red-500", "text-white", "rounded-full",
+				"w-6", "h-6", "ml-2",
+				"hover:bg-red-600", "transition", "duration-200"
+			);
+			declineFriend.onclick = () => decline_friend(username);
+
 			const svgIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 			svgIcon.setAttribute("version", "1.1");
 			svgIcon.setAttribute("width", "24");
@@ -125,19 +131,37 @@ async function display_pending(user: string[]) {
 			svgIcon.setAttribute("viewBox", "0 0 500 500");
 			svgIcon.classList.add("w-4", "h-4");
 			svgIcon.setAttribute("fill", "#ffffff");
-
 			const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 			const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
 			path.setAttribute("class", "st0");
 			path.setAttribute("d", "M455.3,61.5C395.6,69.1,300.9,153.7,222,276c-6.1,9.4-11.9,18.8-17.4,28.1c0,0,0,0-0.1-0.1c-0.1,0.1-0.1,0.2-0.2,0.3c-12.8-12.8-26.6-25.6-41.2-38.1c-6.8-5.8-13.6-11.4-20.3-16.9L40.2,314.2c46.9,22,87.8,48.2,119.6,75.3c0-0.1,0.1-0.2,0.1-0.3c19.1,16.3,35,33,46.8,49.3c5.2-7.7,10.5-15.4,16-23.2c12-17.1,24.2-33.5,36.4-49.1c0,0,0.1,0.1,0.1,0.1c81.4-104.5,162.3-173.5,200.6-170.6L455.3,61.5z");
-
 			g.appendChild(path);
 			svgIcon.appendChild(g);
-			addFriend.appendChild(svgIcon);
 
+			const svgIconDecline = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+			svgIconDecline.setAttribute("version", "1.1");
+			svgIconDecline.setAttribute("width", "24");
+			svgIconDecline.setAttribute("height", "24");
+			svgIconDecline.setAttribute("viewBox", "0 0 24 24");
+			svgIconDecline.classList.add("w-4", "h-4");
+			svgIconDecline.setAttribute("fill", "none");
+			const gDecline = document.createElementNS("http://www.w3.org/2000/svg", "g");
+			const pathDecline = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			pathDecline.setAttribute("d", "M16 8L8 16M8.00001 8L16 16");
+			pathDecline.setAttribute("stroke", "#000000");
+			pathDecline.setAttribute("stroke-width", "1.5");
+			pathDecline.setAttribute("stroke-linecap", "round");
+			pathDecline.setAttribute("stroke-linejoin", "round");
+			gDecline.appendChild(pathDecline);
+			svgIconDecline.appendChild(gDecline);
+
+			declineFriend.appendChild(svgIconDecline);
+			addFriend.appendChild(svgIcon);
+			addFriend.appendChild(svgIcon);
 			userDiv.appendChild(avatar);
 			userDiv.appendChild(parag);
 			userDiv.appendChild(addFriend);
+			userDiv.appendChild(declineFriend);
 			pendingDiv.appendChild(userDiv);
 		}
 	}
@@ -197,6 +221,33 @@ async function valid_friend(friend_username: string): Promise<void> {
 	const result: LoginResponse = await response.json();
 	alert(result.message);
 	return ;
+}
+
+async function decline_friend(friend_username: string): Promise<void> {
+	const myusername = await get_user();
+	if (myusername == friend_username) {
+		alert("Prends un Curly");
+		return;
+	}
+
+	try {
+		const response = await fetch("/decline_friend", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ user_sending: myusername, user_to_decline: friend_username })
+		});
+
+		const result = await response.json();
+
+		if (!response.ok || !result.success) {
+			alert(result.message || "Erreur inconnue");
+			return;
+		}
+
+		alert(result.message);
+	} catch (error) {
+		alert("Une erreur réseau est survenue");
+	}
 }
 
 async function add_friend(event: Event): Promise<void> {

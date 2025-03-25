@@ -33,6 +33,7 @@ async function set_user(contentDiv: HTMLDivElement, username: string | null): Pr
 	const response_avatar = await response.json();
 	const avatar_name = await response_avatar.avatar_name;
 	avatarElement.src = `./Frontend/avatar/${avatar_name}`;
+	// avatar_name navbar
 }
 
 
@@ -56,7 +57,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     let userDiv = document.getElementById("user") as HTMLDivElement;
 
-    // Vider le contenu actuel
     if (!userDiv)
         userDiv = document.createElement("div");
     contentDiv.innerHTML = '';

@@ -25,28 +25,28 @@ async function get_avatar(request, reply) {
 
 async function update_avatar(req, reply) {
     try {
-      const token = req.cookies.session; 
+      const token = req.cookies.session;
       const username = await get_user(token);
-  
+
       if (!username) {
         return reply.send({ success: false, message: 'Utilisateur non authentifié' });
       }
-  
+
       const data = await req.file();
       if (!data) {
         return reply.send({ success: false, message: "Aucun fichier reçu." });
       }
-  
+
       const fileExtension = path.extname(data.filename);
       const filePath = '/usr/src/app/Frontend/avatar';
       const filename = `${username}${fileExtension}`;
       const fullPath = path.join(filePath, filename);
-  
+
       // Vérifiez que le dossier d'avatar existe
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
       }
-  
+
       await pump(data.file, fs.createWriteStream(fullPath));
       const response = await axios.post("http://users:5000/update_avatar",
         { username: username , avatar_name: filename },
@@ -130,7 +130,7 @@ async function get_user(token) {
 async function logout(token, reply) {
     let username = await get_user(token);
     if (usersession.has(token)) {
-        usersession.delete(token);
+        usersession.post(token);
         send_to_friend(username);
     }
 }
@@ -141,13 +141,13 @@ async function settings(req, reply) {
         const pathtoimage = "/usr/src/app/Frontend/avatar/";
         const oldFilePath = `${pathtoimage}${response.data.old_file_name}`;
         const newFilePath = `${pathtoimage}${response.data.new_file_name}`;
-        if (fs.existsSync(oldFilePath)) { 
+        if (fs.existsSync(oldFilePath)) {
             fs.renameSync(oldFilePath, newFilePath);
         }
     }
     return reply.send(response.data);
 }
-  
+
 
 async function update_history(req, reply) {
     const response = await axios.post("http://users:5000/update_history", req.body);
@@ -162,7 +162,7 @@ async function get_history(req, reply) {
 
     const username = await get_user(token);
     if (!username) {
-        return reply.view("login.ejs");      
+        return reply.view("login.ejs");
     }
 
 
@@ -210,7 +210,7 @@ async function send_to_friend(username, token) {
     let status = null;
     if (!usersession.has(token)) {
         status = "offline";
-    }  
+    }
     const response = await get_friends(username);
     if (!response.success) {
         return ;
@@ -237,6 +237,13 @@ async function add_friend(req, reply) {
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
+    reply.send(response.data);
+}
+
+async function decline_friend(req, reply) {
+	const response = await axios.post("http://users:5000/decline_friend", req.body, {
+		withCredentials: true
+	});
     reply.send(response.data);
 }
 
@@ -267,4 +274,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
