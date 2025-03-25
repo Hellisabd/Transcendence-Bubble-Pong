@@ -29,7 +29,7 @@ module.exports = {
 			},
 			rightFadeInBar: {
 				'0%': { opacity: '0', transform: 'translateX(18.75rem)' },
-				'90%': { opacity: '1', transform: 'translateX(1rem)' },
+				'90%': { opacity: '1', transform: '' },
 				'100%': { opacity: '1', transform: 'translateX(0)' },
 			},
 			fadeIn: {
@@ -55,9 +55,9 @@ module.exports = {
 			},
 		},
 		animation: {
-		  leftFadeInSideBar: 'leftFadeInSideBar 1s ease-out',
-		  leftFadeInBar: 'leftFadeInBar 1s ease-out',
-		  rightFadeInBar: 'rightFadeInBar 1s ease-out',
+		  leftFadeInSideBar: 'leftFadeInSideBar 0.5s ease-out',
+		  leftFadeInBar: 'leftFadeInBar 0.5s ease-out',
+		  rightFadeInBar: 'rightFadeInBar 0.5s ease-out',
 		  fadeIn: 'fadeIn 0.5s ease-out',
 		  fadeInThenLoop: 'fadeIn 0.5s ease-out, loop 3s linear 1s ease-out',
 		  leftFadeIn: 'leftFadeIn 0.5s ease-out',

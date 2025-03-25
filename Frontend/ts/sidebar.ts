@@ -1,10 +1,10 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", () => {
 	set_up_friend_list();
 });
 
 function toggleSidebar(): void {
-    let sidebar = document.getElementById("sidebar") as HTMLElement;
-    let sidebarButton = document.getElementById("sidebarButton") as HTMLElement;
+    let sidebar = <HTMLElement>document.getElementById("sidebar") ;
+    let sidebarButton =<HTMLElement>document.getElementById("sidebarButton");
 
     if (sidebar && sidebarButton) {
         const isOpen = sidebar.classList.contains("animate-rightFadeInBar");

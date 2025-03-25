@@ -98,13 +98,13 @@ db.prepare(`
     player4_username TEXT NOT NULL,
     player4_score INTEGER NOT NULL DEFAULT 0,
     player4_ranking INTEGER NOT NULL DEFAULT 0,
-    
+
     gametype TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
 `).run();
 
-db.prepare(` 
+db.prepare(`
   CREATE TABLE IF NOT EXISTS friends (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -114,7 +114,7 @@ db.prepare(`
     FOREIGN KEY(friend_id) REFERENCES users(id) ON DELETE CASCADE
     )
 `).run();
-    
+
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement, gametype} = request.body;
   if (!gametype) {
@@ -170,7 +170,7 @@ fastify.post("/pending_request", async (request, reply) => {
       if (!pending_request)
         return reply.send(JSON.stringify({success: false}));
     console.log("pending in back: ", pending_request);
-    let username_invit = []; 
+    let username_invit = [];
     for (let i = 0; i < pending_request.length; i++) {
       username_invit.push(await get_user_with_id(pending_request[i].user_id));
     }
@@ -267,7 +267,58 @@ fastify.post("/add_friend", async (request, reply) => {
       VALUES (?, ?, 'pending')
       `).run(user_sending_id, user_to_add_id);
 
-    return reply.send(JSON.stringify({succes: true, message: `You successefully invited ${user_to_add}`, user_added: user_to_add}));
+    return reply.send(JSON.stringify({success: true, message: `You successefully invited ${user_to_add}`, user_added: user_to_add}));
+});
+
+fastify.post("/decline_friend", async (request, reply) => {
+	const { user_sending, user_to_decline } = request.body;
+
+	try {
+		const user_sending_row = await db.prepare(`
+			SELECT id FROM users WHERE username = ?
+		`).get(user_sending);
+		const user_to_decline_row = await db.prepare(`
+			SELECT id FROM users WHERE username = ?
+		`).get(user_to_decline);
+
+		if (!user_sending_row) {
+			return reply.send({ success: false, message: "Can't find you in database" });
+		}
+		if (!user_to_decline_row) {
+			return reply.send({ success: false, message: "This username does not exist" });
+		}
+
+		const user_sending_id = user_sending_row.id;
+		const user_to_decline_id = user_to_decline_row.id;
+
+		const pending = db.prepare(`
+			SELECT * FROM friends
+			WHERE (user_id = ? AND friend_id = ?) OR (friend_id = ? AND user_id = ?)
+		`).get(user_to_decline_id, user_sending_id, user_to_decline_id, user_sending_id);
+
+		if (!pending) {
+			return reply.send({ success: true, message: "There is no invitation from this user!" });
+		}
+
+		try {
+			const result = db.prepare(`
+				DELETE FROM friends
+				WHERE (user_id = ? AND friend_id = ?) OR (friend_id = ? AND user_id = ?);
+			`).run(user_sending_id, user_to_decline_id, user_sending_id, user_to_decline_id);
+
+			if (result.changes === 0) {
+				return reply.send({ success: false, message: "Aucune entrée supprimée, possible problème." });
+			}
+
+			return reply.send({ success: true, message: `You successfully declined ${user_to_decline}`, user_decline: user_to_decline });
+
+		} catch (dbError) {
+			return reply.status(500).send({ success: false, message: "Erreur lors de la suppression en base." });
+		}
+
+	} catch (error) {
+		return reply.status(500).send({ success: false, message: "Erreur serveur, vérifie les logs." });
+	}
 });
 
 // 🔍 Vérifier les tables existantes
@@ -345,8 +396,8 @@ fastify.get("/me", async (request, reply) => {
     if (!token) {
       return reply.send({success: false, error: "Non autorise"});
     }
-    
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     return reply.send({ success: true, user : decoded});
   } catch {
     return reply.send({ success: false, error: "Token invalide" });
@@ -379,7 +430,7 @@ fastify.post("/get_history", async (request, reply) => {
     const stats = await get_stats(history, history_tournament, username);
     reply.send(JSON.stringify({history: history, history_tournament: history_tournament, stats: stats}));
   });
-  
+
 
 function calc_winrate_against_friends(friends, username, history, tri) {
   let winrate_per_friend = [];
@@ -598,8 +649,8 @@ async function history_for_tournament(history, gametype) {
 
     // Vérification des matchs récents dans les 5 dernières secondes
     const recentMatch = await db.prepare(`
-      SELECT created_at FROM match_history 
-      WHERE ((player1_username = ? AND player2_username = ?) 
+      SELECT created_at FROM match_history
+      WHERE ((player1_username = ? AND player2_username = ?)
           OR (player1_username = ? AND player2_username = ?))
       AND ABS(strftime('%s', 'now') - strftime('%s', created_at)) < 5
       ORDER BY created_at DESC

@@ -3,11 +3,13 @@ console.log("Script spa.ts chargé !");
 let old_url: null | string = null;
 
 declare function display_friends(): void;
+declare function set_up_friend_list(user: string | null);
+
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
-declare function get_stats(): void;
+declare function get_stats(username: string | null): void;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -34,6 +36,7 @@ async function set_user(contentDiv: HTMLDivElement, username: string | null): Pr
 	const response_avatar = await response.json();
 	const avatar_name = await response_avatar.avatar_name;
 	avatarElement.src = `./Frontend/avatar/${avatar_name}`;
+	// avatar_name navbar
 }
 
 
@@ -57,7 +60,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     let userDiv = document.getElementById("user") as HTMLDivElement;
 
-    // Vider le contenu actuel
     if (!userDiv)
         userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
@@ -144,6 +146,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             console.log("passse dans dashboard");
         }
         display_friends();
+        pending_request();
 
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
