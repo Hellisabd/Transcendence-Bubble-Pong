@@ -130,7 +130,7 @@ async function get_user(token) {
 async function logout(token, reply) {
     let username = await get_user(token);
     if (usersession.has(token)) {
-        usersession.post(token);
+        usersession.delete(token);
         send_to_friend(username);
     }
 }
@@ -209,8 +209,10 @@ async function display_friends(username, connection) {
         return ;
     }
     for (let i = 0; i < friends.length; i++) {
+        console.log(friends[i]);
         connection.socket.send(JSON.stringify(friends[i]));
     }
+    connection.socket.send(JSON.stringify({display : true}));
 }
 
 
@@ -282,4 +284,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats };
