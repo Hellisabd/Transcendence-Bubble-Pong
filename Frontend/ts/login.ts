@@ -116,8 +116,6 @@ async function create_account(event: Event): Promise<void> {
 	// Si 2FA est activé et que le setup a fourni un résultat, demande la vérification du code
 	if (activeFA && repResult) {
 		try {
-			console.log("test 2 !!");
-
 			await new Promise<void>((resolve, reject) => {
 				const verifyModal = document.createElement('div');
 				verifyModal.innerHTML = `

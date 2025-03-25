@@ -472,7 +472,7 @@ fastify.post("/create_account", async (request, reply) => {
   }
 });
 
-fastify.post('/userExists', async (request, reply) => {
+fastify.post("/userExists", async (request, reply) => {
 	const { username } = request.body;
 	try {
 		const row = db.prepare("SELECT * FROM users WHERE username = ?").get(username);

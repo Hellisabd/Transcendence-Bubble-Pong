@@ -299,9 +299,11 @@ async function setup2fa(request, reply) {
 		return reply.code(400).send({ error: 'Username inexistant.' });
 	}
 
-	if (checkUserExists(username)){
-		return reply.send({ success: false, message: "Check user : Utilisateur deja existant." });
-	}
+
+    const userExists = await checkUserExists(username);
+    if (userExists === true) {
+        return reply.send({ success: false, message: "Check user : Utilisateur deja existant." });
+    }
 
 	try {
 		// Générer le secret 2FA
@@ -372,15 +374,13 @@ async function twofaverify(request, reply) {
 };
 
 async function checkUserExists(username) {
-    try {
-        const response = await axios.post("http://users:5000/userExists",
+	try {
+		const response = await axios.post("http://users:5000/userExists",
 			{ username },  // ✅ Envoie le JSON correctement
 			{ headers: { "Content-Type": "application/json" } }
-		);
-
+		)
         const data = await response.data;
-        console.log("Utilisateur trouvé:", data);
-        return data.success;
+        return true;
     } catch (error) {
         console.error("Erreur:", error.message);
         return false;
