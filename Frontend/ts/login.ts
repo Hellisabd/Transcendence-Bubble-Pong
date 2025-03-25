@@ -29,6 +29,25 @@ async function login(event: Event): Promise<void> {
         return alert("Be carefull i can bite");
     }
 
+
+
+	const require2FA = true;
+	if (require2FA) {
+		const code = prompt("Veuillez saisir votre code 2FA:");
+		if (!code) return alert("Le code 2FA est requis pour vous connecter.");
+
+		const verifResponse = await fetch("/2fa/verify", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email, code })
+		});
+		const verifResult = await verifResponse.json();
+
+		if (!verifResult.success) {
+			return alert("Code 2FA invalide.");
+		}
+
+	}
     try {
         let domain =  window.location.host.substring(0, window.location.host.indexOf(':'));
         const response = await fetch("/login", {
@@ -66,7 +85,7 @@ async function create_account(event: Event): Promise<void> {
 		const rep = await fetch("/2fa/setup", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ username })
+			body: JSON.stringify({ email, username})
 		});
 
 		const repjson = await rep.json();
@@ -75,42 +94,29 @@ async function create_account(event: Event): Promise<void> {
 			return ;
 		}
 
-		// if (rep.ok) { // Vérifie que la réponse a un statut 2xx
-		// 	const text = await rep.text(); // Utilise text() pour vérifier la réponse brute
-		// 	interface TwoFAResponse {
-		// 		otplib_url: string;
-		// 		qr_code: string;
-		// 	}
-			// if (text) {
-				try {
-					repResult = repjson;
-					if (repResult) {
-						alert("2FA setup completed! Scan this QR code to complete the setup.");
-						// Affiche le QR code dans une modal
-						const qrCodeModal = document.createElement('div');
-						qrCodeModal.innerHTML = `
-							<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-										background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
-								<p>Scan this QR Code:</p>
-								<img src="${repResult.qr_code}" alt="QR Code" style="max-width: 100%;"/>
-								<br/>
-								<button id="qr-alert-close">Close</button>
-							</div>`;
-						document.body.appendChild(qrCodeModal);
-						(document.getElementById("qr-alert-close") as HTMLButtonElement)?.addEventListener("click", () => {
-							document.body.removeChild(qrCodeModal);
-						});
-					}
-					console.log("2FA setup result:", repResult);
-				} catch (e) {
-					console.error("Erreur de parsing JSON pour 2FA setup:", e);
-				}
-			// } else {
-			// 	console.error("La réponse du serveur est vide.");
-			// }
-		// } else {
-		// 	console.error("Erreur serveur pour 2FA setup:", rep.statusText);
-		// }
+		try {
+			repResult = repjson;
+			if (repResult) {
+				alert("2FA setup completed! Scan this QR code to complete the setup.");
+				// Affiche le QR code dans une modal
+				const qrCodeModal = document.createElement('div');
+				qrCodeModal.innerHTML = `
+					<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+								background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
+						<p>Scan this QR Code:</p>
+						<img src="${repResult.qr_code}" alt="QR Code" style="max-width: 100%;"/>
+						<br/>
+						<button id="qr-alert-close">Close</button>
+					</div>`;
+				document.body.appendChild(qrCodeModal);
+				(document.getElementById("qr-alert-close") as HTMLButtonElement)?.addEventListener("click", () => {
+					document.body.removeChild(qrCodeModal);
+				});
+			}
+			console.log("2FA setup result:", repResult);
+		} catch (e) {
+			console.error("Erreur de parsing JSON pour 2FA setup:", e);
+		}
 	}
 
 	// Si 2FA est activé et que le setup a fourni un résultat, demande la vérification du code
@@ -137,7 +143,7 @@ async function create_account(event: Event): Promise<void> {
 					const verifResponse = await fetch("/2fa/verify", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({ username, code })
+						body: JSON.stringify({ email, username, code })
 					});
 
 					const verifResult = await verifResponse.json();
@@ -246,9 +252,7 @@ async function settings(event: Event): Promise<void> {
             },
             body: JSON.stringify({newusername, password, email, username})
         });
-
         const result: ModifyUserResponse = await response.json();
-
         if (result.success) {
             logout(false);
             alert("Modification effectuée!");

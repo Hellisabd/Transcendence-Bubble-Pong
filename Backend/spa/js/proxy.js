@@ -122,6 +122,7 @@ async function create_account(req, reply) {
 			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
 			{ headers: { "Content-Type": "application/json" } })
+			secret_keys[i] = "";
 		}
 		else{
 			response = await axios.post("http://users:5000/create_account",
@@ -292,11 +293,11 @@ async function get_friends(username) {
 let secret_keys = [];
 
 async function setup2fa(request, reply) {
-	const { username } = request.body;
+	const { email, username } = request.body;
 
-	if (!username) {
-		console.log("Erreur : username inexistant");
-		return reply.code(400).send({ error: 'Username inexistant.' });
+	if (!email) {
+		console.log("Erreur : email inexistant");
+		return reply.code(400).send({ error: 'email inexistant.' });
 	}
 
 
@@ -314,8 +315,8 @@ async function setup2fa(request, reply) {
 		}
 
 		// Générer l'URL pour le QR Code
-		const otplibUrl = otplib.authenticator.keyuri(username, 'MyApp', secret);
-		secret_keys.push([username, secret]);
+		const otplibUrl = otplib.authenticator.keyuri(email, 'MyApp', secret);
+		secret_keys.push([email, secret]);
 		console.log("URL du QR Code generee :", otplibUrl);
 
 		// Utiliser un async/await pour gérer correctement la génération du QR code
@@ -342,24 +343,35 @@ async function setup2fa(request, reply) {
 
 async function twofaverify(request, reply) {
 	try {
-		const { username, code } = request.body;
+		const { email, code } = request.body;
+		console.log(email);
+		console.log(code);
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
 
-		if (!username || !code) {
-			return reply.status(400).send({ success: false, error: "Username et code requis" });
+		if (!email || !code) {
+			return reply.status(400).send({ success: false, error: "email et code requis" });
 		}
 
 		let i = 0;
-		while(secret_keys[i] && secret_keys[i][0] != username){
+		while(secret_keys[i] && secret_keys[i][0] != email){
 			i++;
 		}
 
-		if (!secret_keys[i]) {
+        let sekret = response.data.secret;
+        if (secret_keys[i])
+            sekret = secret_keys[i][1];
+		if (!sekret) {
 			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
 		}
+        if (secret_keys[i])
+            console.log("Secret_key : ", secret_keys[i][1]);
+        console.log("Sekret : " ,response.data.secret);
 
 		// Vérifier le code OTP avec la clé secrète
-		const isValid = authenticator.check(code, secret_keys[i][1]);
-
+		const isValid = authenticator.check(code, sekret);
 		if (!isValid) {
 			return reply.status(401).send({ success: false, error: "Code 2FA invalide" });
 		}

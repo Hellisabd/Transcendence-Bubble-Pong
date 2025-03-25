@@ -16,7 +16,6 @@ const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
 
 const jwt = require("jsonwebtoken");
 const SALT_ROUNDS = 10;
@@ -455,13 +454,10 @@ fastify.post("/create_account", async (request, reply) => {
     const hashedpasswrd = await bcrypt.hash(password, SALT_ROUNDS);
 
 	// 🔹 Insérer le nouvel utilisateur
-	if (secretKey){
-		const hashedSecret = crypto.createHash("sha1").update(secretKey).digest("hex");
-		db.prepare("INSERT INTO users (username, email, password, secret) VALUES (?, ?, ?, ?)").run(username, email, hashedpasswrd, hashedSecret);
-	}
-	else{
+	if (secretKey)
+		db.prepare("INSERT INTO users (username, email, password, secret) VALUES (?, ?, ?, ?)").run(username, email, hashedpasswrd, secretKey);
+	else
 		db.prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)").run(username, email, hashedpasswrd);
-	}
 
 
     return reply.send({ success: true, message: "Compte créé avec succès !" });
@@ -512,11 +508,12 @@ fastify.post("/update_avatar",  async (request, reply) => {
 });
 
 fastify.post("/2fa/get_secret", async (request, reply) => {
-	const { username } = request.body;
-	if (!username)
+	const { email } = request.body;
+	console.log(email);
+	if (!email)
 		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
 	try {
-		const user = await db.prepare("SELECT secret FROM users WHERE username = ?").get(username);
+		const user = await db.prepare("SELECT secret FROM users WHERE email = ?").get(email);
 		if (!user || !user.secret)
 			return reply.send({ success: false, error: "Secret non trouvé" });
 		return reply.send({ success: true, secret: user.secret });
