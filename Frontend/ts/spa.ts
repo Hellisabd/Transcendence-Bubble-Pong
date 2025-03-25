@@ -1,5 +1,7 @@
 console.log("Script spa.ts chargé !");
 
+let old_url: null | string = null;
+
 declare function display_friends(): void;
 declare function set_up_friend_list(user: string | null);
 
@@ -75,7 +77,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         else {
             if (url == "/end_tournament") {
-                console.log("wtf?");
                 url = "/";
                 page = "index";
             }
@@ -108,19 +109,29 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
         console.log("document title: ", document.title);
 		set_user(contentDiv, username);
-        if (addHistory) {
+        // console.log("caca8", window.history.state.page);
+        if (addHistory/*  && window.history.state.page !== page */) {
+            // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
         }
         Disconnect_from_game();
         ping_Disconnect_from_game();
-        if (page === "waiting_room")
+        if (page === "waiting_room") {
+            initializeAnimationPong();
             play_pong();
-        if (page === "pong_tournament")
+        }
+        if (page === "pong_tournament") {
+            initializeAnimationPong();
             pong_tournament();
-        if (page === "ping_waiting_room")
+        }
+        if (page === "ping_waiting_room") {
+            initializeAnimationPing();
             play_ping();
-        if (page === "ping_tournament")
+        }
+        if (page === "ping_tournament") {
+            initializeAnimationPing();
             ping_tournament();
+        }
         if (page === "social") {
             pending_request();
             console.log("passse dans pending request");
