@@ -783,6 +783,10 @@ video {
   top: 5rem;
 }
 
+.left-\[25\%\] {
+  left: 25%;
+}
+
 .z-\[9998\] {
   z-index: 9998;
 }
@@ -1610,6 +1614,30 @@ video {
 
 .pt-20 {
   padding-top: 5rem;
+}
+
+.pt-5 {
+  padding-top: 1.25rem;
+}
+
+.pt-10 {
+  padding-top: 2.5rem;
+}
+
+.pt-14 {
+  padding-top: 3.5rem;
+}
+
+.pt-16 {
+  padding-top: 4rem;
+}
+
+.pl-52 {
+  padding-left: 13rem;
+}
+
+.pr-4 {
+  padding-right: 1rem;
 }
 
 .text-center {
