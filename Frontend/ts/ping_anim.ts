@@ -21,8 +21,8 @@ let ping_p2_angle: number = 0;
 let ping_p1_goal: number = Math.PI;
 let ping_p2_goal: number = 0;
 
-let ping_ballSpeedX: number = 1.5; 
-let ping_ballSpeedY: number = 1.5;
+let ping_ballSpeedX: number = 3.5; 
+let ping_ballSpeedY: number = 3.5;
 let ping_speed: number  = 0;
 
 let lastBounce: number = 0;
@@ -76,16 +76,16 @@ function ping_update() {
         lim_inf_player1 += 2 * Math.PI;
 
     let lim_sup_player1 = ping_p1_angle + ping_paddle_size;
-    // if (lim_sup_player1 > 2 * Math.PI)
-    //     lim_sup_player1 -= 2 * Math.PI;
+    if (lim_sup_player1 > 2 * Math.PI)
+        lim_sup_player1 -= 2 * Math.PI;
 
     let lim_inf_player2 = ping_p2_angle - ping_paddle_size;
     if (lim_inf_player2 < 0)
         lim_inf_player2 += 2 * Math.PI;
 
     let lim_sup_player2 = ping_p2_angle + ping_paddle_size;
-    // if (lim_sup_player2 > 2 * Math.PI)
-    //     lim_sup_player2 -= 2 * Math.PI;
+    if (lim_sup_player2 > 2 * Math.PI)
+        lim_sup_player2 -= 2 * Math.PI;
 
     function bounce() {
         lastBounce = Date.now() + bounceInterval;
@@ -97,6 +97,15 @@ function ping_update() {
         ping_ballSpeedX -= 2 * dotProduct * normalX;
         ping_ballSpeedY -= 2 * dotProduct * normalY;
     }
+
+    if (ping_ballSpeedX > 10)
+        ping_ballSpeedX = 10;
+    if (ping_ballSpeedX < -10)
+        ping_ballSpeedX = -10;
+    if (ping_ballSpeedY > 10)
+        ping_ballSpeedY = 10;
+    if (ping_ballSpeedY < -10)
+        ping_ballSpeedY = -10;
 
     if (ball_dist + ping_ballRadius + ping_paddle_thickness > ping_arena_radius - ping_paddle_thickness && Date.now() > lastBounce) {
         if (lim_inf_player1 < lim_sup_player1) {
@@ -125,61 +134,6 @@ function ping_update() {
         }
     }
 
-    if (ping_ballSpeedX > 10)
-        ping_ballSpeedX = 10;
-    if (ping_ballSpeedX < -10)
-        ping_ballSpeedX = -10;
-    if (ping_ballSpeedY > 10)
-        ping_ballSpeedY = 10;
-    if (ping_ballSpeedY < -10)
-        ping_ballSpeedY = -10;
-
-    let lim_inf_goal1 = ping_p1_goal - ping_goal_size / 2;
-    if (lim_inf_goal1 < 0)
-        lim_inf_goal1 += 2 * Math.PI;
-
-    let lim_sup_goal1 = ping_p1_goal + ping_goal_size / 2;
-    if (lim_inf_goal1 > 2 * Math.PI)
-        lim_inf_goal1 -= 2 * Math.PI;
-
-    let lim_inf_goal2 = ping_p2_goal - ping_goal_size / 2;
-    if (lim_inf_goal2 < 0)
-        lim_inf_goal2 += 2 * Math.PI;
-
-    let lim_sup_goal2 = ping_p2_goal + ping_goal_size / 2;
-    if (lim_inf_goal2 > 2 * Math.PI)
-        lim_inf_goal2 -= 2 * Math.PI;
-
-    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
-        if (lim_inf_goal1 < lim_sup_goal1) {
-            if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
-                ping_resetBall();
-                ping_resetParam();
-            }
-        }
-        else {
-            if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
-                ping_resetBall();
-                ping_resetParam();
-            } 
-        }
-    }
- 
-    if (Date.now() > lastBounce && ball_dist + ping_ballRadius + 5 > ping_arena_radius) {
-        if (lim_inf_goal2 < lim_sup_goal2) {
-            if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
-                ping_resetBall();
-                ping_resetParam();
-            }
-        }
-        else {
-            if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
-                ping_resetBall();
-                ping_resetParam();
-            } 
-        }
-    }
-
     if (ball_dist + ping_ballRadius + 5 > ping_arena_radius && Date.now() > lastBounce ) {
         bounce();
     }
@@ -192,14 +146,6 @@ function ping_move_paddles() {
         ping_p1_angle -= 2 * Math.PI;
     if (ping_p2_angle >= 2 * Math.PI)
         ping_p2_angle -= 2 * Math.PI;
-}
-
-function ping_resetParam() {
-    ping_p1_angle = Math.PI;
-    ping_p2_angle = 0;
-    ping_p1_goal = Math.PI;
-    ping_p2_goal = 0;
-    lastBounce = Date.now();
 }
 
 function circular_distance(a: number, b: number) {
@@ -237,8 +183,8 @@ function ping_resetBall() {
     if (!ping_canvas)
         return ;
     randBallPos();
-    ping_ballSpeedX = 1.5;
-    ping_ballSpeedY = 1.5;
+    ping_ballSpeedX = 3.5;
+    ping_ballSpeedY = 5.5;
     ping_speed = Math.sqrt(ping_ballSpeedX * ping_ballSpeedX + ping_ballSpeedY * ping_ballSpeedY);
     let angle: number;
     if (Math.random() < 0.5) {
@@ -356,7 +302,7 @@ function ping_draw(): void {
     if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") { 
         let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
         ping_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        ping_ctx.font = "bold 30px 'Press Start 2P', 'system-ui', sans-serif";
+        ping_ctx.font = "30px 'Canted Comic', bold, sans-serif";
         ping_ctx.textAlign = "center";
         ping_ctx.fillText("Waiting for opponent...", ping_canvas.width / 2, ping_canvas.height / 2);
     } 

@@ -5,23 +5,3 @@
 .title-font {
 	font-family: 'Inter', sans-serif;
 }
-
-canvas {
-	border: 2px solid #fff;
-}
-
-#pongCanvas {
-	border: 0px solid rgb(0, 0, 0);
-}
-
-#pingCanvas {
-	border: 0px solid rgb(0, 0, 0);
-}
-
-#ping_animation {
-	border: 0px solid rgb(0, 0, 0);
-}
-
-#solopingCanvas {
-	border: 0px solid rgb(0, 0, 0);
-}

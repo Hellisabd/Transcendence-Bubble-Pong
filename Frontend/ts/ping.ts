@@ -175,6 +175,12 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         const BLUE_GOAL_image = new Image();
         BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.png";
 
+        const WIN_image = new Image();
+        WIN_image.src = "Frontend/assets/WIN.png";
+
+        const LOSE_image = new Image();
+        LOSE_image.src = "Frontend/assets/LOSE.png";
+
         let image_bounce_refresh: number = 0;
         let image_goal_refresh: number = 0;
         
@@ -344,7 +350,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             //ARENA
             ctx.beginPath();
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
-            ctx.fillStyle = "#323232";
+            ctx.fillStyle = "black";
             ctx.fill();
             ctx.closePath();
 
@@ -529,7 +535,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     image_bounce_refresh = 0;
                 }
             }
-            if (draw_blue_goal == true) {
+            if (draw_blue_goal == true && ping_win == 0) {
                 let image_size: number = 300 * ratio;
                 ctx.drawImage(BLUE_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
                 image_goal_refresh++;
@@ -538,7 +544,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     image_goal_refresh = 0;
                 }
             }
-            if (draw_red_goal == true) {
+            if (draw_red_goal == true && ping_win == 0) {
                 let image_size: number = 300 * ratio;
                 ctx.drawImage(RED_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
                 image_goal_refresh++;
@@ -551,10 +557,10 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             draw_score(ratio);
             draw_winner(ratio);
             if (ping_disp == true) {
-                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+                ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
-                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + (200 * ratio));
             }
         }
         requestAnimationFrame(drawGame);
@@ -565,7 +571,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
-            ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+            ctx.font = `bold ${60 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
             ctx.fillStyle = "red";
             ctx.fillText(String(gameState.score.player1), 50, 40);
             ctx.fillStyle = "blue";
@@ -577,18 +583,12 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 return ;
             }
             if (ping_win == 1) {
-                ctx.textAlign = "center";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "#008100";
-                ctx.fillText(String("YOU WIN!"), canvas.width / 2 , canvas.height / 2 - 50);
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(WIN_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (ping_win == 2) {
-                ctx.textAlign = "center";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "#810000";
-                ctx.fillText(String("YOU LOSE!"), canvas.width / 2, canvas.height / 2 - 50);
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(LOSE_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (ping_player_id == 1 && ping_win != 0) {
                 ping_end_game(ping_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, ping_inTournament);
