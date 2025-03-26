@@ -130,7 +130,7 @@ async function get_user(token) {
 async function logout(token, reply) {
     let username = await get_user(token);
     if (usersession.has(token)) {
-        usersession.post(token);
+        usersession.delete(token);
         send_to_friend(username);
     }
 }
@@ -154,6 +154,17 @@ async function update_history(req, reply) {
     reply.send(response.data);
 }
 
+async function get_stats(req, reply) {
+    const {username} = req.body;
+
+
+    const response = await axios.post("http://users:5000/get_history",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return reply.send(response.data.stats);
+}
+
 async function get_history(req, reply) {
     const token = req.cookies.session;
     if (!token) {
@@ -170,10 +181,7 @@ async function get_history(req, reply) {
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-    // reply.send(finalFile);
-    console.log("ping_tab", response.data.ping_history);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, ping_history: response.data.ping_history, history_ping_tournament: response.data.history_ping_tournament });
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }
 
 async function end_tournament(req, reply) {
@@ -201,8 +209,10 @@ async function display_friends(username, connection) {
         return ;
     }
     for (let i = 0; i < friends.length; i++) {
+        console.log(friends[i]);
         connection.socket.send(JSON.stringify(friends[i]));
     }
+    connection.socket.send(JSON.stringify({display : true}));
 }
 
 
@@ -274,4 +284,4 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats };

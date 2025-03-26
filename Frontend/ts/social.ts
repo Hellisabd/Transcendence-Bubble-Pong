@@ -7,10 +7,15 @@ let friends: { username: string; status: string }[] = [];
 
 let socialSocket: WebSocket | null = null;
 
+function check_friend_list_state() {
+	return socialSocket;
+}
+
 async function display_friends() {
     const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
     if (friendsDiv) {
 		friendsDiv.innerHTML = "";
+		console.log("friends.length", friends);
         for (let i = 0; i < friends.length; i++) {
 			const avatarDiv = document.createElement("div");
 			avatarDiv.classList.add("relative");
@@ -74,7 +79,8 @@ async function display_friends() {
 
 async function display_pending(user: string[]) {
 	console.log("user tab:", user);
-
+	if (!user)
+		return ;
 	const pendingDiv = <HTMLDivElement>document.getElementById("pending_request");
 	const pellet = <HTMLDivElement>document.getElementById("pelletSocial");
 	const pendingParent = <HTMLDivElement>document.getElementById("pending_request_div");
@@ -167,12 +173,15 @@ async function display_pending(user: string[]) {
 	}
 }
 
+let i = 0;
 
 async function set_up_friend_list(user: string | null) {
 	if (!user) {
 		user = await get_user();
 	}
     const sock_name = window.location.host;
+	if (socialSocket)
+		return ;
 	socialSocket = new WebSocket("wss://" + sock_name + "/ws/spa/friends");
     socialSocket.onopen = () => {
         console.log("✅ WebSocket users connectée !");
@@ -181,24 +190,28 @@ async function set_up_friend_list(user: string | null) {
     socialSocket.onerror = (event) => {
     	console.error("❌ WebSocket users erreur :", user);};
 	socialSocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket users fermée :", user);};
+        socialSocket = null;
+	}
 	socialSocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
 		const index = friends.findIndex(friend => friend.username == data.username);
-		if (index == -1)
+		if (index == -1 &&  data.username && data.status)
 			friends.push({username: data.username, status: data.status});
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
 		if (data.success == true && data.user_inviting) {
-			display_pending(data.user_inviting);
 			console.log("lol?");
 		}
 		else {
-			console.log("je vais me faire foutre?");
 			display_pending(data.user_inviting);
 		}
-		display_friends();
+		console.log(i);
+		if (data.display)
+		{
+			display_friends();
+			console.log("affiche quand je veux");
+		}
     };
 }
 
@@ -274,12 +287,13 @@ async function add_friend(event: Event): Promise<void> {
 
 async function pending_request(): Promise<void> {
 	const myusername = await get_user();
+	if (!myusername)
+		return ;
 	const response = await fetch("/pending_request", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username: myusername})
 	});
 	const result = await response.json();
-	console.log("result in pending: ", result);
 	display_pending(result.user_inviting);
 }

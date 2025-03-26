@@ -63,6 +63,19 @@ db.prepare(`
     player1_score INTEGER NOT NULL DEFAULT 0,
     player2_score INTEGER NOT NULL DEFAULT 0,
     gametype TEXT NOT NULL,
+    bounce INTEGER DEFAULT 0,
+    player1_bonus_paddles_goal_scored DEFAULT 0,
+    player1_bonus_paddles_goal_taken DEFAULT 0,
+    player1_bonus_shield_goal_scored DEFAULT 0,
+    player1_bonus_shield_goal_taken DEFAULT 0,
+    player1_bonus_goal_goal_scored DEFAULT 0,
+    player1_bonus_goal_goal_taken DEFAULT 0,
+    player2_bonus_paddles_goal_scored DEFAULT 0,
+    player2_bonus_paddles_goal_taken DEFAULT 0,
+    player2_bonus_shield_goal_scored DEFAULT 0,
+    player2_bonus_shield_goal_taken DEFAULT 0,
+    player2_bonus_goal_goal_scored DEFAULT 0,
+    player2_bonus_goal_goal_taken DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
@@ -103,8 +116,27 @@ db.prepare(`
 `).run();
 
 fastify.post("/update_history_tournament", async (request, reply) => {
-  const {classement} = request.body;
-  db.prepare(`INSERT INTO tournament_history
+  const {classement, gametype} = request.body;
+  if (!gametype) {
+    console.log("ici je plante");
+    console.log(gametype);
+    console.log(classement);
+  }
+  let rank1 = 1;
+  let rank2 = 2;
+  let rank3 = 3;
+  let rank4 = 4;
+  if (classement[0].score == classement[1].score) {
+    rank2 = rank1;
+  }
+  if (classement[1].score == classement[2].score) {
+    rank3 = rank2;
+  }
+  if (classement[2].score == classement[3].score) {
+    rank4 = rank3;
+  }
+  
+  db.prepare(`INSERT INTO tournament_history 
             (player1_username, player1_score, player1_ranking,
             player2_username, player2_score, player2_ranking,
             player3_username, player3_score, player3_ranking,
@@ -114,11 +146,11 @@ fastify.post("/update_history_tournament", async (request, reply) => {
               ?, ?, ?,
               ?, ?, ?,
               ?, ?, ?, ?)`)
-              .run(classement[0].username, classement[0].score, 1,
-                  classement[1].username, classement[1].score, 2,
-                  classement[2].username, classement[2].score, 3,
-                  classement[3].username, classement[3].score, 4,
-                  "pong"
+              .run(classement[0].username, classement[0].score, rank1, 
+                  classement[1].username, classement[1].score, rank2,
+                  classement[2].username, classement[2].score, rank3,
+                  classement[3].username, classement[3].score, rank4,
+                  gametype
               );
 });
 
@@ -184,9 +216,7 @@ fastify.post("/get_friends", async (request, reply) => {
       friends.push(friendUsername);
     }
   }
-    const databaseContent = await db.prepare(`
-        SELECT * FROM friends
-        `).all();
+
     return reply.send(JSON.stringify({success: true, friends: friends}));
 });
 
@@ -397,19 +427,214 @@ fastify.post("/get_history", async (request, reply) => {
     OR player4_username = ?
     ORDER BY created_at DESC;
     `).all(username, username, username, username);
-
-    reply.send(JSON.stringify({history: history, history_tournament: history_tournament}));
+    const stats = await get_stats(history, history_tournament, username);
+    reply.send(JSON.stringify({history: history, history_tournament: history_tournament, stats: stats}));
   });
 
 
-async function history_for_tournament(history) {
-  for (const match of history) {
+function calc_winrate_against_friends(friends, username, history, tri) {
+  let winrate_per_friend = [];
+  let winrate_per_friend_pong = [];
+  let winrate_per_friend_ping = [];
+  for (let i = 0; i < friends.length; i++) {
+    let win_against_friend = 0;
+    let loose_against_friend = 0;
+    let win_against_friend_pong = 0;
+    let loose_against_friend_pong = 0;
+    let win_against_friend_ping = 0;
+    let loose_against_friend_ping = 0;
+    history.forEach(match => {
+      if (friends[i].username === match.player1_username || friends[i].username === match.player2_username) {
+        if (match.winner_username === username) {
+          console.log(match.gametype);
+          if (match.gametype == "pong")
+            win_against_friend_pong++;
+          else
+            win_against_friend_ping++;
+          win_against_friend++
+        }
+        else {
+          if (match.gametype == "pong")
+            loose_against_friend_pong++;
+          else
+            loose_against_friend_ping++;
+          loose_against_friend++;
+        }
+      }
+    });
+    winrate_per_friend.push({username: friends[i].username, winrate: win_against_friend / (win_against_friend + loose_against_friend) * 100 || 0});
+    winrate_per_friend_pong.push({username: friends[i].username, winrate: win_against_friend_pong / (win_against_friend_pong + loose_against_friend_pong) * 100 || 0});
+    winrate_per_friend_ping.push({username: friends[i].username, winrate: win_against_friend_ping / (win_against_friend_ping + loose_against_friend_ping) * 100 || 0});
+  }
+  if (!tri)
+    return winrate_per_friend;
+  else if (tri == 1)
+    return winrate_per_friend_pong;
+  return winrate_per_friend_ping
+}
+
+async function get_stats(history, history_tournament, username) {
+  const user = await db.prepare(`
+    SELECT id FROM users
+    WHERE username = ?
+    `).get(username);
+  if (!user) {
+    return reply.send(JSON.stringify({success: false, message: "user not found in db"}));
+  }
+  const user_id = user.id;
+  let friends = [];
+  const friend1 = await db.prepare(`
+    SELECT friend_id FROM friends
+    WHERE (user_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friend2 = await db.prepare(`
+    SELECT user_id FROM friends
+    WHERE (friend_id = ? AND status = 'accepted')
+    `).all(user_id);
+  const friendIds = friend1.map(f => f.friend_id).concat(friend2.map(f => f.user_id));
+  for (let i = 0; i < friendIds.length; i++) {
+    const friendUsername = await db.prepare(`
+      SELECT username FROM users
+      WHERE id = ?
+      `).get(friendIds[i]);
+    if (friendUsername) {
+      friends.push(friendUsername);
+    }
+  }
+  
+  let win = 0;
+  let loose = 0;
+  let win_pong = 0;
+  let loose_pong = 0;
+  let win_ping = 0;
+  let loose_ping = 0;
+  let bounce = [];
+  let goal_after_bonus_paddle = 0;
+  let goal_taken_after_bonus_paddle = 0;
+  let goal_after_bonus_goal = 0;
+  let goal_taken_after_bonus_goal = 0;
+  let goal_after_bonus_shield = 0;
+  let goal_taken_after_bonus_shield = 0;
+  history.forEach(match => {
+    if (match.player1_username === username) {
+      goal_after_bonus_paddle += match.player1_bonus_paddles_goal_scored;
+      goal_taken_after_bonus_paddle += match.player1_bonus_paddles_goal_taken;
+      goal_after_bonus_goal += match.player1_bonus_goal_goal_scored;
+      goal_taken_after_bonus_goal += match.player1_bonus_goal_goal_taken;
+      goal_after_bonus_shield += match.player1_bonus_shield_goal_scored;
+      goal_taken_after_bonus_shield += match.player1_bonus_shield_goal_taken;
+    }
+    else if (match.player2_username === username) {
+      goal_after_bonus_paddle += match.player2_bonus_paddles_goal_scored;
+      goal_taken_after_bonus_paddle += match.player2_bonus_paddles_goal_taken;
+      goal_after_bonus_goal += match.player2_bonus_goal_goal_scored;
+      goal_taken_after_bonus_goal += match.player2_bonus_goal_goal_taken;
+      goal_after_bonus_shield += match.player2_bonus_shield_goal_scored;
+      goal_taken_after_bonus_shield += match.player2_bonus_shield_goal_taken;
+    }
+    if (match.winner_username === username) {
+      if (match.gametype == "pong")
+        win_pong++;
+      else
+        win_ping++;
+      win++
+    }
+    else {
+      if (match.gametype == "pong")
+        loose_pong++;
+      else
+        loose_ping++;
+      loose++;
+    }
+    if (match.gametype == "ping")
+      bounce.push(match.bounce);
+  });
+  
+  let place_in_tournament = [];
+  let score_in_tournament = [];
+  let place_in_tournament_pong = [];
+  let score_in_tournament_pong = [];
+  let place_in_tournament_ping = [];
+  let score_in_tournament_ping = [];
+  let nbr_of_tournament_won = 0;
+  let nbr_of_tournament_won_pong = 0;
+  let nbr_of_tournament_won_ping = 0;
+  history_tournament.forEach(classement => {
+      for (let i = 1; i < 5; i++) {
+        const usernameKey = `player${i}_username`;
+        const scoreKey = `player${i}_score`;
+        const rankingKey = `player${i}_ranking`;
+        if (classement[usernameKey] === username) {
+          if (classement[rankingKey] === 1) {
+            nbr_of_tournament_won++;
+            if (classement.gametype === "pong") {
+              nbr_of_tournament_won_pong++;
+            }
+            else {
+              nbr_of_tournament_won_ping++;
+            }
+          }
+          place_in_tournament.push(classement[rankingKey]);
+          score_in_tournament.push(classement[scoreKey]);
+          if (classement.gametype === "pong") {
+            place_in_tournament_pong.push(classement[rankingKey]);
+            score_in_tournament_pong.push(classement[scoreKey]);
+          }
+          else {
+            place_in_tournament_ping.push(classement[rankingKey]);
+            score_in_tournament_ping.push(classement[scoreKey]);
+          }
+        }
+      }
+  });
+  let stats = {
+    winrate: win / (win + loose) * 100 || 0,
+    winrate_ping: win_ping / (win_ping + loose_ping) * 100 || 0,
+    winrate_pong: win_pong / (win_pong + loose_pong) * 100 || 0,
+    average_bounce_per_game: calc_average(bounce) || 0,
+    goal_after_bonus_paddle: goal_after_bonus_paddle / (goal_after_bonus_paddle + goal_taken_after_bonus_paddle) * 100 || 0,
+    goal_after_bonus_goal: goal_after_bonus_goal / (goal_after_bonus_goal + goal_taken_after_bonus_goal) * 100 || 0,
+    goal_after_bonus_shield: goal_after_bonus_shield / (goal_after_bonus_shield + goal_taken_after_bonus_shield) * 100 || 0,
+    winrate_against_friends: calc_winrate_against_friends(friends, username, history, 0) || 0,
+    winrate_against_friends_pong: calc_winrate_against_friends(friends, username, history, 1) || 0,
+    winrate_against_friends_ping: calc_winrate_against_friends(friends, username, history, 2) || 0,
+    average_place_in_tournament: calc_average(place_in_tournament) || 0,
+    average_score_in_tournament: calc_average(score_in_tournament) || 0,
+    average_place_in_tournament_pong: calc_average(place_in_tournament_pong) || 0,
+    average_score_in_tournament_pong: calc_average(score_in_tournament_pong) || 0,
+    average_place_in_tournament_ping: calc_average(place_in_tournament_ping) || 0,
+    average_score_in_tournament_ping: calc_average(score_in_tournament_ping) || 0,
+    nbr_of_tournament_won: nbr_of_tournament_won || 0,
+    nbr_of_tournament_won_pong: nbr_of_tournament_won_pong || 0,
+    nbr_of_tournament_won_ping: nbr_of_tournament_won_ping || 0,
+  }
+  console.log("goal_after_bonus_paddle: ", goal_after_bonus_paddle);
+  console.log("goal_taken_after_bonus_paddle: ", goal_taken_after_bonus_paddle);
+  console.log("goal_after_bonus_goal: ", goal_after_bonus_goal);
+  console.log("goal_taken_after_bonus_goal: ", goal_taken_after_bonus_goal);
+  console.log("goal_after_bonus_shield: ", goal_after_bonus_shield);
+  console.log("goal_taken_after_bonus_shield: ", goal_taken_after_bonus_shield);
+  console.log(stats);
+  return stats;
+}
+
+function calc_average(tab) {
+  let sum_of_element = 0;
+  for (let i = 0; i < tab.length; i++) {
+    sum_of_element += tab[i];
+  }
+  return sum_of_element / tab.length;
+}
+
+async function history_for_tournament(history, gametype) {
+  for (const match of history) { 
     const player1 = match.myusername;
     const player2 = match.otherusername;
     const score_player1 = match.myscore;
     const score_player2 = match.otherscore;
-    const gametype = history.gametype;
-    if (score_player1 !== 1 && score_player2 !== 1) {
+    const bounce = match.bounce;
+    const bonus_stat = extract_bonus_data(match.bonus_stats, player1, player2);
+    if (score_player1 !== 3 && score_player2 !== 3) {
       return;
     }
 
@@ -437,23 +662,139 @@ async function history_for_tournament(history) {
     }
 
     await db.prepare(`INSERT INTO match_history
-              (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
-              VALUES (?, ?, ?, ?, ?, ?, ?)`)
-              .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
+      (player1_username,
+      player2_username,
+      winner_username,
+      looser_username,
+      player1_score,
+      player2_score,
+      gametype,
+      bounce, 
+      player1_bonus_paddles_goal_scored,
+      player1_bonus_paddles_goal_taken,
+      player1_bonus_shield_goal_scored,
+      player1_bonus_shield_goal_taken,
+      player1_bonus_goal_goal_scored,
+      player1_bonus_goal_goal_taken,
+      player2_bonus_paddles_goal_scored,
+      player2_bonus_paddles_goal_taken,
+      player2_bonus_shield_goal_scored,
+      player2_bonus_shield_goal_taken,
+      player2_bonus_goal_goal_scored,
+      player2_bonus_goal_goal_taken)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(player1,
+          player2,
+          winner,
+          looser,
+          score_player1,
+          score_player2,
+          gametype,
+          bounce,
+          bonus_stat.player1_bonus_paddles_goal_scored,
+          bonus_stat.player1_bonus_paddles_goal_taken,
+          bonus_stat.player1_bonus_shield_goal_scored,
+          bonus_stat.player1_bonus_shield_goal_taken,
+          bonus_stat.player1_bonus_goal_goal_scored,
+          bonus_stat.player1_bonus_goal_goal_taken,
+          bonus_stat.player2_bonus_paddles_goal_scored,
+          bonus_stat.player2_bonus_paddles_goal_taken,
+          bonus_stat.player2_bonus_shield_goal_scored,
+          bonus_stat.player2_bonus_shield_goal_taken,
+          bonus_stat.player2_bonus_goal_goal_scored,
+          bonus_stat.player2_bonus_goal_goal_taken
+        );
   }
 }
 
+function extract_bonus_data(bonus_stats, player1, player2) {
+  let tab = {
+    player1_bonus_paddles_goal_scored : 0,
+    player1_bonus_paddles_goal_taken : 0,
+    player1_bonus_shield_goal_scored : 0,
+    player1_bonus_shield_goal_taken : 0,
+    player1_bonus_goal_goal_scored : 0,
+    player1_bonus_goal_goal_taken : 0,
+    player2_bonus_paddles_goal_scored : 0,
+    player2_bonus_paddles_goal_taken : 0,
+    player2_bonus_shield_goal_scored : 0,
+    player2_bonus_shield_goal_taken : 0,
+    player2_bonus_goal_goal_scored : 0,
+    player2_bonus_goal_goal_taken : 0
+  }
+  if (!bonus_stats)
+    return tab;
+  for (let i = 0; i < bonus_stats.length; i++) {
+    if (bonus_stats[i].player_who_scored == player1) {
+      if (bonus_stats[i].bonus_name == "paddles") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_paddles_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_paddles_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "shield") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_shield_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_shield_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "goal") {
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_goal_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_goal_goal_taken++;
+        }
+      }
+    }
+    if (bonus_stats[i].player_who_scored == player2) {
+      if (bonus_stats[i].bonus_name == "paddles") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_paddles_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_paddles_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "shield") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_shield_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_shield_goal_taken++;
+        }
+      }
+      if (bonus_stats[i].bonus_name == "goal") {
+        if (bonus_stats[i].player_with_bonus == player2) {
+          tab.player2_bonus_goal_goal_scored++;
+        }
+        if (bonus_stats[i].player_with_bonus == player1) {
+          tab.player1_bonus_goal_goal_taken++;
+        }
+      }
+    }
+  }
+  return tab;
+}
+
 fastify.post("/update_history", async (request, reply) => {
-  const {history, tournament} = request.body;
+  const {history, tournament, gametype} = request.body;
   if (tournament) {
-    history_for_tournament(history);
+    history_for_tournament(history, gametype);
     return ;
   }
   const player1 = history.myusername;
   const player2 = history.otherusername;
-  const score_player1 = history.myscore;
+  const bonus_stat = extract_bonus_data(history.bonus_stats, player1, player2);
+
+  const score_player1 = history.myscore; 
   const score_player2 = history.otherscore;
-  const gametype = history.gametype;
+  const gametypesologame = history.gametype;
+  const bounce = history.bounce ?? 0;
   if (score_player1 != 3 && score_player2 != 3) {
     return;
   }
@@ -478,11 +819,50 @@ fastify.post("/update_history", async (request, reply) => {
   if (recentMatch) {
     return ;
   }
-
+  
   await db.prepare(`INSERT INTO match_history
-            (player1_username, player2_username, winner_username, looser_username, player1_score, player2_score, gametype)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`)
-            .run(player1, player2, winner, looser, score_player1, score_player2, gametype);
+            (player1_username,
+            player2_username,
+            winner_username,
+            looser_username,
+            player1_score,
+            player2_score,
+            gametype,
+            bounce, 
+            player1_bonus_paddles_goal_scored,
+            player1_bonus_paddles_goal_taken,
+            player1_bonus_shield_goal_scored,
+            player1_bonus_shield_goal_taken,
+            player1_bonus_goal_goal_scored,
+            player1_bonus_goal_goal_taken,
+            player2_bonus_paddles_goal_scored,
+            player2_bonus_paddles_goal_taken,
+            player2_bonus_shield_goal_scored,
+            player2_bonus_shield_goal_taken,
+            player2_bonus_goal_goal_scored,
+            player2_bonus_goal_goal_taken)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+            .run(player1,
+                player2,
+                winner,
+                looser,
+                score_player1,
+                score_player2,
+                gametypesologame,
+                bounce,
+                bonus_stat.player1_bonus_paddles_goal_scored,
+                bonus_stat.player1_bonus_paddles_goal_taken,
+                bonus_stat.player1_bonus_shield_goal_scored,
+                bonus_stat.player1_bonus_shield_goal_taken,
+                bonus_stat.player1_bonus_goal_goal_scored,
+                bonus_stat.player1_bonus_goal_goal_taken,
+                bonus_stat.player2_bonus_paddles_goal_scored,
+                bonus_stat.player2_bonus_paddles_goal_taken,
+                bonus_stat.player2_bonus_shield_goal_scored,
+                bonus_stat.player2_bonus_shield_goal_taken,
+                bonus_stat.player2_bonus_goal_goal_scored,
+                bonus_stat.player2_bonus_goal_goal_taken
+              );
 });
 
 // 🔹 Route POST pour créer un compte
