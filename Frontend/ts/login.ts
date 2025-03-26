@@ -88,26 +88,27 @@ async function create_account(event: Event): Promise<void> {
 
 	let repResult: any = null;
 	let result: LoginResponse = { success: false };
+	let qrCodeModal: HTMLElement | null = null;  // hold a reference to the QR code modal
 
 	if (activeFA) {
 		const rep = await fetch("/2fa/setup", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ email, username})
+			body: JSON.stringify({ email, username })
 		});
 
 		const repjson = await rep.json();
-		if (repjson.success == false){
+		if (repjson.success == false) {
 			alert(repjson.message);
-			return ;
+			return;
 		}
 
 		try {
 			repResult = repjson;
 			if (repResult) {
 				alert("2FA setup completed! Scan this QR code to complete the setup.");
-				// Affiche le QR code dans une modal
-				const qrCodeModal = document.createElement('div');
+				// Create and display the QR code modal
+				qrCodeModal = document.createElement('div');
 				qrCodeModal.innerHTML = `
 					<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
 								background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
@@ -118,7 +119,9 @@ async function create_account(event: Event): Promise<void> {
 					</div>`;
 				document.body.appendChild(qrCodeModal);
 				(document.getElementById("qr-alert-close") as HTMLButtonElement)?.addEventListener("click", () => {
-					document.body.removeChild(qrCodeModal);
+					if (qrCodeModal && document.body.contains(qrCodeModal)) {
+						document.body.removeChild(qrCodeModal);
+					}
 				});
 			}
 			console.log("2FA setup result:", repResult);
@@ -127,7 +130,7 @@ async function create_account(event: Event): Promise<void> {
 		}
 	}
 
-	// Si 2FA est activé et que le setup a fourni un résultat, demande la vérification du code
+	// If 2FA is active and a setup result exists, perform code verification
 	if (activeFA && repResult) {
 		try {
 			await new Promise<void>((resolve, reject) => {
@@ -157,7 +160,11 @@ async function create_account(event: Event): Promise<void> {
 					const verifResult = await verifResponse.json();
 					if (verifResult.success) {
 						alert("2FA vérifiée avec succès.");
-						document.body.removeChild(verifyModal);
+						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
+						// Close the QR code modal if it is still open
+						if (qrCodeModal && document.body.contains(qrCodeModal)) {
+							document.body.removeChild(qrCodeModal);
+						}
 						resolve();
 					} else {
 						alert("Code 2FA incorrect, réessayez.");
@@ -165,7 +172,7 @@ async function create_account(event: Event): Promise<void> {
 				});
 
 				cancelBtn.addEventListener("click", () => {
-					document.body.removeChild(verifyModal);
+					if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
 					reject(new Error("2FA verification annulée"));
 				});
 			});
@@ -175,7 +182,7 @@ async function create_account(event: Event): Promise<void> {
 		}
 	}
 
-	// Création du compte
+	// Account creation
 	if (!activeFA || (activeFA && repResult != null)) {
 		const response = await fetch("/create_account", {
 			method: "POST",
@@ -203,13 +210,13 @@ async function create_account(event: Event): Promise<void> {
 }
 
 async function logout(print: boolean): Promise<void> {
-    await fetch("/logout", { method: "GET" });
+	await fetch("/logout", { method: "GET" });
 
-    if (print) {
-        alert("Déconnexion!");
-        navigateTo("", true, null);
-    }
-    close_users_socket();
+	if (print) {
+		alert("Déconnexion!");
+		navigateTo("", true, null);
+	}
+	close_users_socket();
 }
 
 async function uploadProfileImage() {
