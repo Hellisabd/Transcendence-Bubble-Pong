@@ -163,10 +163,20 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
         let ratio: number = canvasWidth / 1000;
 
-        const bounceImage = new Image();
-        bounceImage.src = "Frontend/assets/PING.png";
+        const PING_image = new Image();
+        PING_image.src = "Frontend/assets/PING.png";
 
-        let image_refresh: number = 0;
+        const PONG_image = new Image();
+        PONG_image.src = "Frontend/assets/PONG.png";
+
+        const RED_GOAL_image = new Image();
+        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.png";
+
+        const BLUE_GOAL_image = new Image();
+        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.png";
+
+        let image_bounce_refresh: number = 0;
+        let image_goal_refresh: number = 0;
         
         animation_ping_stop();
         document.getElementById("ping_animation")?.classList.add("hidden");
@@ -188,12 +198,17 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ping_win = 0;
             console.warn("⚠️ WebSocket fermée :", event);
         };
-        
-        const ballRadius = 10;
+
+        const ballRadius = 15;
         const bonusRadius = 50;
         let draw_bounce: boolean = false;
+        let draw_red_goal: boolean = false;
+        let draw_blue_goal: boolean = false;
         let x_bounce: number = 0;
         let y_bounce: number = 0;
+        let ping_or_pong: number = 0;
+        let x_goal: number = 0;
+        let y_goal: number = 0;
 
         let gameState = {
             ball: { x: canvas.width / 2, y: canvas.height / 2 },
@@ -244,10 +259,20 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 draw_winner(ratio);
             }
             else if (gs.draw_bounce == true) {
-                console.log(gs);
                 draw_bounce = true;
                 x_bounce = gs.x_bounce;
                 y_bounce = gs.y_bounce;
+                ping_or_pong = gs.ping_or_pong;
+            }
+            else if (gs.red_goal == true) {
+                draw_red_goal = true;
+                x_goal = gs.x_goal;
+                y_goal = gs.y_goal;
+            }
+            else if (gs.blue_goal == true) {
+                draw_blue_goal = true;
+                x_goal = gs.x_goal;
+                y_goal = gs.y_goal;
             }
         };
 
@@ -296,8 +321,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             if (!ctx) {
                 return ;
             }
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             let canvasWidth: number = canvas.offsetWidth;
             let canvasHeight: number = canvas.offsetHeight;
             
@@ -306,15 +329,27 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             let ratio: number = canvasWidth / 1000;
 
+            let arena_radius: number = canvasWidth / 2 - canvasWidth / 20;
+            let scale = arena_radius / (canvasWidth / 2);
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+        
+            ctx.scale(scale, scale);
+        
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
             //ARENA
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+            ctx.fillStyle = "#323232";
             ctx.fill();
             ctx.closePath();
 
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
             ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "white";
             ctx.shadowBlur = 10;
@@ -328,7 +363,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 5,
+                canvas.width / 2,
                 gameState.goals.player1.angle - gameState.goals.player1.size / 2,
                 gameState.goals.player1.angle + gameState.goals.player1.size / 2
             );
@@ -349,7 +384,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 5,
+                canvas.width / 2,
                 gameState.goals.player2.angle - gameState.goals.player2.size / 2,
                 gameState.goals.player2.angle + gameState.goals.player2.size / 2
             );
@@ -367,7 +402,13 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             //BALL
             ctx.beginPath();
-            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
+            ctx.arc(
+                gameState.ball.x * ratio, 
+                gameState.ball.y * ratio, 
+                ballRadius * (arena_radius / (canvasWidth / 2)) * ratio, 
+                0, 
+                Math.PI * 2
+            );          
             ctx.strokeStyle = "yellow";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
@@ -475,11 +516,35 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 0;
             }
             if (draw_bounce == true) {
-                ctx.drawImage(bounceImage, (x_bounce - 75) * ratio, (y_bounce - 75) * ratio, 150, 150);
-                image_refresh++;
-                if (image_refresh == 60) {
+                let image: HTMLImageElement;
+                if (ping_or_pong == 0)
+                    image = PING_image;
+                else
+                    image = PONG_image;
+                let image_size: number = 100 * ratio;
+                ctx.drawImage(image, (x_bounce - image_size / 2) * ratio, (y_bounce - image_size / 2) * ratio, image_size, image_size);
+                image_bounce_refresh++;
+                if (image_bounce_refresh == 60) {
                     draw_bounce = false;
-                    image_refresh = 0;
+                    image_bounce_refresh = 0;
+                }
+            }
+            if (draw_blue_goal == true) {
+                let image_size: number = 300 * ratio;
+                ctx.drawImage(BLUE_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
+                image_goal_refresh++;
+                if (image_goal_refresh == 60) {
+                    draw_blue_goal = false;
+                    image_goal_refresh = 0;
+                }
+            }
+            if (draw_red_goal == true) {
+                let image_size: number = 300 * ratio;
+                ctx.drawImage(RED_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
+                image_goal_refresh++;
+                if (image_goal_refresh == 60) {
+                    draw_red_goal = false;
+                    image_goal_refresh = 0;
                 }
             }
 
