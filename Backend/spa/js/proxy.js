@@ -399,4 +399,32 @@ async function checkUserExists(username) {
     }
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists };
+async function get_secret(email){
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        const data = await response.data;
+        return true;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+async function get_secret_two(email){
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        const data = await response.data;
+        return true;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_secret, get_secret_two };

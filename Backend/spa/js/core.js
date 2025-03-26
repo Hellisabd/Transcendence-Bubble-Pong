@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists } = require("./proxy");
+const { log, create_account , get_user , logout, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_secret, get_secret_two } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -114,6 +114,46 @@ fastify.post('/2fa/verify', twofaverify);
 fastify.post('/2fa/setup', setup2fa);
 
 fastify.post('/userExists', checkUserExists);
+
+fastify.post("/2fa/get_secret", async (request, reply) => {
+  const { email } = request.body;
+
+  if (!email) {
+      return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+  }
+
+  try {
+      const response = await axios.post("http://users:5000/2fa/get_secret",
+          { email },
+          { headers: { "Content-Type": "application/json" } }
+      );
+
+      return reply.send(response.data);
+  } catch (error) {
+      console.error("Erreur:", error.message);
+      return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+  }
+});
+
+fastify.post("/2fa/get_secret_two", async (request, reply) => {
+	const { email } = request.body;
+
+	if (!email) {
+		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+	}
+
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret_two",
+			{ email },
+			{ headers: { "Content-Type": "application/json" } }
+		);
+
+		return reply.send(response.data);
+	} catch (error) {
+		console.error("Erreur:", error.message);
+		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+	}
+  });
 
 
 fastify.get('/:page', async (request, reply) => {

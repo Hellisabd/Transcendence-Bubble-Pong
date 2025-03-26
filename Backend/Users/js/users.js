@@ -508,16 +508,37 @@ fastify.post("/update_avatar",  async (request, reply) => {
 });
 
 fastify.post("/2fa/get_secret", async (request, reply) => {
+  const { email } = request.body;
+
+  if (!email) {
+      return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+  }
+
+  try {
+      const user = await db.prepare("SELECT secret FROM users WHERE email = ?").get(email);
+      if (!user || !user.secret) {
+          return reply.send({ success: false, error: "Secret non trouvé" });
+      }
+      return reply.send({ success: true, secret: user.secret });
+  } catch (error) {
+      return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+  }
+});
+
+fastify.post("/2fa/get_secret_two", async (request, reply) => {
 	const { email } = request.body;
-	console.log(email);
-	if (!email)
+
+	if (!email) {
 		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+	}
+
 	try {
 		const user = await db.prepare("SELECT secret FROM users WHERE email = ?").get(email);
-		if (!user || !user.secret)
-			return reply.send({ success: false, error: "Secret non trouvé" });
-		return reply.send({ success: true, secret: user.secret });
+		if (!user || !user.secret) {
+			return reply.send({ success: false });
+		}
+		return reply.send({ success: true });
 	} catch (error) {
 		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
 	}
-});
+  });

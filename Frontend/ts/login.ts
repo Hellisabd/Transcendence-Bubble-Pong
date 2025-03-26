@@ -30,9 +30,17 @@ async function login(event: Event): Promise<void> {
     }
 
 
+	const response = await fetch("/2fa/get_secret_two", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ email })
+	});
 
-	const require2FA = true;
-	if (require2FA) {
+	const data = await response.json();
+	console.log(data);
+
+
+	if (data.success) {
 		const code = prompt("Veuillez saisir votre code 2FA:");
 		if (!code) return alert("Le code 2FA est requis pour vous connecter.");
 
