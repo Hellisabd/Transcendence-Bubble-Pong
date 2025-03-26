@@ -289,11 +289,10 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (page != "login") {
             console.log("TEST");
             await set_up_bars();
-            if (check_friend_list_state())
+            if (!check_friend_list_state())
                 set_up_friend_list(username);
             else {
                 display_friends();
-                pending_request();
             }
             set_user(username);
             return ;

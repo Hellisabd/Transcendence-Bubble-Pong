@@ -189,6 +189,9 @@ async function get_user_with_id(user_id) {
 
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
+  console.log("username: ", username)
+  if (!username)
+    return reply.send(JSON.stringify({success: false}));
   const user = await db.prepare(`
     SELECT id FROM users
     WHERE username = ?
@@ -253,10 +256,7 @@ fastify.post("/add_friend", async (request, reply) => {
           SET status = 'accepted'
           WHERE (user_id = ? AND friend_id = ?)
           `).run( user_to_add_id, user_sending_id);
-          const databaseContent = await db.prepare(`
-            SELECT * FROM friends
-            `).all();
-          return reply.send(JSON.stringify({success: true, message: "This user already sent u an invitation you are now friends!"}));
+          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent u an invitation you are now friends!"}));
       }
       else if (!pending && exisitingFriendship) {
         return reply.send(JSON.stringify({success: false, message: "You already invited this user"}));

@@ -203,6 +203,7 @@ async function ping_waiting_room(req, reply) {
 }
 
 async function display_friends(username, connection) {
+    console.log("username in display friends:")
     const data = await get_friends(username);
     const friends = data.friends;
     if (!friends) {
@@ -228,10 +229,10 @@ async function send_to_friend(username, token) {
     let tab_of_friends = response.friends;
     for (let i = 0; i < tab_of_friends.length; i++) {
         if (tab_of_friends[i].status != "offline" && status == null) {
-            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
+            users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
         }
         else if (tab_of_friends[i].status != "offline") {
-            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: status}));
+            users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: status}));
         }
     }
 }
@@ -244,9 +245,18 @@ async function update_status(req, reply) {
 }
 
 async function add_friend(req, reply) {
+    const {user_sending} = req.body;
+    console.log("req.body in add friend", req.body);
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
+    if (response.data.success && response.data.display)
+    {
+        console.log(user_sending);
+        display_friends(user_sending, users_connection[user_sending]);
+    }
+   else if (response.data.succes) {
+    } 
     reply.send(response.data);
 }
 
@@ -264,7 +274,7 @@ async function pending_request(req, reply) {
     reply.send(response.data);
 }
 
-async function get_friends(username) {
+async function get_friends(username) { 
     const response = await axios.post("http://users:5000/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
