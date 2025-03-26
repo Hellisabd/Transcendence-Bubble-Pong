@@ -12,6 +12,8 @@ function check_friend_list_state() {
 }
 
 async function display_friends() {
+	console.log("passe dans display friends");
+	pending_request();
     const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
     if (friendsDiv) {
 		friendsDiv.innerHTML = "";
@@ -77,23 +79,33 @@ async function display_friends() {
     }
 }
 
+let displaying_pending: boolean = false;
+
 async function display_pending(user: string[]) {
 	console.log("user tab:", user);
-	if (!user)
+	if (!user || displaying_pending)
 		return ;
+	displaying_pending = true;
 	const pendingDiv = <HTMLDivElement>document.getElementById("pending_request");
 	const pellet = <HTMLDivElement>document.getElementById("pelletSocial");
 	const pendingParent = <HTMLDivElement>document.getElementById("pending_request_div");
+	pellet.innerHTML = "";
 	if (user.length > 0 && pellet) {
-		pendingParent.classList.remove("hidden");
 		pellet.classList.remove("hidden");
+		pendingParent.classList.remove("hidden");
+		console.log("enleve le hide de pending");
 	} else {
 		pendingParent.classList.add("hidden");
 		pellet.classList.add("hidden");
 	}
 	if (pendingDiv && user.length > 0) {
 		for (const username of user) {
+			if (document.getElementById(`${username}_pending`)) {
+				console.log("censer ignorer la div")
+				continue ;
+			}
 			const userDiv = document.createElement("div");
+			userDiv.id = `${username}_pending`;
 			userDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
 			const avatar = document.createElement("img");
 			avatar.classList.add("w-8", "h-8", "rounded-full");
@@ -171,6 +183,7 @@ async function display_pending(user: string[]) {
 			pendingDiv.appendChild(userDiv);
 		}
 	}
+	displaying_pending = false;
 }
 
 let i = 0;
@@ -203,9 +216,6 @@ async function set_up_friend_list(user: string | null) {
 		if (data.success == true && data.user_inviting) {
 			console.log("lol?");
 		}
-		else {
-			display_pending(data.user_inviting);
-		}
 		console.log(i);
 		if (data.display)
 		{
@@ -213,6 +223,7 @@ async function set_up_friend_list(user: string | null) {
 			console.log("affiche quand je veux");
 		}
     };
+	// pending_request();
 }
 
 function close_users_socket() {
