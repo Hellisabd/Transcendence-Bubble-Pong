@@ -8,14 +8,9 @@
 
 </head>
 <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("index"); // Appelle la fonction au chargement de la page
-      set_up_friend_list();
-    });
-  </script>
+  <%- include('/usr/src/app/Frontend/templates/navbar.ejs') %>
+	<%- include('/usr/src/app/Frontend/templates/sidebar.ejs') %>
   <div id="content">
-    <%- include('/usr/src/app/Frontend/templates/navbar.ejs') %>
     <br><br><br>
     <h1>🏆 Classement du Tournoi 🏆</h1>
 

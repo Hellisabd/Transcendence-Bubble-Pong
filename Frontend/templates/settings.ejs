@@ -7,14 +7,7 @@
         <%- include('links.ejs') %>
     </head>
     <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-              navigateTo("settings"); // Appelle la fonction au chargement de la page
-              set_up_friend_list();
-            });
-        </script>
         <div id="content">
-            <%- include('navbar.ejs') %>
             <h2>Modify User</h2>
             <form id="modifyUserForm" onsubmit="settings(event)">
                 <label for="email">Adresse Email :</label>

@@ -12,9 +12,9 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
+const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
 const cors = require("@fastify/cors");
-const path = require('path'); 
+const path = require('path');
 const fastifystatic = require('@fastify/static');
 const view = require('@fastify/view');
 const fs = require('fs');
@@ -79,8 +79,8 @@ fastify.register(async function (fastify) {
       Websocket_handling(data.username, connection);
       send_to_friend();
       display_friends(data.username, connection);
-    })
-  });
+    }) 
+  }); 
 });
 
 fastify.post("/create_account", create_account);
@@ -90,12 +90,14 @@ fastify.post("/update_avatar", update_avatar);
 fastify.post("/update_solo_score", update_solo_score);
 
 fastify.post("/pending_request", pending_request);
-
+ 
 fastify.post("/settings", settings);
 
 fastify.post("/update_history", update_history);
 
 fastify.get("/history", get_history);
+
+fastify.post("/dashboard", get_stats);
 
 fastify.post("/update_status", update_status);
 
@@ -108,6 +110,8 @@ fastify.post("/waiting_room", waiting_room);
 fastify.post("/ping_waiting_room", ping_waiting_room);
 
 fastify.post("/add_friend", add_friend);
+
+fastify.post("/decline_friend", decline_friend);
 
 fastify.post("/get_avatar", get_avatar);
 

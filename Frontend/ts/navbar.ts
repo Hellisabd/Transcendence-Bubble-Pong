@@ -8,6 +8,11 @@ document.addEventListener("click", function(event: MouseEvent) {
 
 	if (!userMenu?.contains(event.target as Node) && !userMenuButton?.contains(event.target as Node)) {
 		userMenu?.classList.add("hidden");
+		userMenuButton?.classList.remove("outline-none");
+		userMenuButton?.classList.remove("ring-2");
+		userMenuButton?.classList.remove("ring-white");
+		userMenuButton?.classList.remove("ring-offset-2");
+		userMenuButton?.classList.remove("ring-offset-gray-800");
 	}
 
 	if (!MenuMobile?.contains(event.target as Node) && !mobilemenubutton?.contains(event.target as Node)) {
@@ -16,6 +21,7 @@ document.addEventListener("click", function(event: MouseEvent) {
 		menuIconClose?.classList.add("hidden");
 	}
 });
+
 function displayMenu() {
 	const mobileMenu = document.getElementById("mobile-menu");
 	const menuIconOpen = document.getElementById("menu-icon-open");
@@ -29,4 +35,10 @@ function displayMenu() {
 function displayUserMenu() {
 	const userMenu = document.getElementById("user-menu");
 	userMenu?.classList.toggle("hidden");
+	const userMenuButton = document.getElementById("user-menu-button");
+	userMenuButton?.classList.toggle("outline-none");
+	userMenuButton?.classList.toggle("ring-2");
+	userMenuButton?.classList.toggle("ring-white");
+	userMenuButton?.classList.toggle("ring-offset-2");
+	userMenuButton?.classList.toggle("ring-offset-gray-800");
 };

@@ -198,7 +198,7 @@ function ping_resetBall() {
 }
 
 
-function ping_draw(): void {
+function ping_draw(ratio: number): void {
 	if (!ping_ctx || !ping_canvas) {
 		return ;
 	}
@@ -309,11 +309,13 @@ function ping_draw(): void {
 }
 
 function ping_gameLoop() {
-	if (!ping_ctx) {
+	if (!ping_ctx || !ping_canvas) {
 		return;
 	}
+    let canvasWidth: number = ping_canvas.offsetWidth;
+    let ratio: number = canvasWidth / 1000;
 	ping_update();
-	ping_draw();
+	ping_draw(ratio);
 	requestAnimationFrame(ping_gameLoop);
 }
 
