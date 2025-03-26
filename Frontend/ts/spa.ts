@@ -140,8 +140,8 @@ async function set_up_bars() {
                     </div>
 
                     <!-- Titre -->
-                    <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-xl font-secondFont">
-                        Pong Game
+                    <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-5xl font-kablam">
+                        PONG GAME
                     </h1>
 
                     <!-- User -->
