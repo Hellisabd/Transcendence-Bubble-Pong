@@ -51,7 +51,7 @@ db.prepare(`
 		password TEXT NOT NULL,
 		avatar_name TEXT DEFAULT 'default.jpg',
 		secret TEXT UNIQUE DEFAULT NULL,
-    	high_score INTEGER NOT NULL DEFAULT 0
+    	high_score INTEGER NOT NULL DEFAULT 0)
 `).run();
 
 db.prepare(`

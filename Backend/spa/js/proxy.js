@@ -242,9 +242,9 @@ async function display_friends(username, connection) {
     }
     for (let i = 0; i < friends.length; i++) {
         console.log(friends[i]);
-        connection.socket.send(JSON.stringify(friends[i]));
+        connection?.socket.send(JSON.stringify(friends[i]));
     }
-    connection.socket.send(JSON.stringify({display : true}));
+    connection?.socket.send(JSON.stringify({display : true}));
 }
 
 
