@@ -136,7 +136,7 @@ async function create_account(event: Event): Promise<void> {
 			await new Promise<void>((resolve, reject) => {
 				const verifyModal = document.createElement('div');
 				verifyModal.innerHTML = `
-					<div style="position: fixed; top: 80%; left: 80%; transform: translate(-50%, -50%);
+					<div style="position: fixed; top: 80%; left: 50%; transform: translate(-50%, -50%);
 								background: white; padding: 20px; border: 1px solid #ccc; z-index: 1001;">
 						<p>Entrez le code 2FA affiché par votre application authentificatrice:</p>
 						<input id="qr-verify-code" type="text" style="width: 100%; margin-bottom: 10px;"/>
