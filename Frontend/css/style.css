@@ -41,6 +41,14 @@
     font-style: normal;
 }
 
+.bg-pong {
+    background-image: url('/Frontend/assets/PONG_ARENA.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+    /* min-height: 100vh; */
+}
+
 /* 
 body {
     font-family: 'Canted Comic', sans-serif;

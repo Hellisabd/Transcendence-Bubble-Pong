@@ -630,6 +630,10 @@ video {
   position: relative;
 }
 
+.inset-0 {
+  inset: 0px;
+}
+
 .inset-auto {
   inset: auto;
 }
@@ -739,6 +743,10 @@ video {
   left: 25%;
 }
 
+.left-\[36px\] {
+  left: 36px;
+}
+
 .right-0 {
   right: 0px;
 }
@@ -801,6 +809,30 @@ video {
 
 .top-36 {
   top: 9rem;
+}
+
+.top-\[24px\] {
+  top: 24px;
+}
+
+.top-\[28px\] {
+  top: 28px;
+}
+
+.left-\[42px\] {
+  left: 42px;
+}
+
+.left-\[25px\] {
+  left: 25px;
+}
+
+.left-\[13px\] {
+  left: 13px;
+}
+
+.top-\[9px\] {
+  top: 9px;
 }
 
 .z-\[9998\] {
@@ -974,6 +1006,10 @@ video {
   height: 160px;
 }
 
+.h-\[175px\] {
+  height: 175px;
+}
+
 .h-\[320px\] {
   height: 320px;
 }
@@ -988,6 +1024,10 @@ video {
 
 .h-full {
   height: 100%;
+}
+
+.h-\[178px\] {
+  height: 178px;
 }
 
 .max-h-full {
@@ -1074,12 +1114,20 @@ video {
   width: 320px;
 }
 
+.w-\[343px\] {
+  width: 343px;
+}
+
 .w-full {
   width: 100%;
 }
 
 .w-screen {
   width: 100vw;
+}
+
+.w-\[347px\] {
+  width: 347px;
 }
 
 .max-w-7xl {
@@ -1455,6 +1503,11 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
 }
 
 .bg-gradient-to-b {
@@ -1961,6 +2014,14 @@ video {
   font-style: normal;
 }
 
+.bg-pong {
+  background-image: url('/Frontend/assets/PONG_ARENA.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+  /* min-height: 100vh; */
+}
+
 /* 
 body {
     font-family: 'Canted Comic', sans-serif;
@@ -2144,6 +2205,22 @@ body {
     inset: auto;
   }
 
+  .sm\:top-\[28px\] {
+    top: 28px;
+  }
+
+  .sm\:left-\[42px\] {
+    left: 42px;
+  }
+
+  .sm\:left-\[25px\] {
+    left: 25px;
+  }
+
+  .sm\:top-\[17px\] {
+    top: 17px;
+  }
+
   .sm\:ml-6 {
     margin-left: 1.5rem;
   }
@@ -2160,6 +2237,10 @@ body {
     height: 300px;
   }
 
+  .sm\:h-\[329px\] {
+    height: 329px;
+  }
+
   .sm\:h-\[50px\] {
     height: 50px;
   }
@@ -2168,8 +2249,24 @@ body {
     height: 600px;
   }
 
+  .sm\:h-\[333px\] {
+    height: 333px;
+  }
+
+  .sm\:h-\[334px\] {
+    height: 334px;
+  }
+
   .sm\:w-\[600px\] {
     width: 600px;
+  }
+
+  .sm\:w-\[644px\] {
+    width: 644px;
+  }
+
+  .sm\:w-\[652px\] {
+    width: 652px;
   }
 
   .sm\:items-stretch {
@@ -2188,11 +2285,46 @@ body {
   .sm\:pr-0 {
     padding-right: 0px;
   }
+
+  .sm\:text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .sm\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .sm\:text-4xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
 }
 
 @media (min-width: 768px) {
+  .md\:left-\[42px\] {
+    left: 42px;
+  }
+
+  .md\:top-\[28px\] {
+    top: 28px;
+  }
+
+  .md\:left-\[34px\] {
+    left: 34px;
+  }
+
+  .md\:top-\[23px\] {
+    top: 23px;
+  }
+
   .md\:h-\[400px\] {
     height: 400px;
+  }
+
+  .md\:h-\[439px\] {
+    height: 439px;
   }
 
   .md\:h-\[50px\] {
@@ -2207,6 +2339,14 @@ body {
     height: 800px;
   }
 
+  .md\:h-\[449px\] {
+    height: 449px;
+  }
+
+  .md\:h-\[444px\] {
+    height: 444px;
+  }
+
   .md\:w-\[20rem\] {
     width: 20rem;
   }
@@ -2219,6 +2359,14 @@ body {
     width: 800px;
   }
 
+  .md\:w-\[858px\] {
+    width: 858px;
+  }
+
+  .md\:w-\[868px\] {
+    width: 868px;
+  }
+
   .md\:space-x-8 > :not([hidden]) ~ :not([hidden]) {
     --tw-space-x-reverse: 0;
     margin-right: calc(2rem * var(--tw-space-x-reverse));
@@ -2229,9 +2377,27 @@ body {
     font-size: 1.125rem;
     line-height: 1.75rem;
   }
+
+  .md\:text-4xl {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  .md\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
+  }
 }
 
 @media (min-width: 1024px) {
+  .lg\:top-\[28px\] {
+    top: 28px;
+  }
+
+  .lg\:left-\[42px\] {
+    left: 42px;
+  }
+
   .lg\:h-\[24rem\] {
     height: 24rem;
   }
@@ -2248,8 +2414,28 @@ body {
     height: 50px;
   }
 
+  .lg\:h-\[549px\] {
+    height: 549px;
+  }
+
+  .lg\:h-\[5px\] {
+    height: 5px;
+  }
+
+  .lg\:h-\[560px\] {
+    height: 560px;
+  }
+
+  .lg\:h-\[556px\] {
+    height: 556px;
+  }
+
   .lg\:w-\[1000px\] {
     width: 1000px;
+  }
+
+  .lg\:w-\[1073px\] {
+    width: 1073px;
   }
 
   .lg\:w-\[32rem\] {
@@ -2258,6 +2444,10 @@ body {
 
   .lg\:w-\[40rem\] {
     width: 40rem;
+  }
+
+  .lg\:w-\[1086px\] {
+    width: 1086px;
   }
 
   .lg\:flex-row {
@@ -2271,6 +2461,11 @@ body {
   .lg\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+
+  .lg\:text-5xl {
+    font-size: 3rem;
+    line-height: 1;
   }
 }
 

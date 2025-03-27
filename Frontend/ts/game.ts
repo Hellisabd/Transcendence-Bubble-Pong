@@ -20,6 +20,24 @@ let Tsocket: WebSocket | null = null;
 let disp: boolean = true;
 let win: number = 0;
 
+const PONG_ARENA = new Image();
+PONG_ARENA.src = "Frontend/assets/PONG_ARENA.png";
+
+const BLUE_PADDLE = new Image();
+BLUE_PADDLE.src = "Frontend/assets/BLUE_PADDLE.png";
+
+const RED_PADDLE = new Image();
+RED_PADDLE.src = "Frontend/assets/RED_PADDLE.png";
+
+const BALL = new Image();
+BALL.src = "Frontend/assets/BALL.png";
+
+const WIN_image = new Image();
+WIN_image.src = "Frontend/assets/WIN.png";
+
+const LOSE_image = new Image();
+LOSE_image.src = "Frontend/assets/LOSE.png";
+
 async function play_pong() {
     Disconnect_from_game();
     const user = await get_user();
@@ -159,6 +177,19 @@ function Disconnect_from_game() {
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
+    // const arena_canvas = document.getElementById("pongarenaCanvas") as HTMLCanvasElement;
+    // if (arena_canvas) {
+    //     console.log("ARENA CANVAS TRIGGER")
+    //     const arena_ctx = arena_canvas.getContext("2d");
+    //     if (!arena_ctx) {
+    //         return ;
+    //     }
+
+    //     arena_ctx.drawImage(PONG_ARENA, 0, 0, arena_canvas.width, arena_canvas.height);
+    // }
+    const arena = document.getElementById("pongarena") as HTMLDivElement;
+    arena?.classList.toggle("hidden");
+
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
     fetch("/update_status", {
         method: "POST",
@@ -291,26 +322,27 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             let ratio: number = canvasWidth / 1000;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(RED_PADDLE, 0, gameState.paddles.player1.y  * ratio, paddleWidth * ratio, paddleHeight * ratio);
+
+            ctx.drawImage(BLUE_PADDLE, canvas.width - (paddleWidth * ratio), gameState.paddles.player2.y  * ratio, paddleWidth * ratio, paddleHeight * ratio);
 
             ctx.beginPath();
-            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius  * ratio, 0, Math.PI * 2);
-            ctx.fillStyle = "yellow";
-            ctx.fill();
-
-            ctx.fillStyle = "red";
-            ctx.fillRect(0, gameState.paddles.player1.y  * ratio, paddleWidth * ratio, paddleHeight * ratio);
-            ctx.fillStyle = "blue";
-            ctx.fillRect(canvas.width - (paddleWidth * ratio), gameState.paddles.player2.y * ratio, paddleWidth * ratio, paddleHeight * ratio);
+            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
+            ctx.fillStyle = "#efb60a";
+            ctx.fill(); 
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
 
             draw_score(ratio);
             draw_winner(ratio);
             if (disp == true) {
-                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "white";
+                ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
+                ctx.fillStyle = "black";
                 ctx.textAlign = "center";
-                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + (100 * ratio));
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + (200 * ratio));
             }
         }
         requestAnimationFrame(drawGame);
@@ -321,9 +353,9 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
-            ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+            ctx.font = `bold ${40 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
             ctx.fillStyle = "red";
-            ctx.fillText(String(gameState.score.player1), canvas.width / 2 - (50 * ratio), 40 * ratio);
+            ctx.fillText(String(gameState.score.player1), canvas.width / 2 - (70 * ratio), 40 * ratio);
             ctx.fillStyle = "blue";
             ctx.fillText(String(gameState.score.player2), canvas.width / 2 + (50 * ratio), 40 * ratio);
         }
@@ -333,18 +365,12 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                 return ;
             }
             if (win == 1) {
-                ctx.textAlign = "center";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "green";
-                ctx.fillText(String("YOU WIN!"), canvas.width / 2, canvas.height / 2 - (50 * ratio));
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(WIN_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (win == 2) {
-                ctx.textAlign = "center";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = `bold ${40 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "red";
-                ctx.fillText(String("YOU LOSE!"), canvas.width / 2, canvas.height / 2 - (50 * ratio));
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(LOSE_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (player_id == 1 && win != 0) {
                 end_game(win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, inTournament);
