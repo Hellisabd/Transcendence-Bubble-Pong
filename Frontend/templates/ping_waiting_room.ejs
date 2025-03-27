@@ -7,18 +7,17 @@
       <%- include('links.ejs') %>
 </head>
 <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      navigateTo("pong_game"); // Appelle la fonction au chargement de la page
-      set_up_friend_list();
-    });
-  </script>
   <div id="content">
-    <%- include('navbar.ejs') %>
-    <br>
-    <br>
-    <br>
-    <canvas id="pingCanvas" width="700" height="700"></canvas>
+    <div class="relative flex flex-col items-center translate-y-20">
+      <div class="relative flex w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
+        <p id="playerOne" class="absolute top-0 left-0 text-red-600 text-2xl font-canted"></p>
+        <p id="playerTwo" class="absolute top-0 right-0 text-blue-700 text-2xl font-canted"></p>
+      </div>
+      <canvas id="ping_animation" class="w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
+        <canvas id="pingCanvas" class="w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      </div>
+  </div>
   </div>
   <%- include('scripts.ejs') %>
 </body>

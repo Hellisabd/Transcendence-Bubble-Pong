@@ -26,6 +26,10 @@ async function get_avatar(request, reply) {
     return reply.send(response.data.avatar_name);
 }
 
+async function update_solo_score(req, reply) {
+
+}
+
 async function update_avatar(req, reply) {
     try {
       const token = req.cookies.session;
@@ -171,10 +175,25 @@ async function settings(req, reply) {
     return reply.send(response.data);
 }
 
+async function update_solo_score(req, reply) {
+    const response = await axios.post("http://users:5000/update_solo_score", req.body);
+    reply.send(response.data);
+}
 
 async function update_history(req, reply) {
     const response = await axios.post("http://users:5000/update_history", req.body);
     reply.send(response.data);
+}
+
+async function get_stats(req, reply) {
+    const {username} = req.body;
+
+
+    const response = await axios.post("http://users:5000/get_history",
+        { username },  // ✅ Envoie le JSON correctement
+        { headers: { "Content-Type": "application/json" } }
+    );
+    return reply.send(response.data.stats);
 }
 
 async function get_history(req, reply) {
@@ -193,10 +212,7 @@ async function get_history(req, reply) {
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    const historyTemplate = fs.readFileSync("Frontend/templates/history.ejs", "utf8");
-    // reply.send(finalFile);
-    console.log("ping_tab", response.data.ping_history);
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, ping_history: response.data.ping_history, history_ping_tournament: response.data.history_ping_tournament });
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
 }
 
 async function end_tournament(req, reply) {
@@ -218,14 +234,17 @@ async function ping_waiting_room(req, reply) {
 }
 
 async function display_friends(username, connection) {
+    console.log("username in display friends:")
     const data = await get_friends(username);
     const friends = data.friends;
     if (!friends) {
         return ;
     }
     for (let i = 0; i < friends.length; i++) {
+        console.log(friends[i]);
         connection.socket.send(JSON.stringify(friends[i]));
     }
+    connection.socket.send(JSON.stringify({display : true}));
 }
 
 
@@ -241,10 +260,10 @@ async function send_to_friend(username, token) {
     let tab_of_friends = response.friends;
     for (let i = 0; i < tab_of_friends.length; i++) {
         if (tab_of_friends[i].status != "offline" && status == null) {
-            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
+            users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
         }
         else if (tab_of_friends[i].status != "offline") {
-            users_connection[tab_of_friends[i].username].socket.send(JSON.stringify({username: username, status: status}));
+            users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: status}));
         }
     }
 }
@@ -257,9 +276,25 @@ async function update_status(req, reply) {
 }
 
 async function add_friend(req, reply) {
+    const {user_sending} = req.body;
+    console.log("req.body in add friend", req.body);
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
+    if (response.data.success && response.data.display)
+    {
+        console.log(user_sending);
+        display_friends(user_sending, users_connection[user_sending]);
+    }
+   else if (response.data.succes) {
+    }
+    reply.send(response.data);
+}
+
+async function decline_friend(req, reply) {
+	const response = await axios.post("http://users:5000/decline_friend", req.body, {
+		withCredentials: true
+	});
     reply.send(response.data);
 }
 
@@ -427,4 +462,4 @@ async function get_secret_two(email){
     }
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_secret, get_secret_two };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists };

@@ -23,6 +23,10 @@ let ping_win: number = 0;
 let bonus_glowing: number = 0;
 let up_down: boolean = true;
 
+let bounce: number = 0;
+
+let bonus_stats: any = null;
+
 async function play_ping() {
     ping_Disconnect_from_game();
     const user = await get_user();
@@ -101,21 +105,24 @@ async function ping_tournament() {
 function ping_end_game(ping_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  ping_inTournament: boolean) {
     if (ping_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
         console.log("endgame on tournament: ", ping_id_tournament);
-        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}}));
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping", bounce: bounce, bonus_stats: bonus_stats}}));
         ping_socket?.close();
     }
     else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
-        console.log("update normal game history"); 
+        console.log("bonus_stat_front: ", bonus_stats); 
+
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ history:{"win": ping_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "ping"}})
+            body: JSON.stringify({ history:{"win": ping_win, "myusername": user, "otherusername": otheruser, "myscore": myscore, "otherscore": otherscore, "gametype": "ping", bounce: bounce, bonus_stats: bonus_stats}})
         });
     }
     ping_win = 0;
 }
 
 function ping_Disconnect_from_game() {
+    if (window.location.pathname !== "/ping_waiting_room" && window.location.pathname !== "/ping_tournament")
+        animation_ping_stop();
     if (!ping_Wsocket && !ping_socket && !ping_lobbyKey && !ping_Tsocket)
         return;
     ping_Wsocket?.close();
@@ -152,6 +159,39 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         if (!ctx) {
             return ;
         }
+
+        let canvasWidth: number = canvas.offsetWidth;
+        let canvasHeight: number = canvas.offsetHeight;
+        
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        let ratio: number = canvasWidth / 1000;
+
+        const PING_image = new Image();
+        PING_image.src = "Frontend/assets/PING.png";
+
+        const PONG_image = new Image();
+        PONG_image.src = "Frontend/assets/PONG.png";
+
+        const RED_GOAL_image = new Image();
+        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.png";
+
+        const BLUE_GOAL_image = new Image();
+        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.png";
+
+        const WIN_image = new Image();
+        WIN_image.src = "Frontend/assets/WIN.png";
+
+        const LOSE_image = new Image();
+        LOSE_image.src = "Frontend/assets/LOSE.png";
+
+        let image_bounce_refresh: number = 0;
+        let image_goal_refresh: number = 0;
+        
+        animation_ping_stop();
+        document.getElementById("ping_animation")?.classList.add("hidden");
+
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
         if (!ping_socket)
@@ -169,9 +209,17 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ping_win = 0;
             console.warn("⚠️ WebSocket fermée :", event);
         };
-        
-        const ballRadius = 10;
+
+        const ballRadius = 15;
         const bonusRadius = 50;
+        let draw_bounce: boolean = false;
+        let draw_red_goal: boolean = false;
+        let draw_blue_goal: boolean = false;
+        let x_bounce: number = 0;
+        let y_bounce: number = 0;
+        let ping_or_pong: number = 0;
+        let x_goal: number = 0;
+        let y_goal: number = 0;
 
         let gameState = {
             ball: { x: canvas.width / 2, y: canvas.height / 2 },
@@ -182,8 +230,22 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             goals: { player1: { angle: Math.PI, size: Math.PI / 3, protected: false }, player2: { angle: 0, size: Math.PI / 3, protected: false } },
             score: { player1: 0, player2: 0 },
             bonus: {tag: null, x: 350, y: 350 },
-            playerReady: { player1: false, player2: false }
+            playerReady: { player1: false, player2: false },
+            draw_bounce: { draw: false, x: 0, y: 0 }
         };
+
+        function ping_player_one(): string {
+            return gameState.paddles.player1.name;
+        }
+        function ping_player_two(): string {
+            return gameState.paddles.player2.name;
+        }
+      
+        const playerOneElement = document.querySelector("#playerOne") as HTMLElement;
+        const playerTwoElement = document.querySelector("#playerTwo") as HTMLElement;
+        
+        playerOneElement.innerText = `${ping_player_one()}`;
+        playerTwoElement.innerText = `${ping_player_two()}`;
 
         ping_socket.onmessage = (event) => {
             let gs = JSON.parse(event.data);
@@ -193,19 +255,38 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             if (gs.start == "start") {
                 ping_disp = false;
             }
-            else if (gs.start == "stop")
+            else if (gs.start == "stop") {
                 ping_disp = true;
+                bounce = gs.bounce;
+                bonus_stats = gs.bonus_stats;
+            }
             if (gs.ping_lobbyKey === ping_lobbyKey) {
                 gameState = gs.gameState;
                 drawGame();
             }
             if (gs.winner == true) {
                 ping_win = 1;
-                draw_winner();
+                draw_winner(ratio);
             }
             else if (gs.winner == false) {
                 ping_win = 2;
-                draw_winner();
+                draw_winner(ratio);
+            }
+            else if (gs.draw_bounce == true) {
+                draw_bounce = true;
+                x_bounce = gs.x_bounce;
+                y_bounce = gs.y_bounce;
+                ping_or_pong = gs.ping_or_pong;
+            }
+            else if (gs.red_goal == true) {
+                draw_red_goal = true;
+                x_goal = gs.x_goal;
+                y_goal = gs.y_goal;
+            }
+            else if (gs.blue_goal == true) {
+                draw_blue_goal = true;
+                x_goal = gs.x_goal;
+                y_goal = gs.y_goal;
             }
         };
 
@@ -254,18 +335,36 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             if (!ctx) {
                 return ;
             }
+            let canvasWidth: number = canvas.offsetWidth;
+            let canvasHeight: number = canvas.offsetHeight;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            let ratio: number = canvasWidth / 1000;
+
+            let arena_radius: number = canvasWidth / 2 - canvasWidth / 20;
+            let scale = arena_radius / (canvasWidth / 2);
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+        
+            ctx.scale(scale, scale);
+        
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
             //ARENA
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
             ctx.fillStyle = "black";
             ctx.fill();
             ctx.closePath();
 
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
-            ctx.lineWidth = 5;
+            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "white";
             ctx.shadowBlur = 10;
             ctx.shadowColor = ctx.strokeStyle;
@@ -278,7 +377,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 5,
+                canvas.width / 2,
                 gameState.goals.player1.angle - gameState.goals.player1.size / 2,
                 gameState.goals.player1.angle + gameState.goals.player1.size / 2
             );
@@ -286,7 +385,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = "#00CDFF";
             }
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "red";
             ctx.stroke();
             ctx.stroke();
@@ -299,7 +398,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 5,
+                canvas.width / 2,
                 gameState.goals.player2.angle - gameState.goals.player2.size / 2,
                 gameState.goals.player2.angle + gameState.goals.player2.size / 2
             );
@@ -307,7 +406,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = "#FF9F00";
             }
-            ctx.lineWidth = 5;
+            ctx.lineWidth = 5 * ratio;
             ctx.strokeStyle = "blue";
             ctx.stroke();
             ctx.stroke();
@@ -317,7 +416,13 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             //BALL
             ctx.beginPath();
-            ctx.arc(gameState.ball.x, gameState.ball.y, ballRadius, 0, Math.PI * 2);
+            ctx.arc(
+                gameState.ball.x * ratio, 
+                gameState.ball.y * ratio, 
+                ballRadius * (arena_radius / (canvasWidth / 2)) * ratio, 
+                0, 
+                Math.PI * 2
+            );          
             ctx.strokeStyle = "yellow";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
@@ -330,14 +435,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 19,
+                canvas.width / 2 - (19 * ratio),
                 gameState.paddles.player1.angle - gameState.paddles.player1.size,
                 gameState.paddles.player1.angle + gameState.paddles.player1.size
             );
             ctx.strokeStyle = "red";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
-            ctx.lineWidth = 20
+            ctx.lineWidth = 20 * ratio;
             ctx.stroke();
             ctx.closePath();
             ctx.shadowBlur = 0;
@@ -347,14 +452,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 19,
+                canvas.width / 2 - (19 * ratio),
                 gameState.paddles.player2.angle - gameState.paddles.player2.size,
                 gameState.paddles.player2.angle + gameState.paddles.player2.size
             );
             ctx.strokeStyle = "blue";
             ctx.shadowBlur = 15;
             ctx.shadowColor = ctx.strokeStyle;
-            ctx.lineWidth = 20
+            ctx.lineWidth = 20 * ratio;
             ctx.stroke();
             ctx.closePath();
             ctx.shadowBlur = 0;
@@ -362,7 +467,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             //BONUS
             if (gameState.bonus.tag == 'P') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -374,7 +479,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -384,7 +488,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
             if (gameState.bonus.tag == 'G') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -396,7 +500,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -407,7 +510,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
 
             if (gameState.bonus.tag == 'S') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, bonusRadius, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -419,7 +522,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                     if (bonus_glowing == 0)
                         up_down = true;
                 }     
-                console.log(bonus_glowing);
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
                 ctx.lineWidth = 20;
@@ -427,58 +529,79 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
+            if (draw_bounce == true) {
+                let image: HTMLImageElement;
+                if (ping_or_pong == 0)
+                    image = PING_image;
+                else
+                    image = PONG_image;
+                let image_size: number = 100 * ratio;
+                ctx.drawImage(image, (x_bounce - image_size / 2) * ratio, (y_bounce - image_size / 2) * ratio, image_size, image_size);
+                image_bounce_refresh++;
+                if (image_bounce_refresh == 60) {
+                    draw_bounce = false;
+                    image_bounce_refresh = 0;
+                }
+            }
+            if (draw_blue_goal == true && ping_win == 0) {
+                let image_size: number = 300 * ratio;
+                ctx.drawImage(BLUE_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
+                image_goal_refresh++;
+                if (image_goal_refresh == 60) {
+                    draw_blue_goal = false;
+                    image_goal_refresh = 0;
+                }
+            }
+            if (draw_red_goal == true && ping_win == 0) {
+                let image_size: number = 300 * ratio;
+                ctx.drawImage(RED_GOAL_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
+                image_goal_refresh++;
+                if (image_goal_refresh == 60) {
+                    draw_red_goal = false;
+                    image_goal_refresh = 0;
+                }
+            }
 
-            draw_score();
-            draw_winner();
+            draw_score(ratio);
+            draw_winner(ratio);
             if (ping_disp == true) {
-                ctx.font = "30px Arial";
+                ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "white";
                 ctx.textAlign = "center";
-                ctx.fillStyle = "#FFFFFF";
-                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+                ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + (200 * ratio));
             }
         }
         requestAnimationFrame(drawGame);
 
-        function draw_score(): void {
+        function draw_score(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             ctx.textAlign = "start";
             ctx.textBaseline = "alphabetic";
-            ctx.font = "40px Arial";
-            ctx.fillStyle = "#810000";
+            ctx.font = `bold ${60 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
+            ctx.fillStyle = "red";
             ctx.fillText(String(gameState.score.player1), 50, 40);
-            // ctx.fillText(String(gameState.paddles.player1.name), canvas.width / 2 - 200, 40);
-            ctx.fillStyle = "#00009c";
+            ctx.fillStyle = "blue";
             ctx.fillText(String(gameState.score.player2), canvas.width - 50, 40);
-            // ctx.fillText(String(gameState.paddles.player2.name), canvas.width / 2 + 200, 40);
         }
 
-        function draw_winner(): void {
+        function draw_winner(ratio: number): void {
             if (!ctx) {
                 return ;
             }
             if (ping_win == 1) {
-                ctx.textAlign = "start";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = "40px Arial";
-                ctx.fillStyle = "#008100";
-                ctx.fillText(String("YOU WIN!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(WIN_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (ping_win == 2) {
-                ctx.textAlign = "start";
-                ctx.textBaseline = "alphabetic";
-                ctx.font = "40px Arial";
-                ctx.fillStyle = "#810000";
-                ctx.fillText(String("YOU LOSE!"), canvas.width / 2 - 100, canvas.height / 2 - 50);
+                let image_size: number = 400 * ratio;
+                ctx.drawImage(LOSE_image, (canvas.width / 2) - image_size / 2, (canvas.height / 2) - image_size / 2, image_size, image_size);
             }
             if (ping_player_id == 1 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player1.name, gameState.paddles.player2.name, gameState.score.player1, gameState.score.player2, ping_inTournament);
             }
             else if (ping_player_id == 2 && ping_win != 0) {
-                console.log(ping_player_id);
                 ping_end_game(ping_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, ping_inTournament);
             }
         }

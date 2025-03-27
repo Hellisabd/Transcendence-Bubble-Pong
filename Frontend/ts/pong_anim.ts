@@ -3,9 +3,9 @@ console.log("animation pong chargé !")
 let pong_ctx: CanvasRenderingContext2D | null = null;
 let pong_canvas: HTMLCanvasElement | null = null;
 
-const pong_paddleWidth = 20;
-const pong_paddleHeight = 100;
-const pong_ballRadius = 10;
+let pong_paddleWidth:number = 0;
+let pong_paddleHeight:number = 0;
+let pong_ballRadius:number = 0;
 
 let pong_player1Y: number = 0;
 let pong_player2Y: number = 0;
@@ -22,11 +22,19 @@ function initializeAnimationPong() {
     if (pong_ctx) {
         pong_player1Y = pong_canvas.height / 2 - pong_paddleHeight / 2;
         pong_player2Y = pong_canvas.height / 2 - pong_paddleHeight / 2;
+       
+        if (window.location.pathname === "/waiting_room" || window.location.pathname === "/pong_tournament") { 
+            const canvasWidth = pong_canvas.offsetWidth;
+            const canvasHeight = pong_canvas.offsetHeight;
+            
+            pong_canvas.width = canvasWidth;
+            pong_canvas.height = canvasHeight;
+        }
 
         pong_ballX = pong_canvas.width / 2;
         pong_ballY = pong_canvas.height / 2;
-        pong_ballSpeedX = 4;
-        pong_ballSpeedY = 4;
+        pong_ballSpeedX = 1.6;
+        pong_ballSpeedY = 1.6;
         pong_speed = Math.sqrt(pong_ballSpeedX * pong_ballSpeedX + pong_ballSpeedY * pong_ballSpeedY);
         pong_resetBall();
         pong_draw();
@@ -42,33 +50,43 @@ function pong_drawBackground() {
     pong_ctx.fillRect(0, 0, pong_canvas.width, pong_canvas.height);
 }
 
-function pong_draw() {
+function pong_draw(ratio: number) {
     pong_drawBackground()
     if (!pong_ctx || !pong_canvas) {
       return ;
     }
-    // pong_draw paddles
-    pong_ctx.fillStyle = "#810000";
-    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight); // Player 1
 
-    pong_ctx.fillStyle = "#00009c";
-    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight); // Player 2
+    pong_ctx.fillStyle = "red";
+    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight);
 
-    // pong_draw ball
+    pong_ctx.fillStyle = "blue";
+    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight);
+
     pong_ctx.beginPath();
     pong_ctx.arc(pong_ballX, pong_ballY, pong_ballRadius, 0, Math.PI * 2);
-    pong_ctx.fillStyle = "#FFFF00";
+    pong_ctx.fillStyle = "yellow";
     pong_ctx.fill();
     pong_ctx.closePath();
+
+
+    if (window.location.pathname === "/waiting_room" || window.location.pathname === "/pong_tournament") { 
+        let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
+        pong_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        pong_ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+        pong_ctx.textAlign = "center";
+        pong_ctx.fillText("Waiting for opponent...", pong_canvas.width / 2, pong_canvas.height / 2);
+    }    
 }
 
 function pong_update() {
-    pong_ballX += pong_ballSpeedX;
-    pong_ballY += pong_ballSpeedY;
     if (!pong_canvas) {
         return ;
-    } 
-
+    }
+    pong_ballX += pong_ballSpeedX;
+    pong_ballY += pong_ballSpeedY;
+    pong_paddleWidth = pong_canvas.width * 20 / 1000;
+    pong_paddleHeight = pong_canvas.height / 6;
+    pong_ballRadius = pong_canvas.width / 80;
     if (pong_ballY + pong_ballRadius > pong_canvas.height || pong_ballY - pong_ballRadius < 0) {
         pong_ballSpeedY = -pong_ballSpeedY;
     }
@@ -120,11 +138,13 @@ function pong_resetBall() {
 
 
 function pong_gameLoop() {
-	if (!pong_ctx) {
+	if (!pong_ctx || !pong_canvas) {
 		return;
 	}
+    let canvasWidth: number = pong_canvas.offsetWidth;
+    let ratio: number = canvasWidth / 1000;
     pong_update();
-    pong_draw();
+    pong_draw(ratio);
     requestAnimationFrame(pong_gameLoop);
 }
 

@@ -35,6 +35,7 @@ services:
       - ./Frontend/templates:/usr/src/app/Frontend/templates
       - ./Frontend/ts:/usr/src/app/Frontend/ts
       - ./Frontend/avatar:/usr/src/app/Frontend/avatar
+      - ./Frontend/assets:/usr/src/app/Frontend/assets
     networks:
       - spa-network
       - ping-network

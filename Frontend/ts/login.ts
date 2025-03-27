@@ -279,8 +279,6 @@ async function settings(event: Event): Promise<void> {
 }
 
 
-
-
 function fadeOutCard(page: 'create_account' | 'login'): void {
     if (page === 'create_account') {
         showRegister();

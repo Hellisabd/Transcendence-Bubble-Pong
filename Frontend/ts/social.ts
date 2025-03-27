@@ -7,74 +7,194 @@ let friends: { username: string; status: string }[] = [];
 
 let socialSocket: WebSocket | null = null;
 
+function check_friend_list_state() {
+	return socialSocket;
+}
+
 async function display_friends() {
-    const canvas = document.getElementById("friends_list") as HTMLCanvasElement;
-    if (canvas) {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            return;
-        }
-
-        // Nettoyer le canvas avant de redessiner
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Définir la police et la couleur du titre
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "#2D3748";  // Slate-500 en hex (équivalent)
-        ctx.fillText("Friends", 10, 40);  // Décalage pour éviter que le texte soit collé au bord
-
-        // Boucle pour afficher les amis
+	console.log("passe dans display friends");
+	pending_request();
+    const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
+    if (friendsDiv) {
+		friendsDiv.innerHTML = "";
+		console.log("friends.length", friends);
         for (let i = 0; i < friends.length; i++) {
-            ctx.textAlign = "start";  // Alignement à gauche
-            ctx.textBaseline = "alphabetic";  // Alignement vertical du texte
+			const avatarDiv = document.createElement("div");
+			avatarDiv.classList.add("relative");
+			const avatar = document.createElement("img");
 
-            ctx.font = "20px Arial";  // Taille de police pour le nom des amis
-            let yPos = 70 + i * 40;  // Calculer la position Y, avec un espacement de 40px entre chaque ami
+			const response = await fetch("/get_avatar", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username: friends[i].username})
+			});
+			const response_avatar = await response.json();
+			const avatar_name = await response_avatar.avatar_name;
+			avatar.src = `./Frontend/avatar/${avatar_name}`;
 
-            // Définir la couleur en fonction du statut
-            if (friends[i].status == "online") {
-                ctx.fillStyle = "#00FF00";  // Vert
-            } else if (friends[i].status == "offline") {
-                ctx.fillStyle = "#FF0000";  // Rouge
-            } else if (friends[i].status == "inqueue") {
-                ctx.fillStyle = "#0080FF";  // Bleu
-            } else if (friends[i].status == "ingame") {
-                ctx.fillStyle = "#FF8000";  // Orange
-            }
+			const friendDiv = document.createElement("div");
+			friendDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
+			const name = document.createElement("p");
+			name.innerHTML = friends[i].username;
 
-            // Afficher le nom de l'ami et son statut
-            ctx.fillText(friends[i].username, 10, yPos);  // Affiche le nom à la position calculée
-            ctx.fillText(friends[i].status, 200, yPos);   // Affiche le statut à une position différente
+			name.classList.add("ml-4", "text-xl", "font-semibold");
+			avatar.classList.add("w-10", "h-10", "rounded-full");
+
+			const badge = document.createElement("div");
+			if (friends[i].status == "online") {
+				badge.classList.add("bg-green-500", "rounded-full", "w-4", "h-4", "absolute", "bottom-0", "-right-0");
+			} else if (friends[i].status == "offline") {
+				badge.innerHTML = `
+					<svg class="absolute rounded-full w-6 h-6 bottom-0 -right-1" fill="#b91c1c" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g>
+						<path d="M256,0C114.615,0,0,114.615,0,256s114.615,256,256,256s256-114.615,256-256S397.385,0,256,0z M384,283.429H128v-54.857 h256V283.429z"></path> </g> </g> </g>
+					</svg>
+				`;
+			} else if (friends[i].status == "inqueue") {
+				badge.innerHTML = `
+					<svg class="absolute rounded-full w-6 h-6 bottom-0 -right-1" fill="#0369a1" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>hourglass</title>
+						<path d="M18.404 16.53v-1.057c3.511-1.669 6.086-7.082 6.086-13.52h-16.727c0 6.4 2.534 11.817 6.013 13.52v1.057c-3.479 1.703-6.013 7.12-6.013 13.52h16.727c0-6.437-2.575-11.851-6.086-13.52zM10.614 8.165c3.309 1.482 7.484 1.48 11.078-0.255-0.894 3.323-2.769 5.706-4.979 6.073 0.094 0.127 0.15 0.283 0.15 0.453 0 0.422-0.342 0.764-0.764 0.764s-0.764-0.342-0.764-0.764c0-0.172 0.058-0.331 0.154-0.458-2.141-0.374-3.96-2.636-4.874-5.812zM16.099 20.117c-0.422 0-0.764-0.342-0.764-0.764s0.342-0.764 0.764-0.764 0.764 0.342 0.764 0.764-0.342 0.764-0.764 0.764zM16.863 21.819c0 0.422-0.342 0.764-0.764 0.764s-0.764-0.342-0.764-0.764 0.342-0.764 0.764-0.764c0.422 0 0.764 0.342 0.764 0.764zM16.099 17.666c-0.422 0-0.764-0.342-0.764-0.764s0.342-0.764 0.764-0.764 0.764 0.342 0.764 0.764c0 0.422-0.342 0.764-0.764 0.764zM11.377 28.266c3.697-6.226 5.737-6.365 9.546 0h-9.546z"></path> </g>
+					</svg>
+				`;
+			} else if (friends[i].status == "ingame") {
+				badge.innerHTML = `
+					<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#5b21b6" class="absolute rounded-full w-6 h-6 bottom-0 -right-1 bi bi-joystick"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
+						<path d="M10 2a2 2 0 0 1-1.5 1.937v5.087c.863.083 1.5.377 1.5.726 0 .414-.895.75-2 .75s-2-.336-2-.75c0-.35.637-.643 1.5-.726V3.937A2 2 0 1 1 10 2z"></path> <path d="M0 9.665v1.717a1 1 0 0 0 .553.894l6.553 3.277a2 2 0 0 0 1.788 0l6.553-3.277a1 1 0 0 0 .553-.894V9.665c0-.1-.06-.19-.152-.23L9.5 6.715v.993l5.227 2.178a.125.125 0 0 1 .001.23l-5.94 2.546a2 2 0 0 1-1.576 0l-5.94-2.546a.125.125 0 0 1 .001-.23L6.5 7.708l-.013-.988L.152 9.435a.25.25 0 0 0-.152.23z"></path> </g>
+					</svg>
+				`;
+			}
+
+		// sablier 1
+			// badge.innerHTML = `
+			// <svg class="absolute rounded-full bg-gray-800 w-6 h-6 bottom-0 right-0" fill="#22c55e" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
+			// 	<path fill-rule="evenodd" d="M256,7.10542736e-15 L256,115.477333 L158.165333,213.333333 L256,311.146667 L256,426.666667 L-2.84217094e-14,426.666667 L-2.84217094e-14,311.146667 L97.8133333,213.333333 L-2.84217094e-14,115.477333 L-2.84217094e-14,7.10542736e-15 L256,7.10542736e-15 Z M128,243.498667 L42.6666667,328.832 L42.6666667,373.333333 L128,320 L213.333333,373.333333 L213.333333,328.832 L128,243.498667 Z M213.333333,42.6666667 L42.6666667,42.6666667 L42.6666667,97.8133333 L72.9030755,128.057301 L183.356249,127.797912 L213.333333,97.8133333 L213.333333,42.6666667 Z" transform="translate(128 42.667)"></path></g>
+			// </svg>
+			// `;
+
+			avatarDiv.appendChild(badge);
+			avatarDiv.appendChild(avatar);
+			friendDiv.appendChild(avatarDiv);
+			friendDiv.appendChild(name);
+			friendsDiv.appendChild(friendDiv);
         }
     }
 }
 
+let displaying_pending: boolean = false;
+
 async function display_pending(user: string[]) {
 	console.log("user tab:", user);
-	console.log("user tab:", user);
-	const canvas = document.getElementById("pending_request") as HTMLCanvasElement;
-	if (canvas) {
-		const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            return ;
-        }
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		for (let i = 0; i < user.length; i++) {
-			ctx.textAlign = "start";
-            ctx.textBaseline = "alphabetic";
-            ctx.font = "20px Arial";
-			ctx.fillStyle = "#0080FF";
-            ctx.fillText(String(user[i]), 0, 20 + (i * 30));
-            ctx.fillText(String("Invited you"), 200, 20 + (i * 30));
+	if (!user || displaying_pending)
+		return ;
+	displaying_pending = true;
+	const pendingDiv = <HTMLDivElement>document.getElementById("pending_request");
+	const pellet = <HTMLDivElement>document.getElementById("pelletSocial");
+	const pendingParent = <HTMLDivElement>document.getElementById("pending_request_div");
+	pellet.innerHTML = "";
+	if (user.length > 0 && pellet) {
+		pellet.classList.remove("hidden");
+		pendingParent.classList.remove("hidden");
+		console.log("enleve le hide de pending");
+	} else {
+		pendingParent.classList.add("hidden");
+		pellet.classList.add("hidden");
+	}
+	if (pendingDiv && user.length > 0) {
+		for (const username of user) {
+			if (document.getElementById(`${username}_pending`)) {
+				console.log("censer ignorer la div")
+				continue ;
+			}
+			const userDiv = document.createElement("div");
+			userDiv.id = `${username}_pending`;
+			userDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
+			const avatar = document.createElement("img");
+			avatar.classList.add("w-8", "h-8", "rounded-full");
+
+
+			const response = await fetch("/get_avatar", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ username: username})
+			});
+			const response_avatar = await response.json();
+			const avatar_name = await response_avatar.avatar_name;
+			avatar.src = `./Frontend/avatar/${avatar_name}`;
+
+
+			const parag = document.createElement("p");
+			parag.textContent = username;
+			parag.classList.add("ml-4", "mr-4", "text-xl", "font-semibold");
+			const addFriend = document.createElement("button");
+			addFriend.classList.add(
+				"flex", "items-center", "justify-center",
+				"bg-green-500", "text-white", "rounded-full",
+				"w-6", "h-6",
+				"hover:bg-green-600", "transition", "duration-200"
+			);
+			addFriend.onclick = () => valid_friend(username);
+
+			const declineFriend = document.createElement("button");
+			declineFriend.classList.add(
+				"flex", "items-center", "justify-center",
+				"bg-red-500", "text-white", "rounded-full",
+				"w-6", "h-6", "ml-2",
+				"hover:bg-red-600", "transition", "duration-200"
+			);
+			declineFriend.onclick = () => decline_friend(username);
+
+			const svgIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+			svgIcon.setAttribute("version", "1.1");
+			svgIcon.setAttribute("width", "24");
+			svgIcon.setAttribute("height", "24");
+			svgIcon.setAttribute("viewBox", "0 0 500 500");
+			svgIcon.classList.add("w-4", "h-4");
+			svgIcon.setAttribute("fill", "#ffffff");
+			const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+			const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			path.setAttribute("class", "st0");
+			path.setAttribute("d", "M455.3,61.5C395.6,69.1,300.9,153.7,222,276c-6.1,9.4-11.9,18.8-17.4,28.1c0,0,0,0-0.1-0.1c-0.1,0.1-0.1,0.2-0.2,0.3c-12.8-12.8-26.6-25.6-41.2-38.1c-6.8-5.8-13.6-11.4-20.3-16.9L40.2,314.2c46.9,22,87.8,48.2,119.6,75.3c0-0.1,0.1-0.2,0.1-0.3c19.1,16.3,35,33,46.8,49.3c5.2-7.7,10.5-15.4,16-23.2c12-17.1,24.2-33.5,36.4-49.1c0,0,0.1,0.1,0.1,0.1c81.4-104.5,162.3-173.5,200.6-170.6L455.3,61.5z");
+			g.appendChild(path);
+			svgIcon.appendChild(g);
+
+			const svgIconDecline = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+			svgIconDecline.setAttribute("version", "1.1");
+			svgIconDecline.setAttribute("width", "24");
+			svgIconDecline.setAttribute("height", "24");
+			svgIconDecline.setAttribute("viewBox", "0 0 24 24");
+			svgIconDecline.classList.add("w-4", "h-4");
+			svgIconDecline.setAttribute("fill", "none");
+			const gDecline = document.createElementNS("http://www.w3.org/2000/svg", "g");
+			const pathDecline = document.createElementNS("http://www.w3.org/2000/svg", "path");
+			pathDecline.setAttribute("d", "M16 8L8 16M8.00001 8L16 16");
+			pathDecline.setAttribute("stroke", "#000000");
+			pathDecline.setAttribute("stroke-width", "1.5");
+			pathDecline.setAttribute("stroke-linecap", "round");
+			pathDecline.setAttribute("stroke-linejoin", "round");
+			gDecline.appendChild(pathDecline);
+			svgIconDecline.appendChild(gDecline);
+
+			declineFriend.appendChild(svgIconDecline);
+			addFriend.appendChild(svgIcon);
+			addFriend.appendChild(svgIcon);
+			userDiv.appendChild(avatar);
+			userDiv.appendChild(parag);
+			userDiv.appendChild(addFriend);
+			userDiv.appendChild(declineFriend);
+			pendingDiv.appendChild(userDiv);
 		}
 	}
+	displaying_pending = false;
 }
+
+let i = 0;
 
 async function set_up_friend_list(user: string | null) {
 	if (!user) {
 		user = await get_user();
 	}
     const sock_name = window.location.host;
+	if (socialSocket)
+		return ;
 	socialSocket = new WebSocket("wss://" + sock_name + "/ws/spa/friends");
     socialSocket.onopen = () => {
         console.log("✅ WebSocket users connectée !");
@@ -83,28 +203,75 @@ async function set_up_friend_list(user: string | null) {
     socialSocket.onerror = (event) => {
     	console.error("❌ WebSocket users erreur :", user);};
 	socialSocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket users fermée :", user);};
+        socialSocket = null;
+	}
 	socialSocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
 		const index = friends.findIndex(friend => friend.username == data.username);
-		if (index == -1)
+		if (index == -1 &&  data.username && data.status)
 			friends.push({username: data.username, status: data.status});
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
 		if (data.success == true && data.user_inviting) {
 			console.log("lol?");
-			display_pending(data.user_inviting);
 		}
-		else 
-			console.log("pas lol?");
-		display_friends();
+		console.log(i);
+		if (data.display)
+		{
+			display_friends();
+			console.log("affiche quand je veux");
+		}
     };
+	// pending_request();
 }
 
 function close_users_socket() {
 	socialSocket?.close();
 	friends = [];
+}
+
+async function valid_friend(friend_username: string): Promise<void> {
+	const myusername = await get_user();
+	if (myusername == friend_username) {
+		alert("Prends un Curly");
+		return ;
+	}
+	const response = await fetch("/add_friend", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ user_sending: myusername, user_to_add: friend_username })
+	});
+	const result: LoginResponse = await response.json();
+	alert(result.message);
+	return ;
+}
+
+async function decline_friend(friend_username: string): Promise<void> {
+	const myusername = await get_user();
+	if (myusername == friend_username) {
+		alert("Prends un Curly");
+		return;
+	}
+
+	try {
+		const response = await fetch("/decline_friend", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ user_sending: myusername, user_to_decline: friend_username })
+		});
+
+		const result = await response.json();
+
+		if (!response.ok || !result.success) {
+			alert(result.message || "Erreur inconnue");
+			return;
+		}
+
+		alert(result.message);
+	} catch (error) {
+		alert("Une erreur réseau est survenue");
+	}
 }
 
 async function add_friend(event: Event): Promise<void> {
@@ -131,12 +298,13 @@ async function add_friend(event: Event): Promise<void> {
 
 async function pending_request(): Promise<void> {
 	const myusername = await get_user();
+	if (!myusername)
+		return ;
 	const response = await fetch("/pending_request", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ username: myusername})
 	});
 	const result = await response.json();
-	console.log("result in pending: ", result);
 	display_pending(result.user_inviting);
 }
