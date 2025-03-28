@@ -32,7 +32,7 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 		if (ctx_canva) {
 			console.log()
 			shadow_text(`Stats against ${friend.username}`, 420, 50, 15, "center", ctx_canva);
-			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 300, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "red", 30); 
+			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 300, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "red", 30);
 			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "red", 30);
 			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "red", 30);
 			canvas_map.push({name: `${friend.username}`, canvas: canvas});
@@ -50,16 +50,16 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 async function get_stats(username: string | null): Promise<void> {
 	if (!username)
 		return ;
-	
+
 	const response = await fetch("/dashboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({username: username})
     });
 	const jsonResponse = await response.json();
-	
+
 	create_friend_canvas(jsonResponse.winrate_against_friends, jsonResponse);
-	
+
 	general_canvas = document.getElementById("general_stats") as HTMLCanvasElement;
 	if (general_canvas) {
 		general_ctx = general_canvas.getContext("2d");
@@ -71,7 +71,7 @@ async function get_stats(username: string | null): Promise<void> {
 		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 100, 20, "start", general_ctx);
 		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 200, 20, "start", general_ctx);
 	}
-	
+
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
 	if (pong_stats_canvas) {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
@@ -82,7 +82,7 @@ async function get_stats(username: string | null): Promise<void> {
 		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 100, 20, "start", pong_stats_ctx);
 		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 200, 20, "start", pong_stats_ctx);
 	}
-	
+
 	ping_stats_canvas = document.getElementById("ping_stats") as HTMLCanvasElement;
 	if (ping_stats_canvas) {
 		ping_stats_ctx = ping_stats_canvas.getContext("2d");
@@ -104,11 +104,11 @@ async function get_stats(username: string | null): Promise<void> {
 function display_dashboard_menu() {
 	// const btn = document.getElementById("dropdownButton");
 	const menu = document.getElementById("dropdownMenu");
-	
+
 	menu?.classList.toggle("hidden");
 }
-		
-		
+
+
 function display_canvas(canva_name: string) {
 	let canva_to_display : HTMLCanvasElement | null = null;
 	for (let i: number = 0; i < canvas_map.length; i++) {
@@ -163,7 +163,7 @@ function shadow_text(string: string, x: number, y: number, font_size: number, al
 	ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 	ctx.textAlign = align;
 	ctx.fillText(string, x, y + 5);
-	
+
 	ctx.font = `bold ${font_size}px 'Press Start 2P', 'system-ui', sans-serif`;
 	ctx.fillStyle = "white";
 	ctx.textAlign = align;
@@ -186,7 +186,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	ctx.beginPath();
 	ctx.arc(
 		x,
@@ -200,7 +200,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = colorA;
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	ctx.beginPath();
 	ctx.arc(
 		x,
@@ -214,7 +214,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = colorB;
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	shadow_text(title, x, y - size - size / 3, fontsize, "center", ctx);
 	shadow_text(percent.toFixed(2) + "%", x, y + fontsize / 2, fontsize, "center", ctx);
 }
@@ -228,8 +228,8 @@ document.addEventListener("click", function(event: MouseEvent) {
 	const Menufriends = document.getElementById("friends-menu");
 	const MenufriendsButton = document.getElementById("friend-menu-button");
 
-	
+
 	if (!Menufriends?.contains(event.target as Node) && !MenufriendsButton?.contains(event.target as Node)) {
-		Menufriends?.classList.add("hidden"); 
+		Menufriends?.classList.add("hidden");
 	}
 });
