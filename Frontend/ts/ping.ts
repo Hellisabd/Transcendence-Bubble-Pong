@@ -146,6 +146,8 @@ function ping_Disconnect_from_game() {
 
 function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
+    const arena = document.getElementById("pingarena") as HTMLDivElement;
+    arena?.classList.toggle("hidden");
     const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
@@ -191,6 +193,8 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         
         animation_ping_stop();
         document.getElementById("ping_animation")?.classList.add("hidden");
+        document.getElementById("ping_animation_arena")?.classList.add("hidden");
+        document.getElementById("div_ping_anim")?.classList.add("hidden");
 
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
@@ -355,22 +359,22 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         
             ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-            //ARENA
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            ctx.closePath();
+            // //ARENA
+            // ctx.beginPath();
+            // ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+            // ctx.fillStyle = "black";
+            // ctx.fill();
+            // ctx.closePath();
 
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
-            ctx.lineWidth = 5 * ratio;
-            ctx.strokeStyle = "white";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = ctx.strokeStyle;
-            ctx.stroke();
-            ctx.closePath();
-            ctx.shadowBlur = 0;
+            // ctx.beginPath();
+            // ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+            // ctx.lineWidth = 5 * ratio;
+            // ctx.strokeStyle = "white";
+            // ctx.shadowBlur = 10;
+            // ctx.shadowColor = ctx.strokeStyle;
+            // ctx.stroke();
+            // ctx.closePath();
+            // ctx.shadowBlur = 0;
 
             //GOAL 1
             ctx.beginPath();

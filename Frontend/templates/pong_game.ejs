@@ -9,18 +9,19 @@
 <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
   <div id="content">
     <div class="pt-[25vh] flex flex-col lg:flex-row items-center justify-center md:space-x-8 space-y-8">
-      <div class="relative flex items-center justify-center">
-        <canvas id="pong_animation" width="1000" height="1000" class="lg:w-[40rem] lg:h-[24rem]"></canvas>
-          <button onclick="navigateTo('waiting_room')"
-                  class="absolute top-20 left-1/2 transform -translate-x-1/2
-                         bg-blue-700 hover:bg-blue-900 text-white text-3xl py-2 px-4 rounded font-kablam">
-                        PLAY PONG
-          </button>
-          <button onclick="navigateTo('pong_tournament')"
-                  class="absolute bottom-20 left-1/2 transform -translate-x-1/2
-                         bg-red-600 hover:bg-red-800 text-white text-3xl py-2 px-4 rounded font-kablam">
-                        PONG TOURNAMENT
-          </button>
+      <div class="relative flex items-center justify-center w-[250px] h-[128px] sm:w-[359px] sm:h-[184px] lg:w-[597px] lg:h-[306px]">
+        <div class="absolute bg-pong w-[250px] h-[128px] sm:w-[359px] sm:h-[184px] lg:w-[597px] lg:h-[306px]"></div>
+        <canvas id="pong_animation" class="absolute top-[6px] left-[10px] sm:top-[8px] sm:left-[13px] lg:top-[14px] lg:left-[22px] w-[229px] h-[117px] sm:w-[330px] sm:h-[169px] lg:w-[550px] lg:h-[282px]"></canvas>
+        <button onclick="navigateTo('waiting_room')"
+                class="absolute top-2 sm:top-4 md:top-10 lg:top-20 left-1/2 transform -translate-x-1/2
+                       bg-blue-700 hover:bg-blue-900 text-white text-sm lg:text-xl py-2 px-4 rounded font-kablam">
+                      PLAY PONG  
+        </button>
+        <button onclick="navigateTo('pong_tournament')"
+                class="absolute bottom-2 sm:bottom-4 md:bottom-10 lg:bottom-20 left-1/2 transform -translate-x-1/2
+                       bg-red-600 hover:bg-red-800 text-white text-sm lg:text-xl py-2 px-4 rounded font-kablam">
+                      PONG TOURNAMENT
+        </button>
       </div>
 
       <div class="relative lg:w-[32rem] h-[100%] flex items-center justify-center">

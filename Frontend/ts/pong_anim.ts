@@ -37,42 +37,34 @@ function initializeAnimationPong() {
         pong_ballSpeedY = 1.6;
         pong_speed = Math.sqrt(pong_ballSpeedX * pong_ballSpeedX + pong_ballSpeedY * pong_ballSpeedY);
         pong_resetBall();
-        pong_draw();
+        pong_draw(0);
         pong_gameLoop();
     }
 }
 
-function pong_drawBackground() {
-    if (!pong_ctx || !pong_canvas) {
-        return ;
-	}
-    pong_ctx.fillStyle = "black";
-    pong_ctx.fillRect(0, 0, pong_canvas.width, pong_canvas.height);
-}
-
 function pong_draw(ratio: number) {
-    pong_drawBackground()
     if (!pong_ctx || !pong_canvas) {
       return ;
     }
 
-    pong_ctx.fillStyle = "red";
-    pong_ctx.fillRect(0, pong_player1Y, pong_paddleWidth, pong_paddleHeight);
+    pong_ctx.clearRect(0, 0, pong_canvas.width, pong_canvas.height);
 
-    pong_ctx.fillStyle = "blue";
-    pong_ctx.fillRect(pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight);
+    pong_ctx.drawImage(RED_PADDLE, 0, pong_player1Y, pong_paddleWidth, pong_paddleHeight);
+
+    pong_ctx.drawImage(BLUE_PADDLE, pong_canvas.width - pong_paddleWidth, pong_player2Y, pong_paddleWidth, pong_paddleHeight);
 
     pong_ctx.beginPath();
     pong_ctx.arc(pong_ballX, pong_ballY, pong_ballRadius, 0, Math.PI * 2);
-    pong_ctx.fillStyle = "yellow";
-    pong_ctx.fill();
-    pong_ctx.closePath();
-
+    pong_ctx.fillStyle = "#efb60a";
+    pong_ctx.fill(); 
+    pong_ctx.lineWidth = 2 * ratio;
+    pong_ctx.strokeStyle = "black";
+    pong_ctx.stroke();
 
     if (window.location.pathname === "/waiting_room" || window.location.pathname === "/pong_tournament") { 
         let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
-        pong_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-        pong_ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+        pong_ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
+        pong_ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
         pong_ctx.textAlign = "center";
         pong_ctx.fillText("Waiting for opponent...", pong_canvas.width / 2, pong_canvas.height / 2);
     }    

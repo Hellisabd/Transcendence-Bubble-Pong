@@ -20,17 +20,11 @@ let Tsocket: WebSocket | null = null;
 let disp: boolean = true;
 let win: number = 0;
 
-const PONG_ARENA = new Image();
-PONG_ARENA.src = "Frontend/assets/PONG_ARENA.png";
-
 const BLUE_PADDLE = new Image();
 BLUE_PADDLE.src = "Frontend/assets/BLUE_PADDLE.png";
 
 const RED_PADDLE = new Image();
 RED_PADDLE.src = "Frontend/assets/RED_PADDLE.png";
-
-const BALL = new Image();
-BALL.src = "Frontend/assets/BALL.png";
 
 const WIN_image = new Image();
 WIN_image.src = "Frontend/assets/WIN.png";
@@ -177,16 +171,6 @@ function Disconnect_from_game() {
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    // const arena_canvas = document.getElementById("pongarenaCanvas") as HTMLCanvasElement;
-    // if (arena_canvas) {
-    //     console.log("ARENA CANVAS TRIGGER")
-    //     const arena_ctx = arena_canvas.getContext("2d");
-    //     if (!arena_ctx) {
-    //         return ;
-    //     }
-
-    //     arena_ctx.drawImage(PONG_ARENA, 0, 0, arena_canvas.width, arena_canvas.height);
-    // }
     const arena = document.getElementById("pongarena") as HTMLDivElement;
     arena?.classList.toggle("hidden");
 
@@ -205,6 +189,8 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
 
         animation_pong_stop();
         document.getElementById("pong_animation")?.classList.add("hidden");
+        document.getElementById("pong_animation_arena")?.classList.add("hidden");
+        document.getElementById("div_pong_anim")?.classList.add("hidden");
 
         const sock_name = window.location.host
         socket = new WebSocket("wss://" + sock_name + "/ws/pong");
@@ -251,6 +237,14 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         playerOneElement.innerText = `${pong_player_one()}`;
         playerTwoElement.innerText = `${pong_player_two()}`;
 
+        let canvasWidth: number = canvas.offsetWidth;
+        let canvasHeight: number = canvas.offsetHeight;
+        
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        let ratio: number = canvasWidth / 1000;
+
         socket.onmessage = (event) => {
             let gs = JSON.parse(event.data);
             if (gs.disconnect == true) {
@@ -266,11 +260,11 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             }
             if (gs.winner == true) {
                 win = 1;
-                draw_winner();
+                draw_winner(ratio);
             }
             else if (gs.winner == false) {
                 win = 2;
-                draw_winner();
+                draw_winner(ratio);
             }
         };
 
@@ -318,7 +312,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-
+    
             let ratio: number = canvasWidth / 1000;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);

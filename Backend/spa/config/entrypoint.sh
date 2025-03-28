@@ -5,6 +5,10 @@ npx tsc
 chown -R root:root /usr/src/app/Frontend
 npm start &
 
+while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/; do
+    echo "Changement détecté ! Redémarrage du service..."
+    npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css  # Ou relancer le processus concerné
+done &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/ts; do
     echo "Changement détecté ! Redémarrage du service..."
