@@ -62,7 +62,7 @@ async function set_up_bars() {
         </button>
 
 
-        <div id="sidebar" class="animate-leftFadeInBar overflow-y-scroll hidden h-full w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg">
+        <div id="sidebar" class="animate-leftFadeInBar overflow-y-scroll hidden h-[100vh] w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg">
             <div class="pl-5 pt-20">
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
@@ -140,8 +140,8 @@ async function set_up_bars() {
                     </div>
 
                     <!-- Titre -->
-                    <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-xl font-secondFont">
-                        Pong Game
+                    <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-5xl font-kablam">
+                        PONG GAME
                     </h1>
 
                     <!-- User -->
@@ -282,6 +282,11 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             initializeAnimationPong();
             initializeAnimationPing();
         }
+        if (page === "solo_ping") {
+            soloping_initializeGame();
+        }
+        display_friends();
+
         if (page === "dashboard") {
             get_stats(username);
             console.log("passse dans dashboard");

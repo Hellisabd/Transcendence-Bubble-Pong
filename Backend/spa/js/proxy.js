@@ -7,6 +7,9 @@ const { pipeline } = require('stream');
 const util = require('util');
 const path = require('path');
 const pump = util.promisify(pipeline);
+const otplib = require('otplib');
+const qrcode = require("qrcode");
+const { authenticator } = require('otplib');
 
 fastify.register(require('@fastify/multipart'), {
   attachFieldsToBody: true,
@@ -21,6 +24,10 @@ async function get_avatar(request, reply) {
         { headers: { "Content-Type": "application/json" } }
     );
     return reply.send(response.data.avatar_name);
+}
+
+async function update_solo_score(req, reply) {
+
 }
 
 async function update_avatar(req, reply) {
@@ -103,10 +110,30 @@ async function log(req, reply) {
 async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
+		let response;
 
-        const response = await axios.post("http://users:5000/create_account", req.body, {
-            withCredentials: true
-        });
+		const { username, password, email, activeFA } = req.body;
+
+		let i = 0;
+		if(activeFA){
+			while(secret_keys[i] && secret_keys[i][0] != username){
+				i++;
+			}
+
+			if (!secret_keys[i]) {
+				return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+			}
+			response = await axios.post("http://users:5000/create_account",
+			{username, password, email, secretKey: secret_keys[i][1]},
+			{ headers: { "Content-Type": "application/json" } })
+			secret_keys[i] = "";
+		}
+		else{
+			response = await axios.post("http://users:5000/create_account",
+				{username, password, email},
+				{ headers: { "Content-Type": "application/json" } }
+		)};
+
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
@@ -148,6 +175,10 @@ async function settings(req, reply) {
     return reply.send(response.data);
 }
 
+async function update_solo_score(req, reply) {
+    const response = await axios.post("http://users:5000/update_solo_score", req.body);
+    reply.send(response.data);
+}
 
 async function update_history(req, reply) {
     const response = await axios.post("http://users:5000/update_history", req.body);
@@ -211,9 +242,9 @@ async function display_friends(username, connection) {
     }
     for (let i = 0; i < friends.length; i++) {
         console.log(friends[i]);
-        connection.socket.send(JSON.stringify(friends[i]));
+        connection?.socket.send(JSON.stringify(friends[i]));
     }
-    connection.socket.send(JSON.stringify({display : true}));
+    connection?.socket.send(JSON.stringify({display : true}));
 }
 
 
@@ -256,7 +287,7 @@ async function add_friend(req, reply) {
         display_friends(user_sending, users_connection[user_sending]);
     }
    else if (response.data.succes) {
-    } 
+    }
     reply.send(response.data);
 }
 
@@ -274,7 +305,7 @@ async function pending_request(req, reply) {
     reply.send(response.data);
 }
 
-async function get_friends(username) { 
+async function get_friends(username) {
     const response = await axios.post("http://users:5000/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
@@ -294,4 +325,141 @@ async function get_friends(username) {
     return ({success: true, friends: friends_and_status});
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats };
+let secret_keys = [];
+
+async function setup2fa(request, reply) {
+	const { email, username } = request.body;
+
+	if (!email) {
+		console.log("Erreur : email inexistant");
+		return reply.code(400).send({ error: 'email inexistant.' });
+	}
+
+
+    const userExists = await checkUserExists(username);
+    if (userExists === true) {
+        return reply.send({ success: false, message: "Check user : Utilisateur deja existant." });
+    }
+
+	try {
+		// Générer le secret 2FA
+		const secret = otplib.authenticator.generateSecret();
+		if (!secret || typeof secret !== 'string') {
+			console.error("Le secret généré n'est pas valide");
+			return reply.code(500).send({ error: "Erreur lors de la generation du secret 2FA" });
+		}
+
+		// Générer l'URL pour le QR Code
+		const otplibUrl = otplib.authenticator.keyuri(email, 'MyApp', secret);
+		secret_keys.push([email, secret]);
+		console.log("URL du QR Code generee :", otplibUrl);
+
+		// Utiliser un async/await pour gérer correctement la génération du QR code
+		const dataUrl = await new Promise((resolve, reject) => {
+			qrcode.toDataURL(otplibUrl, (err, url) => {
+				if (err) {
+					console.error("Erreur lors de la generation du QR code:", err);
+					return reject(err);
+				}
+				resolve(url);
+			});
+		});
+
+		// Une fois le QR code généré, on envoie la réponse
+		console.log("QR Code genere avec succes");
+		return reply.send({ otplib_url: otplibUrl, qr_code: dataUrl });
+
+	} catch (err) {
+		console.error("Erreur serveur lors du traitement 2FA:", err);
+		return reply.code(500).send({ error: "Erreur serveur lors de la mise en place du 2FA" });
+	}
+  };
+
+
+async function twofaverify(request, reply) {
+	try {
+		const { email, code } = request.body;
+		console.log(email);
+		console.log(code);
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+
+		if (!email || !code) {
+			return reply.status(400).send({ success: false, error: "email et code requis" });
+		}
+
+		let i = 0;
+		while(secret_keys[i] && secret_keys[i][0] != email){
+			i++;
+		}
+
+        let sekret = response.data.secret;
+        if (secret_keys[i])
+            sekret = secret_keys[i][1];
+		if (!sekret) {
+			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+		}
+        if (secret_keys[i])
+            console.log("Secret_key : ", secret_keys[i][1]);
+        console.log("Sekret : " ,response.data.secret);
+
+		// Vérifier le code OTP avec la clé secrète
+		const isValid = authenticator.check(code, sekret);
+		if (!isValid) {
+			return reply.status(401).send({ success: false, error: "Code 2FA invalide" });
+		}
+
+		// Répondre avec succès
+		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
+
+	} catch (error) {
+		console.error("Erreur de vérification 2FA:", error);
+		return reply.status(500).send({ success: false, error: "Erreur serveur" });
+	}
+};
+
+async function checkUserExists(username) {
+	try {
+		const response = await axios.post("http://users:5000/userExists",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        const data = await response.data;
+        return true;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+async function get_secret(email){
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        const data = await response.data;
+        return true;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+async function get_secret_two(email){
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret",
+			{ email },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        const data = await response.data;
+        return true;
+    } catch (error) {
+        console.error("Erreur:", error.message);
+        return false;
+    }
+}
+
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists };

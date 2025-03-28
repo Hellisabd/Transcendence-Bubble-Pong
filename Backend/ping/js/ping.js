@@ -7,7 +7,7 @@ const move = Math.PI / 50;
 const paddle_thickness = 15;
 const arena_height = 1000;
 const arena_width = 1000;
-const ballRadius = 10;
+const ballRadius = 15;
 const bonusRadius = 50;
 const arena_radius = arena_width / 2;
 const bonus = "PPGGS";
@@ -117,7 +117,7 @@ function update(lobbyKey) {
     let dx = gameState.ball.x - arena_width / 2;
     let dy = gameState.ball.y - arena_height / 2;
     let ball_dist = Math.sqrt(dx * dx + dy * dy);
-    let ball_angle = Math.atan2(gameState.ball.y - arena_height / 2, gameState.ball.x - arena_width / 2);
+    let ball_angle = Math.atan2(dy, dx);
     if (ball_angle < 0)
         ball_angle += 2 * Math.PI;
 
@@ -129,16 +129,16 @@ function update(lobbyKey) {
         lim_inf_player1 += 2 * Math.PI;
 
     let lim_sup_player1 = gameState.paddles.player1.angle + gameState.paddles.player1.size;
-    // if (lim_sup_player1 > 2 * Math.Pi)
-    //     lim_sup_player1 -= 2 * Math.PI;
+    if (lim_sup_player1 > 2 * Math.PI)
+        lim_sup_player1 -= 2 * Math.PI;
 
     let lim_inf_player2 = gameState.paddles.player2.angle - gameState.paddles.player2.size;
     if (lim_inf_player2 < 0)
         lim_inf_player2 += 2 * Math.PI;
 
     let lim_sup_player2 = gameState.paddles.player2.angle + gameState.paddles.player2.size;
-    // if (lim_sup_player2 > 2 * Math.Pi)
-    //     lim_sup_player2 -= 2 * Math.PI;
+    if (lim_sup_player2 > 2 * Math.PI)
+        lim_sup_player2 -= 2 * Math.PI;
 
     if (ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness && Date.now() > gameState.lastBounce) {
         if (lim_inf_player1 < lim_sup_player1) {
@@ -225,20 +225,22 @@ function update(lobbyKey) {
         lim_inf_goal1 += 2 * Math.PI;
 
     let lim_sup_goal1 = gameState.goals.player1.angle + gameState.goals.player1.size / 2;
-    if (lim_inf_goal1 > 2 * Math.PI)
-        lim_inf_goal1 -= 2 * Math.PI;
+    if (lim_sup_goal1 > 2 * Math.PI)
+        lim_sup_goal1 -= 2 * Math.PI;
 
     let lim_inf_goal2 = gameState.goals.player2.angle - gameState.goals.player2.size / 2;
     if (lim_inf_goal2 < 0)
         lim_inf_goal2 += 2 * Math.PI;
 
     let lim_sup_goal2 = gameState.goals.player2.angle + gameState.goals.player2.size / 2;
-    if (lim_inf_goal2 > 2 * Math.PI)
-        lim_inf_goal2 -= 2 * Math.PI;
+    if (lim_sup_goal2 > 2 * Math.PI)
+        lim_sup_goal2 -= 2 * Math.PI;
 
     if (gameState.goals.player1.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal1 < lim_sup_goal1) {
             if (ball_angle >= lim_inf_goal1 && ball_angle <= lim_sup_goal1) {
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ blue_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ blue_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
                 if (gameState.player_and_bonus.bonus) {
                     gameState.bonus_stats.push({player_who_scored: gameState.paddles.player2.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
                 }
@@ -249,6 +251,8 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal1 || ball_angle <= lim_sup_goal1) {
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ blue_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ blue_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
                 if (gameState.player_and_bonus.bonus) {
                     gameState.bonus_stats.push({player_who_scored: gameState.paddles.player2.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
                 }
@@ -292,6 +296,8 @@ function update(lobbyKey) {
     if (gameState.goals.player2.protected == false && Date.now() > gameState.lastBounce && ball_dist + ballRadius + 5 > arena_radius) {
         if (lim_inf_goal2 < lim_sup_goal2) {
             if (ball_angle >= lim_inf_goal2 && ball_angle <= lim_sup_goal2) {
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ red_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ red_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
                 if (gameState.player_and_bonus.bonus) {
                     gameState.bonus_stats.push({player_who_scored: gameState.paddles.player1.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
                 }
@@ -302,6 +308,8 @@ function update(lobbyKey) {
         }
         else {
             if (ball_angle >= lim_inf_goal2 || ball_angle <= lim_sup_goal2) {
+                lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ red_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
+                lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ red_goal: true, x_goal: gameState.ball.x, y_goal: gameState.ball.y }));
                 if (gameState.player_and_bonus.bonus) {
                     gameState.bonus_stats.push({player_who_scored: gameState.paddles.player1.name, player_with_bonus: gameState.player_and_bonus.player, bonus_name: gameState.player_and_bonus.bonus});
                 }
@@ -353,6 +361,14 @@ function update(lobbyKey) {
     
         gameState.ballSpeed.ballSpeedX -= 2 * dotProduct * normalX;
         gameState.ballSpeed.ballSpeedY -= 2 * dotProduct * normalY;
+        if (gameState.bounce % 2 == 0) {
+            lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y, ping_or_pong: 0 }));
+            lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y, ping_or_pong: 0 }));
+        }
+        else {
+            lobbies[lobbyKey].players[0]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y, ping_or_pong: 1 }));
+            lobbies[lobbyKey].players[1]?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.ball.x, y_bounce: gameState.ball.y, ping_or_pong: 1 }));
+        }
     }
 
     if (gameState.bounce == 20) {

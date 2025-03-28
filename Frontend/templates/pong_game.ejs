@@ -13,12 +13,12 @@
         <canvas id="pong_animation" width="1000" height="1000" class="lg:w-[40rem] lg:h-[24rem]"></canvas>
           <button onclick="navigateTo('waiting_room')"
                   class="absolute top-20 left-1/2 transform -translate-x-1/2
-                         bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded font-secondFont">
+                         bg-blue-700 hover:bg-blue-900 text-white text-3xl py-2 px-4 rounded font-kablam">
                         PLAY PONG
           </button>
           <button onclick="navigateTo('pong_tournament')"
                   class="absolute bottom-20 left-1/2 transform -translate-x-1/2
-                         bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded font-secondFont">
+                         bg-red-600 hover:bg-red-800 text-white text-3xl py-2 px-4 rounded font-kablam">
                         PONG TOURNAMENT
           </button>
       </div>
@@ -27,12 +27,17 @@
         <canvas id="ping_animation" class="w-[100vw] h-[100vw] lg:w-[32rem] lg:h-[32rem] max-w-full max-h-full"></canvas>
           <button onclick="navigateTo('ping_waiting_room')"
                   class="absolute top-16 left-1/2 transform -translate-x-1/2
-                         bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded font-secondFont">
+                         bg-blue-700 hover:bg-blue-900 text-white text-3xl py-2 px-4 rounded font-kablam">
                         PLAY PING
           </button>
+          <button onclick="navigateTo('solo_ping')"
+                  class="absolute justify-center left-1/2 transform -translate-x-1/2
+                        bg-green-700 hover:bg-green-900 text-white text-3xl py-2 px-4 rounded font-kablam">
+                        SOLO
+          </button>
           <button onclick="navigateTo('ping_tournament')"
-                  class="absolute bottom-16 left-1/2 transform -translate-x-1/2
-                         bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded font-secondFont">
+                  class="absolute bottom-20 left-1/2 transform -translate-x-1/2
+                         bg-red-600 hover:bg-red-800 text-white text-3xl py-2 px-4 rounded font-kablam">
                         PING TOURNAMENT
           </button>
       </div>
