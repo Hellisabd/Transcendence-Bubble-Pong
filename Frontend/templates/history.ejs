@@ -1,110 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>History</title>
-      <%- include('links.ejs') %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History</title>
+  <%- include('links.ejs') %>
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen text-white">
   <div id="content">
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<h1>Historique des matchs</h1>
-  <% if (history.length === 0) { %>
-	<p>Aucun match trouvé.</p>
-	<% } else { %>
-		<table border="1">
-			<tr>
-				<th>Game</th>
-				<th>Joueur 1</th>
-				<th>Joueur 2</th>
-				<th>Score</th>
-				<th>Gagnant</th>
-				<th>Date</th>
-			</tr>
+    <div class="pt-24 px-4 max-w-7xl mx-auto font-canted">
+      <h1 class="text-4xl font-bold mb-8 text-center font-kablam shadow-black">HISTORIQUE DES MATCHS</h1>
 
-			<% history.forEach(match => { %>
-				<tr>
-					<td><%= match.gametype %></td>
-					<td><%= match.player1_username %></td>
-					<td><%= match.player2_username %></td>
-					<td><%= match.player1_score %> - <%= match.player2_score %></td>
-					<td><%= match.winner_username %></td>
-					<td><%= match.created_at %></td>
+      <% if (history.length === 0) { %>
+        <p class="text-center text-lg">Aucun match trouvé.</p>
+      <% } else { %>
+        <div class=" relative overflow-x-auto overflow-y-auto mb-12 h-[400px] z-10">
+			<table class="min-w-full text-center font-canted table-fixed">
+				<thead class="bg-black text-white sticky top-0">
+				  <tr class="">
+					<th class="w-[120px] px-2 py-2 ">Game</th>
+					<th class="w-[150px] px-2 py-2 ">Joueur 1</th>
+					<th class="w-[150px] px-2 py-2 ">Joueur 2</th>
+					<th class="w-[120px] px-2 py-2 ">Score</th>
+					<th class="w-[180px] px-2 py-2">Date</th> 
+				  </tr>
+				</thead>
+				<tbody class="bg-black text-black">
+				  <% history.forEach(match => { 
+					let rowColor = '';
+					if (match.winner_username === username) {
+						rowColor = 'bg-green-800';
+					} else {
+						rowColor = 'bg-red-800';
+					}
+					%>
+					<tr class="<%= rowColor %> border-b border-black">
+					  <td class="px-2 py-2 border-black h-[80px]"><%= match.gametype %></td>
+					  <td class="px-2 py-2 border-black h-[80px]"><%= match.player1_username %></td>
+					  <td class="px-2 py-2 border-black h-[80px]"><%= match.player2_username %></td>
+					  <td class="px-2 py-2 border-black h-[80px]"><%= match.player1_score %> - <%= match.player2_score %></td>
+					  <td class="px-2 py-2 border-black h-[80px]"><%= match.created_at %></td>
+					</tr>
+				  <% }) %> 
+				</tbody>
+			  </table>
+        </div>
+      <% } %>
+
+	  <h1 class="text-4xl font-bold mb-6 text-center font-kablam">TOURNOIS</h1>
+
+	  <% if (tournament.length === 0) { %>
+		<p class="text-center text-lg">Aucun tournoi joué.</p>
+	  <% } else { %>
+		<h2 class="text-2xl font-semibold mb-4 text-center font-kablam">CLASSEMENTS DES TOURNOIS</h2>
+	  
+		<div class="overflow-x-auto overflow-y-auto mb-12 h-[400px]">
+		  <table class="min-w-full text-center font-canted table-fixed">
+			<thead class="bg-black text-white sticky top-0 z-10">
+			  <tr>
+				<th class="w-[120px] px-2 py-2">Game</th>
+				<th class="w-[150px] px-2 py-2">Position</th>
+				<th class="w-[150px] px-2 py-2">Joueur</th>
+				<th class="w-[120px] px-2 py-2">Score</th>
+			  </tr>
+			</thead>
+			<tbody class="bg-black text-white">
+			  <% tournament.forEach(tournoi => { %>
+				<!-- Ligne de séparation avec la date -->
+				<tr class="bg-gray-800 text-white font-bold border-b border-black">
+				  <td colspan="5" class="px-4 py-2 text-left">
+					🗓️ Tournoi du <%= new Date(tournoi.created_at).toLocaleString('fr-FR') %>
+				  </td>
 				</tr>
-			<% }) %>
-		</table>
-	<% } %>
-	<h1>Tournaments</h1>
-	<% if (tournament.length === 0) { %>
-		<p>Aucun tournoi joué.</p>
-	<% } else { %>
-		<h2>Classement des tournois</h2>
-		<% tournament.forEach(tournoi => { %>
-			<table border="1">
-				<tr>
-					<th>Game</th>
-					<th>Position</th>
-					<th>Joueur</th>
-					<th>Score</th>
-					<th>Date</th>
-				</tr>
-				<tr>
-					<td><%= tournoi.gametype %></td>
-					<td>🥇 1</td>
-					<td><%= tournoi.player1_username %></td>
-					<td><%= tournoi.player1_score %></td>
-					<td><%= tournoi.created_at %></td>
-				</tr>
-				<tr>
-					<td><%= tournoi.gametype %></td>
-					<%if (tournoi.player2_score == tournoi.player1_score) { %>
-						<td>🥇 1</td>
-					<%} else {%>
-						<td>🥈 2</td>
-					<%}%>
-					<td><%= tournoi.player2_username %></td>
-					<td><%= tournoi.player2_score %></td>
-					<td><%= tournoi.created_at %></td>
-				</tr>
-				<tr>
-					<td><%= tournoi.gametype %></td>
-					<%if (tournoi.player3_score == tournoi.player1_score) { %>
-						<td>🥇 1</td>
-					<%} else if (tournoi.player3_score == tournoi.player2_score){%>
-						<td>🥈 2</td>
-					<%} else {%>
-						<td>🥉 3</td>
-					<%}%>
-					<td><%= tournoi.player3_username %></td>
-					<td><%= tournoi.player3_score %></td>
-					<td><%= tournoi.created_at %></td>
-				</tr>
-				<tr>
-					<td><%= tournoi.gametype %></td>
-					<%if (tournoi.player4_score == tournoi.player1_score) { %>
-						<td>🥇 1</td>
-					<%} else if (tournoi.player4_score == tournoi.player2_score){%>
-						<td>🥈 2</td>
-					<%} else if (tournoi.player4_score == tournoi.player3_score){%>
-						<td>🥉 3</td>
-					<%} else {%>
-						<td>🏅 4</td>
-					<%}%>
-					<td><%= tournoi.player4_username %></td>
-					<td><%= tournoi.player4_score %></td>
-					<td><%= tournoi.created_at %></td>
-				</tr>
-			</table>
-		<% }) %>
-	<% } %>
+	  
+				<% 
+				  const players = [
+					{ position: "🥇 1", username: tournoi.player1_username, score: tournoi.player1_score },
+					{ position: (tournoi.player2_score == tournoi.player1_score ? "🥇 1" : "🥈 2"), username: tournoi.player2_username, score: tournoi.player2_score },
+					{ 
+					  position: (tournoi.player3_score == tournoi.player1_score ? "🥇 1" : 
+								tournoi.player3_score == tournoi.player2_score ? "🥈 2" : "🥉 3"), 
+					  username: tournoi.player3_username, 
+					  score: tournoi.player3_score 
+					},
+					{ 
+					  position: (tournoi.player4_score == tournoi.player1_score ? "🥇 1" : 
+								tournoi.player4_score == tournoi.player2_score ? "🥈 2" :
+								tournoi.player4_score == tournoi.player3_score ? "🥉 3" : "🏅 4"), 
+					  username: tournoi.player4_username, 
+					  score: tournoi.player4_score 
+					}
+				  ];
+				%>
+	  
+				<% players.forEach(player => { %>
+				  <tr class="border-b border-black">
+					<td class="px-2 py-2 h-[80px]"><%= tournoi.gametype %></td>
+					<td class="px-2 py-2 h-[80px]"><%= player.position %></td>
+					<td class="px-2 py-2 h-[80px]"><%= player.username %></td>
+					<td class="px-2 py-2 h-[80px]"><%= player.score %></td>
+				  </tr>
+				<% }) %>
+			  <% }) %>
+			</tbody>
+		  </table>
+		</div>
+	  <% } %>
+    </div>
+  </div>
+
   <%- include('/usr/src/app/Frontend/templates/scripts.ejs') %>
-  <canvas id="friends_list" width="300" height="500"></canvas>
-</div>
 </body>
 </html>

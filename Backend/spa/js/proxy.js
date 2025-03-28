@@ -198,7 +198,7 @@ async function get_stats(req, reply) {
 
 async function get_history(req, reply) {
     const token = req.cookies.session;
-    if (!token) {
+    if (!token) { 
         return reply.view("login.ejs");
     }
 
@@ -212,7 +212,7 @@ async function get_history(req, reply) {
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
-    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament });
+    return reply.view("history.ejs", { history: response.data.history, tournament: response.data.history_tournament, username: username });
 }
 
 async function end_tournament(req, reply) {

@@ -83,7 +83,7 @@ async function display_friends() {
 			friendsDiv.appendChild(friendDiv);
         }
     }
-	displaying_friends = false;
+	displaying_friends = false; 
 }
 
 let displaying_pending: boolean = false;

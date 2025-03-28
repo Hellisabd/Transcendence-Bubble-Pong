@@ -62,7 +62,7 @@ async function set_up_bars() {
         </button>
     
     
-        <div id="sidebar" class="animate-leftFadeInBar hidden h-full w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg">
+        <div id="sidebar" class="animate-leftFadeInBar hidden h-full w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg z-[9990]">
             <div class="pl-5 pt-20">
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
