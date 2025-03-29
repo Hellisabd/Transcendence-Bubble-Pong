@@ -49,14 +49,30 @@
 }
 
 .bg-ping {
-    background-image: url('/Frontend/assets/PING_ARENA.png');
+    background-image: url('/Frontend/assets/PING_ARENA_WHITE.png');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
     min-width: 320px;
 }
 
-/* 
-body {
-    font-family: 'Canted Comic', sans-serif;
-} */
+.bg-paper {
+    background-image: url('/Frontend/assets/BACKGROUND.png');
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-attachment: fixed; 
+    width: 100%;
+    height: 100%;
+}
+
+.image-index {
+    background-image: url('/Frontend/assets/INDEX2.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+}

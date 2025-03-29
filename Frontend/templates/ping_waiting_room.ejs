@@ -6,7 +6,7 @@
       <title>Ping Queue</title>
       <%- include('links.ejs') %>
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+<body class="font-mainFont bg-paper min-h-screen">
   <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
       <div class="relative flex w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
@@ -21,7 +21,7 @@
         <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px] hidden"></div>
         <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
-  </div>
+    </div>
   </div>
   <%- include('scripts.ejs') %>
 </body>

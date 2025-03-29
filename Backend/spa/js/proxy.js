@@ -16,7 +16,7 @@ let usersession = new Map();
 
 async function get_avatar(request, reply) {
     const {username} = request.body;
-    const response = await axios.post("http://users:5000/get_avatar",
+    const response = await axios.post("http://users:5002/get_avatar",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
@@ -52,7 +52,7 @@ async function update_avatar(req, reply) {
       }
 
       await pump(data.file, fs.createWriteStream(fullPath));
-      const response = await axios.post("http://users:5000/update_avatar",
+      const response = await axios.post("http://users:5002/update_avatar",
         { username: username , avatar_name: filename },
         { headers: { "Content-Type": "application/json" } }
     );
@@ -79,7 +79,7 @@ fastify.register(fastifyCookie, {
 async function log(req, reply) {
     console.log("🔄 Redirection de /login vers users...");
     const {username} = req.body;
-    const response = await axios.post("http://users:5000/login", req.body);
+    const response = await axios.post("http://users:5002/login", req.body);
     const result = await response.data;
     if (result.success) {
         const {token , username, domain} = response.data;
@@ -108,7 +108,7 @@ async function create_account(req, reply) {
     try {
         console.log("🔄 Redirection de /create_account vers users...");
 
-        const response = await axios.post("http://users:5000/create_account", req.body, {
+        const response = await axios.post("http://users:5002/create_account", req.body, {
             withCredentials: true
         });
         return reply.send(response.data);
@@ -140,7 +140,7 @@ async function logout(token, reply) {
 }
 
 async function settings(req, reply) {
-    const response = await axios.post("http://users:5000/settings", req.body);
+    const response = await axios.post("http://users:5002/settings", req.body);
     if (response.data.new_file_name && response.data.old_file_name &&  response.data.old_file_name != "default.jpg") {
         const pathtoimage = "/usr/src/app/Frontend/avatar/";
         const oldFilePath = `${pathtoimage}${response.data.old_file_name}`;
@@ -153,12 +153,12 @@ async function settings(req, reply) {
 }
 
 async function update_solo_score(req, reply) {
-    const response = await axios.post("http://users:5000/update_solo_score", req.body);
+    const response = await axios.post("http://users:5002/update_solo_score", req.body);
     reply.send(response.data);
 }  
 
 async function update_history(req, reply) {
-    const response = await axios.post("http://users:5000/update_history", req.body);
+    const response = await axios.post("http://users:5002/update_history", req.body);
     reply.send(response.data);
 }
 
@@ -166,7 +166,7 @@ async function get_stats(req, reply) {
     const {username} = req.body;
 
 
-    const response = await axios.post("http://users:5000/get_history",
+    const response = await axios.post("http://users:5002/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
@@ -185,7 +185,7 @@ async function get_history(req, reply) {
     }
 
 
-    const response = await axios.post("http://users:5000/get_history",
+    const response = await axios.post("http://users:5002/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );
@@ -255,7 +255,7 @@ async function update_status(req, reply) {
 async function add_friend(req, reply) {
     const {user_sending} = req.body;
     console.log("req.body in add friend", req.body);
-    const response = await axios.post("http://users:5000/add_friend", req.body, {
+    const response = await axios.post("http://users:5002/add_friend", req.body, {
         withCredentials: true
     });
     if (response.data.success && response.data.display)
@@ -269,21 +269,21 @@ async function add_friend(req, reply) {
 }
 
 async function decline_friend(req, reply) {
-	const response = await axios.post("http://users:5000/decline_friend", req.body, {
+	const response = await axios.post("http://users:5002/decline_friend", req.body, {
 		withCredentials: true
 	});
     reply.send(response.data);
 }
 
 async function pending_request(req, reply) {
-    const response = await axios.post("http://users:5000/pending_request", req.body, {
+    const response = await axios.post("http://users:5002/pending_request", req.body, {
         withCredentials: true
     });
     reply.send(response.data);
 }
 
 async function get_friends(username) { 
-    const response = await axios.post("http://users:5000/get_friends",
+    const response = await axios.post("http://users:5002/get_friends",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
     );

@@ -202,35 +202,34 @@ function ping_draw(ratio: number): void {
 	if (!ping_ctx || !ping_canvas) {
 		return ;
 	}
-	ping_ctx.clearRect(0, 0, ping_canvas.width, ping_canvas.height);
+    let ping_canvasWidth: number = ping_canvas.offsetWidth;
+    let ping_canvasHeight: number = ping_canvas.offsetHeight;
+    
+    ping_canvas.width = ping_canvasWidth;
+    ping_canvas.height = ping_canvasHeight;
 
-	//ARENA
-	ping_ctx.beginPath();
-	ping_ctx.arc(ping_canvas.width / 2, ping_canvas.height / 2, ping_canvas.width / 2 - 5, 0, Math.PI * 2);
-	ping_ctx.fillStyle = "black";
-	ping_ctx.fill();
-	ping_ctx.closePath();
+    let arena_radius: number = ping_canvasWidth / 2 - ping_canvasWidth / 20;
+    let scale = arena_radius / (ping_canvasWidth / 2);
 
-	ping_ctx.beginPath();
-	ping_ctx.arc(ping_canvas.width / 2, ping_canvas.height / 2, ping_canvas.width / 2 - 5, 0, Math.PI * 2);
-	ping_ctx.lineWidth = 5;
-	ping_ctx.strokeStyle = "white";
-	ping_ctx.shadowBlur = 5;
-	ping_ctx.shadowColor = ping_ctx.strokeStyle;
-	ping_ctx.stroke();
-	ping_ctx.closePath();
-	ping_ctx.shadowBlur = 0;
+    ping_ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ping_ctx.clearRect(0, 0, ping_canvas.width, ping_canvas.height);
+
+    ping_ctx.translate(ping_canvas.width / 2, ping_canvas.height / 2);
+
+    ping_ctx.scale(scale, scale);
+
+    ping_ctx.translate(-ping_canvas.width / 2, -ping_canvas.height / 2);
 
 	//GOAL 1
 	ping_ctx.beginPath();
 	ping_ctx.arc(
 		ping_canvas.width / 2,
 		ping_canvas.height / 2,
-		ping_canvas.width / 2 - 5,
+		ping_canvas.width / 2,
 		ping_p1_goal - ping_goal_size / 2,
 		ping_p1_goal + ping_goal_size / 2
 	);
-	ping_ctx.lineWidth = 5;
+	ping_ctx.lineWidth = 8 * ratio;
 	ping_ctx.strokeStyle = "red";
 	ping_ctx.stroke();
 	ping_ctx.stroke();
@@ -243,11 +242,11 @@ function ping_draw(ratio: number): void {
 	ping_ctx.arc(
 		ping_canvas.width / 2,
 		ping_canvas.height / 2,
-		ping_canvas.width / 2 - 5,
+		ping_canvas.width / 2,
 		ping_p2_goal - ping_goal_size / 2,
 		ping_p2_goal + ping_goal_size / 2
 	);
-	ping_ctx.lineWidth = 5;
+	ping_ctx.lineWidth = 8 * ratio;
 	ping_ctx.strokeStyle = "blue";
 	ping_ctx.stroke();
 	ping_ctx.stroke();
@@ -256,52 +255,112 @@ function ping_draw(ratio: number): void {
 	ping_ctx.shadowBlur = 0;
 
 	//BALL
-	ping_ctx.beginPath();
-	ping_ctx.arc(ping_ballX, ping_ballY, ping_ballRadius, 0, Math.PI * 2);
-	ping_ctx.strokeStyle = "yellow";
-	ping_ctx.shadowBlur = 15;
-	ping_ctx.shadowColor = ping_ctx.strokeStyle;
-	ping_ctx.stroke();
-	ping_ctx.closePath();
-	ping_ctx.shadowBlur = 0;
+    ping_ctx.beginPath();
+    ping_ctx.arc(ping_ballX, ping_ballY, ping_ballRadius, 0, Math.PI * 2);
+    ping_ctx.fillStyle = "#efb60a";
+    ping_ctx.fill(); 
+    ping_ctx.lineWidth = 2;
+    ping_ctx.strokeStyle = "black";
+    ping_ctx.stroke();
+    ping_ctx.closePath();
 
 	//PADDLE 1
-	ping_ctx.beginPath();
-	ping_ctx.arc(
-		ping_canvas.width / 2,
-		ping_canvas.height / 2,
-		ping_canvas.width / 2 - ping_paddle_thickness,
+    ping_ctx.beginPath();
+    ping_ctx.arc(
+        ping_canvas.width / 2,
+        ping_canvas.height / 2,
+		ping_canvas.width / 2 - (19 * ratio),
 		ping_p1_angle - ping_paddle_size,
 		ping_p1_angle + ping_paddle_size
-	);
-	ping_ctx.strokeStyle = "red";
-	ping_ctx.shadowBlur = 15;
-	ping_ctx.shadowColor = ping_ctx.strokeStyle;
-	ping_ctx.lineWidth = 20
-	ping_ctx.stroke();
-	ping_ctx.closePath();
-	ping_ctx.shadowBlur = 0;
+    );
+    ping_ctx.lineWidth = 20 * ratio;
+    ping_ctx.strokeStyle = "black";
+    ping_ctx.stroke();
 
-	//PADDLE 2
-	ping_ctx.beginPath();
-	ping_ctx.arc(
-		ping_canvas.width / 2,
-		ping_canvas.height / 2,
-		ping_canvas.width / 2 - ping_paddle_thickness,
+    ping_ctx.beginPath();
+    ping_ctx.moveTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.cos(ping_p1_angle - ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.sin(ping_p1_angle - ping_paddle_size)
+    );
+    ping_ctx.lineTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.cos(ping_p1_angle - ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.sin(ping_p1_angle - ping_paddle_size)
+    );
+    ping_ctx.moveTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.cos(ping_p1_angle + ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.sin(ping_p1_angle + ping_paddle_size)
+    );
+    ping_ctx.lineTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.cos(ping_p1_angle + ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.sin(ping_p1_angle + ping_paddle_size)
+    );
+    ping_ctx.lineWidth = 8 * ratio;
+    ping_ctx.stroke();
+    ping_ctx.closePath();
+    
+    ping_ctx.beginPath();
+    ping_ctx.arc(
+        ping_canvas.width / 2,
+        ping_canvas.height / 2,
+        ping_canvas.width / 2 - (19 * ratio),
+        ping_p1_angle - ping_paddle_size,
+        ping_p1_angle + ping_paddle_size
+    );
+    ping_ctx.strokeStyle = "red";
+    ping_ctx.lineWidth = 15 * ratio;
+    ping_ctx.stroke();
+    ping_ctx.closePath();
+
+    //PADDLE 2
+    ping_ctx.beginPath();
+    ping_ctx.arc(
+        ping_canvas.width / 2,
+        ping_canvas.height / 2,
+		ping_canvas.width / 2  - (19 * ratio),
 		ping_p2_angle - ping_paddle_size,
 		ping_p2_angle + ping_paddle_size
-	);
-	ping_ctx.strokeStyle = "blue";
-	ping_ctx.shadowBlur = 15;
-	ping_ctx.shadowColor = ping_ctx.strokeStyle;
-	ping_ctx.lineWidth = 20
-	ping_ctx.stroke();
-	ping_ctx.closePath();
-	ping_ctx.shadowBlur = 0;
+    );
+    ping_ctx.lineWidth = 20 * ratio;
+    ping_ctx.strokeStyle = "black";
+    ping_ctx.stroke();
+    
+    ping_ctx.beginPath();
+    ping_ctx.moveTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.cos(ping_p2_angle - ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.sin(ping_p2_angle - ping_paddle_size)
+    );
+    ping_ctx.lineTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.cos(ping_p2_angle - ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.sin(ping_p2_angle - ping_paddle_size)
+    );
+    ping_ctx.moveTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.cos(ping_p2_angle + ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (28 * ratio)) * Math.sin(ping_p2_angle + ping_paddle_size)
+    );
+    ping_ctx.lineTo(
+        ping_canvas.width / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.cos(ping_p2_angle + ping_paddle_size),
+        ping_canvas.height / 2 + (ping_canvas.width / 2 - (10 * ratio)) * Math.sin(ping_p2_angle + ping_paddle_size)
+    );
+    ping_ctx.lineWidth = 8 * ratio;
+    ping_ctx.stroke();
+    ping_ctx.closePath();
+
+    ping_ctx.beginPath();
+    ping_ctx.arc(
+        ping_canvas.width / 2,
+        ping_canvas.height / 2,
+        ping_canvas.width / 2 - (19 * ratio),
+        ping_p2_angle - ping_paddle_size,
+        ping_p2_angle + ping_paddle_size
+    );
+    ping_ctx.strokeStyle = "blue";
+    ping_ctx.lineWidth = 15 * ratio;
+    ping_ctx.stroke();
+    ping_ctx.closePath();
 
     if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") { 
         let opacity = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 500));
-        ping_ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ping_ctx.fillStyle = `rgba(0, 0, 0, ${opacity})`;
         ping_ctx.font = "30px 'Canted Comic', bold, sans-serif";
         ping_ctx.textAlign = "center";
         ping_ctx.fillText("Waiting for opponent...", ping_canvas.width / 2, ping_canvas.height / 2);

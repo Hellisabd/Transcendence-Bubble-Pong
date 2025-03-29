@@ -6,7 +6,7 @@
       <title>Pong Game</title>
       <%- include('links.ejs') %>
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+<body class="font-mainFont bg-paper min-h-screen">
   <div id="content">
     <div class="pt-[25vh] flex flex-col lg:flex-row items-center justify-center md:space-x-8 space-y-8">
       <div class="relative flex items-center justify-center w-[250px] h-[128px] sm:w-[359px] sm:h-[184px] lg:w-[597px] lg:h-[306px]">
@@ -24,21 +24,22 @@
         </button>
       </div>
 
-      <div class="relative lg:w-[32rem] h-[100%] flex items-center justify-center">
-        <canvas id="ping_animation" class="w-[100vw] h-[100vw] lg:w-[32rem] lg:h-[32rem] max-w-full max-h-full"></canvas>
+      <div class="relative flex items-center justify-center w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] lg:w-[400px] lg:h-[400px]">
+        <div class="absolute bg-ping w-[300px] h-[300px] sm:w-[350px] sm:h-[350px] lg:w-[400px] lg:h-[400px]"></div>
+        <canvas id="ping_animation" class="absolute inset-0 w-full h-full"></canvas>
           <button onclick="navigateTo('ping_waiting_room')"
                   class="absolute top-16 left-1/2 transform -translate-x-1/2
-                         bg-blue-700 hover:bg-blue-900 text-white text-3xl py-2 px-4 rounded font-kablam">
+                         bg-blue-700 hover:bg-blue-900 text-white text-sm lg:text-xl py-2 px-4 rounded font-kablam">
                         PLAY PING
           </button>
           <button onclick="navigateTo('solo_ping')"
                   class="absolute justify-center left-1/2 transform -translate-x-1/2
-                        bg-green-700 hover:bg-green-900 text-white text-3xl py-2 px-4 rounded font-kablam">
+                        bg-green-700 hover:bg-green-900 text-white text-sm lg:text-xl py-2 px-4 rounded font-kablam">
                         SOLO
           </button>
           <button onclick="navigateTo('ping_tournament')"
                   class="absolute bottom-20 left-1/2 transform -translate-x-1/2
-                         bg-red-600 hover:bg-red-800 text-white text-3xl py-2 px-4 rounded font-kablam">
+                         bg-red-600 hover:bg-red-800 text-white text-sm lg:text-xl py-2 px-4 rounded font-kablam">
                         PING TOURNAMENT
           </button>
       </div>

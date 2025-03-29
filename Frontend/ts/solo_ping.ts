@@ -94,31 +94,30 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             if (!ctx) {
                 return ;
             }
+            let canvasWidth: number = canvas.offsetWidth;
+            let canvasHeight: number = canvas.offsetHeight;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+        
+            let arena_radius: number = canvasWidth / 2 - canvasWidth / 20;
+            let scale = arena_radius / (canvasWidth / 2);
+        
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            //ARENA
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            ctx.closePath();
-
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - 5, 0, Math.PI * 2);
-            ctx.lineWidth = 5 * ratio;
-            ctx.strokeStyle = "white";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = ctx.strokeStyle;
-            ctx.stroke();
-            ctx.closePath();
-            ctx.shadowBlur = 0;
+        
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+        
+            ctx.scale(scale, scale);
+        
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
             //GOAL
             ctx.beginPath();
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - 5,
+                canvas.width / 2,
                 goal.angle - goal.size / 2,
                 goal.angle + goal.size / 2
             );
@@ -137,12 +136,12 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             //BALL
             ctx.beginPath();
             ctx.arc(ball.x * ratio, ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
-            ctx.strokeStyle = "yellow";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = ctx.strokeStyle;
+            ctx.fillStyle = "#efb60a";
+            ctx.fill(); 
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
             ctx.stroke();
             ctx.closePath();
-            ctx.shadowBlur = 0;
 
             //PADDLE
             ctx.beginPath();
@@ -153,13 +152,43 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 player.angle - player.size,
                 player.angle + player.size
             );
-            ctx.strokeStyle = "red";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = ctx.strokeStyle;
             ctx.lineWidth = 20 * ratio;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+        
+            ctx.beginPath();
+            ctx.moveTo(
+                canvas.width / 2 + (canvas.width / 2 - (28 * ratio)) * Math.cos(player.angle - player.size),
+                canvas.height / 2 + (canvas.width / 2 - (28 * ratio)) * Math.sin(player.angle - player.size)
+            );
+            ctx.lineTo(
+                canvas.width / 2 + (canvas.width / 2 - (10 * ratio)) * Math.cos(player.angle - player.size),
+                canvas.height / 2 + (canvas.width / 2 - (10 * ratio)) * Math.sin(player.angle - player.size)
+            );
+            ctx.moveTo(
+                canvas.width / 2 + (canvas.width / 2 - (28 * ratio)) * Math.cos(player.angle + player.size),
+                canvas.height / 2 + (canvas.width / 2 - (28 * ratio)) * Math.sin(player.angle + player.size)
+            );
+            ctx.lineTo(
+                canvas.width / 2 + (canvas.width / 2 - (10 * ratio)) * Math.cos(player.angle + player.size),
+                canvas.height / 2 + (canvas.width / 2 - (10 * ratio)) * Math.sin(player.angle + player.size)
+            );
+            ctx.lineWidth = 8 * ratio;
             ctx.stroke();
             ctx.closePath();
-            ctx.shadowBlur = 0;
+            
+            ctx.beginPath();
+            ctx.arc(
+                canvas.width / 2,
+                canvas.height / 2,
+                canvas.width / 2 - (19 * ratio),
+                player.angle - player.size,
+                player.angle + player.size
+            );
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 15 * ratio;
+            ctx.stroke();
+            ctx.closePath();
 
             //BONUS
             if (bonus.tag == 'P') {
@@ -228,8 +257,8 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
 
             if (start_solo == false) {
-                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
-                ctx.fillStyle = "white";
+                ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
+                ctx.fillStyle = "black";
                 ctx.textAlign = "center";
                 ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
             }
@@ -321,7 +350,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal && ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -332,7 +361,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal || ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -454,7 +483,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             solo_drawGame();
             if (end_solo == true) {
-                ctx.font = `bold ${30 * ratio}px 'Press Start 2P', 'system-ui', sans-serif`;
+                ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                 ctx.fillStyle = "red";
                 ctx.textAlign = "center";
                 ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);

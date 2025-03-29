@@ -6,13 +6,16 @@
       <title>Solo PING</title>
       <%- include('links.ejs') %>
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-  <div id="content">
-    <%- include('navbar.ejs') %>
+<body class="font-mainFont bg-paper min-h-screen">
+  <%- include('navbar.ejs') %>
+  <div id="content" class="flex justify-center items-center">
     <div class="relative flex flex-col items-center translate-y-20">
-      <p id="solo_score" class="text-red-600 text-2xl font-secondFont"></p>
-      <canvas id="solopingCanvas" class="w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[800px] md:h-[800px]"></canvas>
-  </div>
+      <p id="solo_score" class="text-red-600 text-3xl font-kablam"></p>
+      <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
+        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
+        <canvas id="solopingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      </div>
+    </div>
   </div>
   <%- include('scripts.ejs') %>
 </body>
@@ -22,3 +25,5 @@
   });
 </script>
 </html>
+
+        
