@@ -22,7 +22,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
-        let ratio: number = canvasWidth / 800;
+        let ratio: number = canvasWidth / 1000;
 
         animation_ping_stop();
         animation_pong_stop();
@@ -135,7 +135,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
 
             //BALL
             ctx.beginPath();
-            ctx.arc(ball.x * ratio, ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
+            ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
             ctx.fillStyle = "#efb60a";
             ctx.fill(); 
             ctx.lineWidth = 2;
@@ -193,7 +193,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             //BONUS
             if (bonus.tag == 'P') {
                 ctx.beginPath();
-                ctx.arc(bonus.x * ratio, bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -214,7 +214,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             if (bonus.tag == 'G') {
                 ctx.beginPath();
-                ctx.arc(bonus.x * ratio, bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -236,7 +236,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
 
             if (bonus.tag == 'S') {
                 ctx.beginPath();
-                ctx.arc(bonus.x * ratio, bonus.y * ratio, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -417,7 +417,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 let dx: number = bonus.x - canvasWidth / 2;
                 let dy: number = bonus.y - canvasHeight / 2;
                 let bonus_dist = Math.sqrt(dx * dx + dy * dy);
-                if (bonus_dist + 200 >= arena_radius)
+                if (bonus_dist + (200 * ratio) >= arena_radius)
                     randBonusPos();
             }
             if (bounce >= 2 && solo_bonus_bool == 0) {

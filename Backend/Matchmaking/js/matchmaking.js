@@ -197,7 +197,7 @@ fastify.register(async function (fastify) {
                         currentTournament.classements.sort((a, b) => b.score - a.score);
                         for (let i = 0; i < 4; i++) {
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
-                            axios.post("http://users:5002/update_history",
+                            axios.post("http://users:5000/update_history",
                                 {
                                     history: currentTournament.history[currentTournament.tournamentsUsernames[i]],
                                     gametype: "pong",
@@ -210,7 +210,7 @@ fastify.register(async function (fastify) {
                                 }
                             );
                         }
-                        axios.post("http://users:5002/update_history_tournament", 
+                        axios.post("http://users:5000/update_history_tournament", 
                             {
                                 classement: currentTournament.classements,
                                 gametype: "pong",
@@ -389,7 +389,7 @@ fastify.register(async function (fastify) {
                             console.log("sending trucs par clients pour la fin du tournoi");
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                             console.log(currentTournament.history[currentTournament.tournamentsUsernames[i]]);
-                            axios.post("http://users:5002/update_history", 
+                            axios.post("http://users:5000/update_history", 
                                 {
                                     history: currentTournament.history[currentTournament.tournamentsUsernames[i]],
                                     gametype: "ping",
@@ -402,7 +402,7 @@ fastify.register(async function (fastify) {
                                 }
                             );
                         }
-                        axios.post("http://users:5002/update_history_tournament",
+                        axios.post("http://users:5000/update_history_tournament",
                             {
                                 classement: currentTournament.classements,
                                 gametype: "ping",

@@ -9,6 +9,21 @@ let pong_stats_canvas: HTMLCanvasElement | null = null;
 let ping_stats_canvas: HTMLCanvasElement | null = null;
 let friendContainer: HTMLElement | null = null;
 
+const BUBBLE_image = new Image();
+BUBBLE_image.src = "Frontend/assets/bubble.png";
+
+const BUBBLE2_image = new Image();
+BUBBLE2_image.src = "Frontend/assets/bubble2.png";
+
+const BUBBLE3_image = new Image();
+BUBBLE3_image.src = "Frontend/assets/bubble3.png";
+
+const BUBBLE4_image = new Image();
+BUBBLE4_image.src = "Frontend/assets/bubble4.png";
+
+const BUBBLE5_image = new Image();
+BUBBLE5_image.src = "Frontend/assets/bubble5.png";
+
 function create_friend_canvas(winrate_per_friend: any, json: any) {
 	const containerDiv = document.getElementById("container");
 	const friends_menu = document.getElementById("friends-menu");
@@ -32,20 +47,30 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 		if (ctx_canva) {
 			console.log()
 			shadow_text(`Stats against ${friend.username}`, 420, 50, 15, "center", ctx_canva);
-			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 300, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "red", 30); 
-			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "red", 30);
-			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "red", 30);
+
+			let image_height: number = 500;
+			let image_width: number = 475;
+			ctx_canva.drawImage(BUBBLE4_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 - 250 - image_height / 2, image_width, image_height);
+
+			image_height = 550;
+			image_width = 475;
+			ctx_canva.drawImage(BUBBLE5_image, canvas.width / 3 - 50 - image_width / 2, canvas.height / 2 - image_height / 2, image_width, image_height);
+
+			ctx_canva.drawImage(BUBBLE2_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 + 150 - image_height / 2, image_width, image_height);
+
+			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 250, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "#374151", 30); 
+			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "#374151", 30);
+			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "#374151", 30);
 			canvas_map.push({name: `${friend.username}`, canvas: canvas});
 			const div = document.createElement("div");
 			div.id = `friend_${friend.username}`;
-			div.className = "block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700";
+			div.className = "block px-4 py-2 text-white font-canted hover:bg-gray-100 dark:hover:bg-gray-700";
 			div.setAttribute("onclick", `display_canvas(\"${friend.username}\")`);
 			div.innerHTML = `<span>${friend.username}</span>`
 			friends_menu?.appendChild(div);
 		}
 	}
 }
-
 
 async function get_stats(username: string | null): Promise<void> {
 	if (!username)
@@ -57,7 +82,6 @@ async function get_stats(username: string | null): Promise<void> {
         body: JSON.stringify({username: username})
     });
 	const jsonResponse = await response.json();
-	
 	create_friend_canvas(jsonResponse.winrate_against_friends, jsonResponse);
 	
 	general_canvas = document.getElementById("general_stats") as HTMLCanvasElement;
@@ -66,10 +90,18 @@ async function get_stats(username: string | null): Promise<void> {
         if (!general_ctx) {
 			return ;
         }
-		draw_cheese(general_canvas.width / 2, general_canvas.height / 2 - 300, "WINRATE", jsonResponse.winrate, general_canvas.width / 8, general_ctx, "green", "red", 30);
-		shadow_text("Tournaments won: " + jsonResponse.nbr_of_tournament_won, general_canvas.width / 6, general_canvas.height / 2, 20, "start", general_ctx);
-		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 100, 20, "start", general_ctx);
-		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 200, 20, "start", general_ctx);
+		let image_height: number = general_canvas.height * 0.2;
+		let image_width: number = general_canvas.width * 0.6;
+		general_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+
+		image_height = 775;
+		image_width = 500;
+		general_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+
+		draw_cheese(general_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate, general_canvas.width / 8, general_ctx, "#3f6700", "#374151", 30);
+		shadow_text("Tournaments won: " + jsonResponse.nbr_of_tournament_won, general_canvas.width / 6, general_canvas.height / 2 + 200, 20, "start", general_ctx);
+		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 250, 20, "start", general_ctx);
+		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 300, 20, "start", general_ctx);
 	}
 	
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
@@ -77,10 +109,18 @@ async function get_stats(username: string | null): Promise<void> {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
 		if (!pong_stats_ctx)
 			return;
-		draw_cheese(pong_stats_canvas.width / 2, pong_stats_canvas.height / 2 - 300, "WINRATE", jsonResponse.winrate_pong, pong_stats_canvas.width / 8, pong_stats_ctx, "green", "red", 30);
-		shadow_text("PONG tournaments won: " + jsonResponse.nbr_of_tournament_won_pong, pong_stats_canvas.width / 6, pong_stats_canvas.height / 2, 20, "start", pong_stats_ctx);
-		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 100, 20, "start", pong_stats_ctx);
-		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 200, 20, "start", pong_stats_ctx);
+		let image_height: number = general_canvas.height * 0.2;
+		let image_width: number = general_canvas.width * 0.6;
+		pong_stats_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+
+		image_height = 775;
+		image_width = 500;
+		pong_stats_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+
+		draw_cheese(pong_stats_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate_pong, pong_stats_canvas.width / 8, pong_stats_ctx, "#3f6700", "#374151", 30);
+		shadow_text("PONG tournaments won: " + jsonResponse.nbr_of_tournament_won_pong, pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 200, 20, "start", pong_stats_ctx);
+		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 250, 20, "start", pong_stats_ctx);
+		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 300, 20, "start", pong_stats_ctx);
 	}
 	
 	ping_stats_canvas = document.getElementById("ping_stats") as HTMLCanvasElement;
@@ -88,11 +128,23 @@ async function get_stats(username: string | null): Promise<void> {
 		ping_stats_ctx = ping_stats_canvas.getContext("2d");
 		if (!ping_stats_ctx)
 			return;
-		draw_cheese(ping_stats_canvas.width / 2, ping_stats_canvas.height / 2 - 300, "WINRATE", jsonResponse.winrate_ping, ping_stats_canvas.width / 8, ping_stats_ctx, "green", "red", 30);
-		shadow_text("PING tournaments won: " + jsonResponse.nbr_of_tournament_won_ping, ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 - 90, 20, "start", ping_stats_ctx);
-		shadow_text("Average place in PING tournaments: " + jsonResponse.average_place_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 - 15, 20, "start", ping_stats_ctx);
-		shadow_text("Average score in PING tournaments: " + jsonResponse.average_score_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + 60, 20, "start", ping_stats_ctx);
-		shadow_text("Average bounce in PING games: " + jsonResponse.average_bounce_per_game.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + 135, 20, "start", ping_stats_ctx);
+		let image_height: number = general_canvas.height * 0.2;
+		let image_width: number = general_canvas.width * 0.6;
+		ping_stats_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+
+		image_height = 775;
+		image_width = 500;
+		ping_stats_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+
+		image_height = general_canvas.height * 0.33;
+		image_width = general_canvas.width;
+		ping_stats_ctx.drawImage(BUBBLE_image, 0, general_canvas.height - 150, image_width, image_height);
+
+		draw_cheese(ping_stats_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate_ping, ping_stats_canvas.width / 8, ping_stats_ctx, "#3f6700", "#374151", 30);
+		shadow_text("PING tournaments won: " + jsonResponse.nbr_of_tournament_won_ping, ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25, 20, "start", ping_stats_ctx);
+		shadow_text("Average place in PING tournaments: " + jsonResponse.average_place_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 50, 20, "start", ping_stats_ctx);
+		shadow_text("Average score in PING tournaments: " + jsonResponse.average_score_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 100, 20, "start", ping_stats_ctx);
+		shadow_text("Average bounce in PING games: " + jsonResponse.average_bounce_per_game.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 150, 20, "start", ping_stats_ctx);
 		shadow_text("Goalrate with : ", ping_stats_canvas.width / 2, ping_stats_canvas.height / 2 + 250, 20, "center", ping_stats_ctx);
 		draw_cheese(ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + 400, "bonus paddle", jsonResponse.goal_after_bonus_paddle, ping_stats_canvas.width / 12, ping_stats_ctx, "#00E100", "black", 15);
 		draw_cheese(ping_stats_canvas.width / 6 * 3, ping_stats_canvas.height / 2 + 400, "bonus goal", jsonResponse.goal_after_bonus_goal, ping_stats_canvas.width / 12, ping_stats_ctx, "#FC00C6", "black", 15);
@@ -159,13 +211,13 @@ function display_canvas(canva_name: string) {
 function shadow_text(string: string, x: number, y: number, font_size: number, align: CanvasTextAlign, ctx: CanvasRenderingContext2D) {
 	if (!ctx)
 		return;
-	ctx.font = `bold ${font_size}px 'Press Start 2P', 'system-ui', sans-serif`;
+	ctx.font = `bold ${font_size}px 'Canted Comic', 'system-ui', sans-serif`;
 	ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 	ctx.textAlign = align;
 	ctx.fillText(string, x, y + 5);
 	
-	ctx.font = `bold ${font_size}px 'Press Start 2P', 'system-ui', sans-serif`;
-	ctx.fillStyle = "white";
+	ctx.font = `bold ${font_size}px 'Canted Comic', 'system-ui', sans-serif`;
+	ctx.fillStyle = "black";
 	ctx.textAlign = align;
 	ctx.fillText(string, x, y);
 }

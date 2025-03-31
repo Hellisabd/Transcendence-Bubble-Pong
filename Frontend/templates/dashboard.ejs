@@ -6,7 +6,7 @@
 		<title>Dashboard</title>
 		<%- include('links.ejs') %>
 	</head>
-	<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+	<body class="font-mainFont bg-paper min-h-screen">
 		<div id="content">
 			<div class="pt-20 flex flex-row lg:flex-col items-center justify-center">
 				<div id="container" class="flex items-center justify-center">
@@ -15,17 +15,17 @@
 							onclick="display_dashboard_menu()"
 							id="dropdownButton"
 							type="button"
-							class="px-4 py-2 bg-gray-800 text-white font-secondFont rounded-lg shadow-md
+							class="px-4 py-2 bg-gray-800 text-white font-kablam md:text-2xl rounded-lg shadow-md
 									hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-800
 									focus:ring-opacity-75 transition duration-200">
-							Mode ▼
+							MODE ▼
 						</button>
 						<div id="dropdownMenu" class="absolute left-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg hidden
 							dark:bg-gray-800 dark:border-gray-700">
-							<a onclick="display_canvas('general')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">General</a>
-							<a onclick="display_canvas('pong')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">Pong</a>
-							<a onclick="display_canvas('ping')" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">Ping</a>
-							<a onclick="display_friend_menu()" id="friend-menu-button" class="block px-4 py-2 text-white font-secondFont hover:bg-gray-100 dark:hover:bg-gray-700">Friends</a>
+							<a onclick="display_canvas('general')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">GENERAL</a>
+							<a onclick="display_canvas('pong')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PONG</a>
+							<a onclick="display_canvas('ping')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PING</a>
+							<a onclick="display_friend_menu()" id="friend-menu-button" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">FRIENDS</a>
 							<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 								<div id="friends-menu"
 									class="hidden absolute left-48 top-20 border rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-800">
