@@ -86,8 +86,11 @@ async function log(req, reply) {
     const result = await response.data;
     if (result.success) {
         const {token , username, domain} = response.data;
-        if ([...usersession.values()].some(user => user.username === username)) {
-            return reply.send({success: false, message: `You are already loged`});
+        for (const [oldToken, session] of usersession.entries()) {
+            if (session.username === username) {
+                usersession.delete(oldToken);
+                break; 
+            }
         }
         usersession.set(token, {username: username, status: 'online'});
         send_to_friend(username, token);
