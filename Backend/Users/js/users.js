@@ -21,7 +21,7 @@ const jwt = require("jsonwebtoken");
 const SALT_ROUNDS = 10;
 
 fastify.register(cors, {
-  origin: "http://spa:7000",
+  origin: "http://spa:7002",
   credential: true
 });
 
@@ -327,7 +327,7 @@ const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table';").
 console.log("📌 Tables trouvées dans SQLite:", tables);
 
 // 🚀 Lancement du serveur
-fastify.listen({ port: 5000, host: "0.0.0.0" }, (err, address) => {
+fastify.listen({ port: 5002, host: "0.0.0.0" }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);

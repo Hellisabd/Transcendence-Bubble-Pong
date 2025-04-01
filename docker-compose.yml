@@ -46,7 +46,7 @@ services:
     env_file:
       - .env
     ports:
-      - "7000:7000"
+      - "7002:7002"
 
   pong:
     build:
@@ -102,7 +102,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5000:5000"
+      - "5002:5002"
 
   matchmaking:
     build:

@@ -12,18 +12,6 @@ let friendContainer: HTMLElement | null = null;
 const BUBBLE_image = new Image();
 BUBBLE_image.src = "Frontend/assets/bubble.png";
 
-const BUBBLE2_image = new Image();
-BUBBLE2_image.src = "Frontend/assets/bubble2.png";
-
-const BUBBLE3_image = new Image();
-BUBBLE3_image.src = "Frontend/assets/bubble3.png";
-
-const BUBBLE4_image = new Image();
-BUBBLE4_image.src = "Frontend/assets/bubble4.png";
-
-const BUBBLE5_image = new Image();
-BUBBLE5_image.src = "Frontend/assets/bubble5.png";
-
 function create_friend_canvas(winrate_per_friend: any, json: any) {
 	const containerDiv = document.getElementById("container");
 	const friends_menu = document.getElementById("friends-menu");
@@ -45,19 +33,16 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 		const ctx_canva:CanvasRenderingContext2D | null = canvas.getContext("2d");
 		console.log(json.winrate_against_friends[0].winrate)
 		if (ctx_canva) {
-			console.log()
-			shadow_text(`Stats against ${friend.username}`, 420, 50, 15, "center", ctx_canva);
-
-			let image_height: number = 500;
-			let image_width: number = 475;
-			ctx_canva.drawImage(BUBBLE4_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 - 250 - image_height / 2, image_width, image_height);
-
-			image_height = 550;
-			image_width = 475;
-			ctx_canva.drawImage(BUBBLE5_image, canvas.width / 3 - 50 - image_width / 2, canvas.height / 2 - image_height / 2, image_width, image_height);
-
-			ctx_canva.drawImage(BUBBLE2_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 + 150 - image_height / 2, image_width, image_height);
-
+			let size: number = friend.username.length;
+			let image_height: number = 50;
+			let image_width: number = 175 + 20 * size;
+			ctx_canva.drawImage(BUBBLE_image, 300 - image_width / 2, 90 - image_height / 2, image_width, image_height);
+			shadow_text(`Stats against ${friend.username}`, 300, 90, 20, "center", ctx_canva);
+			image_height = 425;
+			image_width = 400;
+			ctx_canva.drawImage(BUBBLE_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 - 250 - image_height / 2, image_width, image_height);
+			ctx_canva.drawImage(BUBBLE_image, canvas.width / 3 - 50 - image_width / 2, canvas.height / 2 - image_height / 2, image_width, image_height);
+			ctx_canva.drawImage(BUBBLE_image, canvas.width / 3 * 2 + 100 - image_width / 2, canvas.height / 2 + 300 - image_height / 2, image_width, image_height);
 			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 250, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "#374151", 30); 
 			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "#374151", 30);
 			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "#374151", 30);
@@ -92,16 +77,16 @@ async function get_stats(username: string | null): Promise<void> {
         }
 		let image_height: number = general_canvas.height * 0.2;
 		let image_width: number = general_canvas.width * 0.6;
-		general_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+		general_ctx.drawImage(BUBBLE_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2, image_width, image_height);
 
-		image_height = 775;
-		image_width = 500;
-		general_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+		image_height = general_canvas.height * 0.45;
+		image_width = general_canvas.width * 0.4;
+		general_ctx.drawImage(BUBBLE_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 4 - image_height / 2, image_width, image_height);
 
-		draw_cheese(general_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate, general_canvas.width / 8, general_ctx, "#3f6700", "#374151", 30);
-		shadow_text("Tournaments won: " + jsonResponse.nbr_of_tournament_won, general_canvas.width / 6, general_canvas.height / 2 + 200, 20, "start", general_ctx);
-		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 250, 20, "start", general_ctx);
-		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 6, general_canvas.height / 2 + 300, 20, "start", general_ctx);
+		draw_cheese(general_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 4, "WINRATE", jsonResponse.winrate, general_canvas.width / 8, general_ctx, "#3f6700", "#374151", 30);
+		shadow_text("Tournaments won: " + jsonResponse.nbr_of_tournament_won, general_canvas.width / 4, general_canvas.height / 2 + general_canvas.height * 0.05, 20, "start", general_ctx);
+		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 4, general_canvas.height / 2 + general_canvas.height / 10, 20, "start", general_ctx);
+		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 4, general_canvas.height / 2 + general_canvas.height * 0.15, 20, "start", general_ctx);
 	}
 	
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
@@ -109,18 +94,18 @@ async function get_stats(username: string | null): Promise<void> {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
 		if (!pong_stats_ctx)
 			return;
-		let image_height: number = general_canvas.height * 0.2;
-		let image_width: number = general_canvas.width * 0.6;
-		pong_stats_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+		let image_height: number = pong_stats_canvas.height * 0.2;
+		let image_width: number = pong_stats_canvas.width * 0.6;
+		pong_stats_ctx.drawImage(BUBBLE_image, pong_stats_canvas.width / 2 - image_width / 2, pong_stats_canvas.height / 2, image_width, image_height);
 
-		image_height = 775;
-		image_width = 500;
-		pong_stats_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+		image_height = pong_stats_canvas.height * 0.45;
+		image_width = pong_stats_canvas.width * 0.4;
+		pong_stats_ctx.drawImage(BUBBLE_image, pong_stats_canvas.width / 2 - image_width / 2, pong_stats_canvas.height / 2 - pong_stats_canvas.height / 4 - image_height / 2, image_width, image_height);
 
-		draw_cheese(pong_stats_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate_pong, pong_stats_canvas.width / 8, pong_stats_ctx, "#3f6700", "#374151", 30);
-		shadow_text("PONG tournaments won: " + jsonResponse.nbr_of_tournament_won_pong, pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 200, 20, "start", pong_stats_ctx);
-		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 250, 20, "start", pong_stats_ctx);
-		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 6, pong_stats_canvas.height / 2 + 300, 20, "start", pong_stats_ctx);
+		draw_cheese(pong_stats_canvas.width / 2, pong_stats_canvas.height / 2 - pong_stats_canvas.height / 4, "WINRATE", jsonResponse.winrate_pong, pong_stats_canvas.width / 8, pong_stats_ctx, "#3f6700", "#374151", 30);
+		shadow_text("PONG tournaments won: " + jsonResponse.nbr_of_tournament_won_pong, pong_stats_canvas.width / 4, pong_stats_canvas.height / 2 + pong_stats_canvas.height * 0.05, 20, "start", pong_stats_ctx);
+		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 4, pong_stats_canvas.height / 2 + pong_stats_canvas.height / 10, 20, "start", pong_stats_ctx);
+		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 4, pong_stats_canvas.height / 2 + pong_stats_canvas.height * 0.15, 20, "start", pong_stats_ctx);
 	}
 	
 	ping_stats_canvas = document.getElementById("ping_stats") as HTMLCanvasElement;
@@ -128,27 +113,27 @@ async function get_stats(username: string | null): Promise<void> {
 		ping_stats_ctx = ping_stats_canvas.getContext("2d");
 		if (!ping_stats_ctx)
 			return;
-		let image_height: number = general_canvas.height * 0.2;
-		let image_width: number = general_canvas.width * 0.6;
-		ping_stats_ctx.drawImage(BUBBLE_image, general_canvas.width / 6 - general_canvas.width / 20, general_canvas.height / 2 + 150, image_width, image_height);
+		let image_height: number = ping_stats_canvas.height * 0.2;
+		let image_width: number = ping_stats_canvas.width * 0.6;
+		ping_stats_ctx.drawImage(BUBBLE_image, ping_stats_canvas.width / 2 - image_width / 2, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 10, image_width, image_height);
 
-		image_height = 775;
-		image_width = 500;
-		ping_stats_ctx.drawImage(BUBBLE2_image, general_canvas.width / 2 - image_width / 2, general_canvas.height / 2 - general_canvas.height / 5 - image_height / 2, image_width, image_height);
+		image_height = ping_stats_canvas.height * 0.35;
+		image_width = ping_stats_canvas.width * 0.4;
+		ping_stats_ctx.drawImage(BUBBLE_image, ping_stats_canvas.width / 2 - image_width / 2, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 3.4 - image_height / 2, image_width, image_height);
 
-		image_height = general_canvas.height * 0.33;
-		image_width = general_canvas.width;
-		ping_stats_ctx.drawImage(BUBBLE_image, 0, general_canvas.height - 150, image_width, image_height);
+		image_height = ping_stats_canvas.height * 0.28;
+		image_width = ping_stats_canvas.width;
+		ping_stats_ctx.drawImage(BUBBLE_image, 0, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 4 - image_height / 1.8, image_width, image_height);
 
-		draw_cheese(ping_stats_canvas.width / 2, general_canvas.height / 2 - general_canvas.height / 5, "WINRATE", jsonResponse.winrate_ping, ping_stats_canvas.width / 8, ping_stats_ctx, "#3f6700", "#374151", 30);
-		shadow_text("PING tournaments won: " + jsonResponse.nbr_of_tournament_won_ping, ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25, 20, "start", ping_stats_ctx);
-		shadow_text("Average place in PING tournaments: " + jsonResponse.average_place_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 50, 20, "start", ping_stats_ctx);
-		shadow_text("Average score in PING tournaments: " + jsonResponse.average_score_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 100, 20, "start", ping_stats_ctx);
-		shadow_text("Average bounce in PING games: " + jsonResponse.average_bounce_per_game.toFixed(2), ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 25 + 150, 20, "start", ping_stats_ctx);
-		shadow_text("Goalrate with : ", ping_stats_canvas.width / 2, ping_stats_canvas.height / 2 + 250, 20, "center", ping_stats_ctx);
-		draw_cheese(ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + 400, "bonus paddle", jsonResponse.goal_after_bonus_paddle, ping_stats_canvas.width / 12, ping_stats_ctx, "#00E100", "black", 15);
-		draw_cheese(ping_stats_canvas.width / 6 * 3, ping_stats_canvas.height / 2 + 400, "bonus goal", jsonResponse.goal_after_bonus_goal, ping_stats_canvas.width / 12, ping_stats_ctx, "#FC00C6", "black", 15);
-		draw_cheese(ping_stats_canvas.width / 6 * 5, ping_stats_canvas.height / 2 + 400, "bonus shield", jsonResponse.goal_after_bonus_shield, ping_stats_canvas.width / 12, ping_stats_ctx, "#00CDFF", "black", 15);
+		draw_cheese(ping_stats_canvas.width / 2, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 3.4, "WINRATE", jsonResponse.winrate_ping, ping_stats_canvas.width / 8, ping_stats_ctx, "#3f6700", "#374151", 30);
+		shadow_text("PING tournaments won: " + jsonResponse.nbr_of_tournament_won_ping, ping_stats_canvas.width / 4, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 14, 20, "start", ping_stats_ctx);
+		shadow_text("Average place in PING tournaments: " + jsonResponse.average_place_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 4, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 14 + ping_stats_canvas.height / 20, 20, "start", ping_stats_ctx);
+		shadow_text("Average score in PING tournaments: " + jsonResponse.average_score_in_tournament_ping.toFixed(2), ping_stats_canvas.width / 4, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 14 + 2 * ping_stats_canvas.height / 20, 20, "start", ping_stats_ctx);
+		shadow_text("Average bounce in PING games: " + jsonResponse.average_bounce_per_game.toFixed(2), ping_stats_canvas.width / 4, ping_stats_canvas.height / 2 - ping_stats_canvas.height / 14 + 3 * ping_stats_canvas.height / 20, 20, "start", ping_stats_ctx);
+		shadow_text("Goalrate with : ", ping_stats_canvas.width / 2, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 8, 20, "center", ping_stats_ctx);
+		draw_cheese(ping_stats_canvas.width / 6, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 4, "bonus paddle", jsonResponse.goal_after_bonus_paddle, ping_stats_canvas.width / 12, ping_stats_ctx, "#00E100", "black", 15);
+		draw_cheese(ping_stats_canvas.width / 6 * 3, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 4, "bonus goal", jsonResponse.goal_after_bonus_goal, ping_stats_canvas.width / 12, ping_stats_ctx, "#FC00C6", "black", 15);
+		draw_cheese(ping_stats_canvas.width / 6 * 5, ping_stats_canvas.height / 2 + ping_stats_canvas.height / 4, "bonus shield", jsonResponse.goal_after_bonus_shield, ping_stats_canvas.width / 12, ping_stats_ctx, "#00CDFF", "black", 15);
 	}
 	display_canvas("general");
 }
