@@ -112,6 +112,7 @@ async function set_up_bars() {
                     <div id="mobile-menu" class="absolute left-0 top-16 hidden sm:hidden bg-gray-800 p-4 space-y-2">
                         <a onclick="navigateTo('index')" class="block text-white p-2 rounded hover:bg-gray-700">Accueil</a>
                         <a onclick="navigateTo('pong_game')" class="block text-white p-2 rounded hover:bg-gray-700">Jeux</a>
+                        <a onclick="navigateTo('dashboard')" class="block text-white p-2 rounded hover:bg-gray-700">Dashboard</a>
                         <a onclick="navigateTo('history')" class="block text-white p-2 rounded hover:bg-gray-700">Stats</a>
                     </div>
                     <!-- Logo et liens -->

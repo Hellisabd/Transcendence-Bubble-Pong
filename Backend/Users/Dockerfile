@@ -38,7 +38,7 @@ RUN chown -R Users:Users /usr/src/app/dataBase/
 USER Users
 
 # Exposer le port utilisé par Users
-EXPOSE 5002
+EXPOSE 5000
 
 # Lancer l'application
 CMD ["./entrypoint.sh"]

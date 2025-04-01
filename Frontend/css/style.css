@@ -76,3 +76,32 @@
     height: auto;
     aspect-ratio: 1 / 1;
 }
+
+.player-bubble-left, .player-bubble-right {
+    position: relative;        
+    display: inline-block;
+    padding: 0px 30px 20px 30px;
+    z-index: 1;                
+    text-align: center;
+}
+
+.player-bubble-left:before, .player-bubble-right:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 110%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+
+.player-bubble-left:before {
+    left: 0;
+    background-image: url('/Frontend/assets/BUBBLE_LEFT.png');
+}
+
+.player-bubble-right:before {
+    right: 0;
+    background-image: url('/Frontend/assets/BUBBLE_RIGHT.png');
+}

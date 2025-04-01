@@ -743,16 +743,16 @@ video {
   left: 1.5rem;
 }
 
+.left-\[10\%\] {
+  left: 10%;
+}
+
 .left-\[10px\] {
   left: 10px;
 }
 
 .left-\[13px\] {
   left: 13px;
-}
-
-.left-\[25\%\] {
-  left: 25%;
 }
 
 .right-0 {
@@ -1169,6 +1169,11 @@ video {
 
 .border-collapse {
   border-collapse: collapse;
+}
+
+.-translate-x-0 {
+  --tw-translate-x: -0px;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .-translate-x-1 {
@@ -2091,6 +2096,35 @@ video {
   aspect-ratio: 1 / 1;
 }
 
+.player-bubble-left, .player-bubble-right {
+  position: relative;
+  display: inline-block;
+  padding: 0px 30px 20px 30px;
+  z-index: 1;
+  text-align: center;
+}
+
+.player-bubble-left:before, .player-bubble-right:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 110%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+.player-bubble-left:before {
+  left: 0;
+  background-image: url('/Frontend/assets/BUBBLE_LEFT.png');
+}
+
+.player-bubble-right:before {
+  right: 0;
+  background-image: url('/Frontend/assets/BUBBLE_RIGHT.png');
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -2273,6 +2307,10 @@ video {
     bottom: 1rem;
   }
 
+  .sm\:left-48 {
+    left: 12rem;
+  }
+
   .sm\:left-\[13px\] {
     left: 13px;
   }
@@ -2359,6 +2397,11 @@ video {
 
   .sm\:w-\[800px\] {
     width: 800px;
+  }
+
+  .sm\:-translate-x-0 {
+    --tw-translate-x: -0px;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
   }
 
   .sm\:items-stretch {

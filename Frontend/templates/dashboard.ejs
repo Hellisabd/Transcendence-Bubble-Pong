@@ -10,7 +10,7 @@
 		<div id="content">
 			<div class="pt-20 flex flex-row lg:flex-col items-center justify-center">
 				<div id="container" class="flex items-center justify-center">
-					<div class="absolute top-20 left-[25%]">
+					<div class="absolute top-20 left-[10%]">
 						<button
 							onclick="display_dashboard_menu()"
 							id="dropdownButton"
@@ -28,14 +28,14 @@
 							<a onclick="display_friend_menu()" id="friend-menu-button" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">FRIENDS</a>
 							<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 								<div id="friends-menu"
-									class="hidden absolute left-48 top-20 border rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-800">
-								</div>
+								class="hidden absolute left-1/2 sm:left-48 top-20 -translate-x-1/2 sm:-translate-x-0 border rounded-lg shadow-lg dark:border-gray-700 dark:bg-gray-800">
+							</div>
 							</div>
 						</div>
 					</div>
-					<canvas style="border-color: black;" id="general_stats" width="1000" height="1000"></canvas>
-					<canvas style="border-color: black;" id="pong_stats" width="1000" height="1000"></canvas>
-					<canvas style="border-color: black;" id="ping_stats" width="1000" height="1250"></canvas>
+					<canvas style="border-color: black;" id="general_stats" width="600" height="600"></canvas>
+					<canvas style="border-color: black;" id="pong_stats" width="600" height="600"></canvas>
+					<canvas style="border-color: black;" id="ping_stats" width="600" height="800"></canvas>
 				</div>
 			</div>
 		</div>
