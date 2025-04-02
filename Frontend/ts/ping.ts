@@ -146,8 +146,6 @@ function ping_Disconnect_from_game() {
 
 function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    const arena = document.getElementById("pingarena") as HTMLDivElement;
-    arena?.classList.toggle("hidden");
     const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
@@ -195,6 +193,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         document.getElementById("ping_animation")?.classList.add("hidden");
         document.getElementById("ping_animation_arena")?.classList.add("hidden");
         document.getElementById("div_ping_anim")?.classList.add("hidden");
+        document.getElementById("div_ping_game")?.classList.toggle("hidden");
 
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
@@ -402,14 +401,16 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.shadowBlur = 0;
 
             //BALL
-            ctx.beginPath();
-            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
-            ctx.fillStyle = "#efb60a";
-            ctx.fill(); 
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = "black";
-            ctx.stroke();
-            ctx.closePath();
+            if (ping_disp == false) {
+                ctx.beginPath();
+                ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
+                ctx.fillStyle = "#efb60a";
+                ctx.fill(); 
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "black";
+                ctx.stroke();
+                ctx.closePath();
+            }
 
             //PADDLE 1
             ctx.beginPath();

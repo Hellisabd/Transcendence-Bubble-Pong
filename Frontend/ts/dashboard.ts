@@ -272,7 +272,7 @@ function display_friend_menu() {
 async function resizeCanvas() {
 	if (window.innerWidth <= 700) {
 		const user = await get_user();
-		if (general_canvas) {
+		if (general_canvas && !general_canvas?.classList.contains("hidden")) {
 			general_ctx = general_canvas.getContext("2d");
 			if (!general_ctx)
 				return ;
@@ -283,7 +283,7 @@ async function resizeCanvas() {
 			general_ctx.scale(scale, scale);
 			general_ctx.translate(-general_canvas.width / 2, -general_canvas.height / 2);
 		}
-		if (ping_stats_canvas) {
+		if (ping_stats_canvas && !ping_stats_canvas?.classList.contains("hidden")) {
 			ping_stats_ctx = ping_stats_canvas.getContext("2d");
 			if (!ping_stats_ctx)
 				return;
@@ -294,7 +294,7 @@ async function resizeCanvas() {
 			ping_stats_ctx.scale(scale, scale);
 			ping_stats_ctx.translate(-ping_stats_canvas.width / 2, -ping_stats_canvas.height / 2);
 		}
-		if (pong_stats_canvas) {
+		if (pong_stats_canvas && !pong_stats_canvas?.classList.contains("hidden")) {
 			pong_stats_ctx = pong_stats_canvas.getContext("2d");
 			if (!pong_stats_ctx)
 				return;

@@ -17,10 +17,20 @@
         <div id="ping_animation_arena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="ping_animation" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
-      <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
-        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px] hidden"></div>
+      <div id="div_ping_game" class="relative hidden flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
+        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
+      <div>
+        <p class="relative font-canted font-bold text-2xl">Press H to get some help</p>
+      </div>
+      <div id="div_ping_help" class="ping-help hidden"></div>
+      <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "h")
+          document.getElementById("div_ping_help")?.classList.toggle("hidden");  
+      });
+     </script>
     </div>
   </div>
   <%- include('scripts.ejs') %>

@@ -21,13 +21,6 @@
 }
 
 @font-face {
-    font-family: 'Giants';
-    src: url('/Frontend/assets/fonts/Giants.ttf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
     font-family: 'KaBlam';
     src: url('/Frontend/assets/fonts/Ka Blam.ttf') format('opentype');
     font-weight: normal;
@@ -104,4 +97,13 @@
 .player-bubble-right:before {
     right: 0;
     background-image: url('/Frontend/assets/BUBBLE_RIGHT.png');
+}
+
+.ping-help {
+    background-image: url('/Frontend/assets/help.png');
+    position: absolute;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
 }
