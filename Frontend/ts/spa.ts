@@ -9,7 +9,7 @@ declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
-declare function get_stats(username: string | null): void;
+declare function get_stats(username: string | null, canva_name: string): void;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -289,7 +289,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         display_friends();
 
         if (page === "dashboard") {
-            get_stats(username);
+            get_stats(username, "general");
             console.log("passse dans dashboard");
         }
         if (page != "login") {

@@ -9,6 +9,8 @@ let pong_stats_canvas: HTMLCanvasElement | null = null;
 let ping_stats_canvas: HTMLCanvasElement | null = null;
 let friendContainer: HTMLElement | null = null;
 
+let actual_canva: any;
+
 const BUBBLE_image = new Image();
 BUBBLE_image.src = "Frontend/assets/BUBBLE.png";
 
@@ -22,15 +24,26 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 	for (let i: number = 0; i < winrate_per_friend.length; i++) {
 		console.log("create canvas number: ", i);
 		const friend = winrate_per_friend[i];
+		document.getElementById(`friend_${friend.username}`)?.remove();
+		document.getElementById(`friend_${friend.username}_canvas`)?.remove();
 		const canvas = document.createElement("canvas");
 		friendContainer = canvas;
-		canvas.id = `friend_${friend.username}`;
+		console.log(`canva name: friend_${friend.username}`);
+		canvas.id = `friend_${friend.username}_canvas`;
 		canvas.width = 600;
 		canvas.height = 700;
-		canvas.className = "hidden";
-
+		canvas.className = "hidden w-[320px] h-[373px] sm:w-[600px] sm:h-[700px]";
+		
 		containerDiv.appendChild(canvas);
 		const ctx_canva:CanvasRenderingContext2D | null = canvas.getContext("2d");
+		if (window.innerWidth < 700) {
+			let scale: number = window.innerWidth / 700; 
+			ctx_canva?.setTransform(1, 0, 0, 1, 0, 0);
+			ctx_canva?.clearRect(0, 0, canvas.width, canvas.height);
+			ctx_canva?.translate(canvas.width / 2, canvas.height / 2);
+			ctx_canva?.scale(scale, scale);
+			ctx_canva?.translate(-canvas.width / 2, -canvas.height / 2);
+		}
 		console.log(json.winrate_against_friends[0].winrate)
 		if (ctx_canva) {
 			let size: number = friend.username.length;
@@ -57,7 +70,7 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 	}
 }
 
-async function get_stats(username: string | null): Promise<void> {
+async function get_stats(username: string | null, canva_name: string): Promise<void> {
 	if (!username)
 		return ;
 
@@ -88,7 +101,7 @@ async function get_stats(username: string | null): Promise<void> {
 		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32, 20, "start", general_ctx);
 		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32 + general_canvas.height * 0.1, 20, "start", general_ctx);
 	}
-
+	console.log(`general canva : width : ${general_canvas.width}, height: ${general_canvas.height}`);
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
 	if (pong_stats_canvas) {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
@@ -143,7 +156,7 @@ async function get_stats(username: string | null): Promise<void> {
 		draw_cheese(ping_stats_canvas.width / 6 * 3, ping_stats_canvas.height - image_height / 2.2, "bonus goal", jsonResponse.goal_after_bonus_goal, ping_stats_canvas.width / 12, ping_stats_ctx, "#FC00C6", "black", 15);
 		draw_cheese(ping_stats_canvas.width / 6 * 5, ping_stats_canvas.height - image_height / 2.2, "bonus shield", jsonResponse.goal_after_bonus_shield, ping_stats_canvas.width / 12, ping_stats_ctx, "#00CDFF", "black", 15);
 	}
-	display_canvas("general");
+	display_canvas(canva_name);
 }
 
 function display_dashboard_menu() {
@@ -156,6 +169,7 @@ function display_dashboard_menu() {
 
 function display_canvas(canva_name: string) {
 	let canva_to_display : HTMLCanvasElement | null = null;
+	actual_canva = canva_name;
 	for (let i: number = 0; i < canvas_map.length; i++) {
 		if (canvas_map[i].name == canva_name) {
 			console.log("caca");
@@ -268,49 +282,6 @@ function display_friend_menu() {
 	const friend_menu = document.getElementById("friends-menu");
 	friend_menu?.classList.toggle("hidden");
 }
-
-async function resizeCanvas() {
-	if (window.innerWidth <= 700) {
-		const user = await get_user();
-		if (general_canvas) {
-			general_ctx = general_canvas.getContext("2d");
-			if (!general_ctx)
-				return ;
-			let scale = window.innerWidth / 700;
-			general_ctx.setTransform(1, 0, 0, 1, 0, 0);
-			general_ctx.clearRect(0, 0, general_canvas.width, general_canvas.height);
-			general_ctx.translate(general_canvas.width / 2, general_canvas.height / 2);
-			general_ctx.scale(scale, scale);
-			general_ctx.translate(-general_canvas.width / 2, -general_canvas.height / 2);
-		}
-		if (ping_stats_canvas) {
-			ping_stats_ctx = ping_stats_canvas.getContext("2d");
-			if (!ping_stats_ctx)
-				return;
-			let scale = window.innerWidth / 600;
-			ping_stats_ctx.setTransform(1, 0, 0, 1, 0, 0);
-			ping_stats_ctx.clearRect(0, 0, ping_stats_canvas.width, ping_stats_canvas.height);
-			ping_stats_ctx.translate(ping_stats_canvas.width / 2, ping_stats_canvas.height / 2);
-			ping_stats_ctx.scale(scale, scale);
-			ping_stats_ctx.translate(-ping_stats_canvas.width / 2, -ping_stats_canvas.height / 2);
-		}
-		if (pong_stats_canvas) {
-			pong_stats_ctx = pong_stats_canvas.getContext("2d");
-			if (!pong_stats_ctx)
-				return;
-			let scale = window.innerWidth / 600;
-			pong_stats_ctx.setTransform(1, 0, 0, 1, 0, 0);
-			pong_stats_ctx.clearRect(0, 0, pong_stats_canvas.width, pong_stats_canvas.height);
-			pong_stats_ctx.translate(pong_stats_canvas.width / 2, pong_stats_canvas.height / 2);
-			pong_stats_ctx.scale(scale, scale);
-			pong_stats_ctx.translate(-pong_stats_canvas.width / 2, -pong_stats_canvas.height / 2);
-		}
-		get_stats(user);
-	}
-}
-
-window.addEventListener("resize", resizeCanvas);
-window.addEventListener("load", resizeCanvas);
 
 document.addEventListener("click", function(event: MouseEvent) {
 	const Menufriends = document.getElementById("friends-menu");
