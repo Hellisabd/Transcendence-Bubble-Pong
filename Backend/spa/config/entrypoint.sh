@@ -1,13 +1,20 @@
 #!/bin/bash
 
 npx tsc
-
 chown -R root:root /usr/src/app/Frontend
+
+npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
 npm start &
 
-while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/; do
+while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/templates; do
     echo "Changement détecté ! Redémarrage du service..."
-    npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css  # Ou relancer le processus concerné
+    npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
+    npx tsc  # Ou relancer le processus concerné
+done &
+
+while inotifywait -r -e modify,create,delete /usr/src/app/Frontend; do
+    echo "Changement détecté ! Redémarrage du service..."
+    npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
 done &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/ts; do
@@ -20,5 +27,3 @@ while inotifywait -r -e modify,create,delete /usr/src/app/Backend; do
 	kill $(pgrep -f "node")
     npm start & # Ou relancer le processus concerné
 done
-
-# npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css --watch

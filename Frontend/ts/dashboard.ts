@@ -33,6 +33,7 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 		const ctx_canva:CanvasRenderingContext2D | null = canvas.getContext("2d");
 		console.log(json.winrate_against_friends[0].winrate)
 		if (ctx_canva) {
+<<<<<<< HEAD
 			if (window.innerWidth <= 600) {
 				let scale = window.innerWidth / 600;
 				ctx_canva.setTransform(1, 0, 0, 1, 0, 0);
@@ -54,6 +55,13 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 			draw_cheese(canvas.width - canvas.width / 3 + 50, canvas.height -  3 * image_height / 2 - 40, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "#374151", 25); 
 			draw_cheese(canvas.width / 3 - 50, canvas.height - image_height - 20, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "#374151", 25);
 			draw_cheese(canvas.width - canvas.width / 3 + 50, canvas.height - image_height / 2, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "#374151", 25);
+=======
+			console.log()
+			shadow_text(`Stats against ${friend.username}`, 420, 50, 15, "center", ctx_canva);
+			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 300, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "red", 30);
+			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "red", 30);
+			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "red", 30);
+>>>>>>> main
 			canvas_map.push({name: `${friend.username}`, canvas: canvas});
 			const div = document.createElement("div");
 			div.id = `friend_${friend.username}`;
@@ -68,7 +76,7 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 async function get_stats(username: string | null): Promise<void> {
 	if (!username)
 		return ;
-	
+
 	const response = await fetch("/dashboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +84,7 @@ async function get_stats(username: string | null): Promise<void> {
     });
 	const jsonResponse = await response.json();
 	create_friend_canvas(jsonResponse.winrate_against_friends, jsonResponse);
-	
+
 	general_canvas = document.getElementById("general_stats") as HTMLCanvasElement;
 	if (general_canvas) {
 		general_ctx = general_canvas.getContext("2d");
@@ -96,7 +104,7 @@ async function get_stats(username: string | null): Promise<void> {
 		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32, 20, "start", general_ctx);
 		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32 + general_canvas.height * 0.1, 20, "start", general_ctx);
 	}
-	
+
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
 	if (pong_stats_canvas) {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
@@ -115,7 +123,7 @@ async function get_stats(username: string | null): Promise<void> {
 		shadow_text("Average place in PONG tournaments: " + jsonResponse.average_place_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 16, pong_stats_canvas.height / 2 + pong_stats_canvas.height * 0.32, 20, "start", pong_stats_ctx);
 		shadow_text("Average score in PONG tournaments: " + jsonResponse.average_score_in_tournament_pong.toFixed(2), pong_stats_canvas.width / 16, pong_stats_canvas.height / 2 + pong_stats_canvas.height * 0.32 + pong_stats_canvas.height * 0.1, 20, "start", pong_stats_ctx);
 	}
-	
+
 	ping_stats_canvas = document.getElementById("ping_stats") as HTMLCanvasElement;
 	if (ping_stats_canvas) {
 		ping_stats_ctx = ping_stats_canvas.getContext("2d");
@@ -157,11 +165,11 @@ async function get_stats(username: string | null): Promise<void> {
 function display_dashboard_menu() {
 	// const btn = document.getElementById("dropdownButton");
 	const menu = document.getElementById("dropdownMenu");
-	
+
 	menu?.classList.toggle("hidden");
 }
-		
-		
+
+
 function display_canvas(canva_name: string) {
 	let canva_to_display : HTMLCanvasElement | null = null;
 	for (let i: number = 0; i < canvas_map.length; i++) {
@@ -239,7 +247,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	ctx.beginPath();
 	ctx.arc(
 		x,
@@ -253,7 +261,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = colorA;
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	ctx.beginPath();
 	ctx.arc(
 		x,
@@ -267,7 +275,7 @@ function draw_cheese(x: number, y: number, title: string, percent: number, size:
 	ctx.strokeStyle = colorB;
 	ctx.stroke();
 	ctx.closePath();
-	
+
 	shadow_text(title, x, y - size - size / 3, fontsize, "center", ctx);
 	shadow_text(percent.toFixed(2) + "%", x, y + fontsize / 2, fontsize, "center", ctx);
 }
@@ -327,6 +335,6 @@ document.addEventListener("click", function(event: MouseEvent) {
 		return;
 	
 	if (!Menufriends?.contains(event.target as Node) && !MenufriendsButton?.contains(event.target as Node)) {
-		Menufriends?.classList.add("hidden"); 
+		Menufriends?.classList.add("hidden");
 	}
 });

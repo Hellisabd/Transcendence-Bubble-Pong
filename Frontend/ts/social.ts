@@ -11,8 +11,14 @@ function check_friend_list_state() {
 	return socialSocket;
 }
 
+let displaying_friends: boolean = false;
+
 async function display_friends() {
 	console.log("passe dans display friends");
+	if (displaying_friends) {
+		return ;
+	}
+	displaying_friends = true;
 	pending_request();
     const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
     if (friendsDiv) {
@@ -77,6 +83,7 @@ async function display_friends() {
 			friendsDiv.appendChild(friendDiv);
         }
     }
+	displaying_friends = false; 
 }
 
 let displaying_pending: boolean = false;

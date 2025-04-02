@@ -1,7 +1,81 @@
 .card-height {
-	height: 35rem;
+	height: 36rem;
 }
 
 .title-font {
 	font-family: 'Inter', sans-serif;
+}
+
+#friends-menu::-webkit-scrollbar {
+	width: 6px;
+  }
+
+#friends-menu::-webkit-scrollbar-track {
+	background: #1e293b;
+	border-radius: 3px;
+}
+
+#friends-menu::-webkit-scrollbar-thumb {
+	background: #64748b;
+	border-radius: 3px;
+}
+
+#friends-menu::-webkit-scrollbar-thumb:hover {
+	background: #475569;
+}
+
+#friends-menu::-webkit-scrollbar {
+	width: 6px;
+}
+
+#friends-menu::-webkit-scrollbar-track {
+	background: #1e293b;
+	border-radius: 3px;
+}
+
+#friends-menu::-webkit-scrollbar-thumb {
+	background: #64748b;
+	border-radius: 3px;
+}
+
+#friends-menu::-webkit-scrollbar-thumb:hover {
+	background: #475569;
+}
+
+
+
+#sidebar::-webkit-scrollbar {
+	width: 6px;
+  }
+
+#sidebar::-webkit-scrollbar-track {
+	background: #1e293b;
+	border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+	background: #64748b;
+	border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+	background: #475569;
+}
+
+#sidebar::-webkit-scrollbar {
+	width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+	background: #1e293b;
+	border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+	background: #64748b;
+	border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+	background: #475569;
 }

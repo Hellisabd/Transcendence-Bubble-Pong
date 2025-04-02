@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar } = require("./proxy");
+const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -79,8 +79,8 @@ fastify.register(async function (fastify) {
       Websocket_handling(data.username, connection);
       send_to_friend();
       display_friends(data.username, connection);
-    }) 
-  }); 
+    })
+  });
 });
 
 fastify.post("/create_account", create_account);
@@ -90,7 +90,7 @@ fastify.post("/update_avatar", update_avatar);
 fastify.post("/update_solo_score", update_solo_score);
 
 fastify.post("/pending_request", pending_request);
- 
+
 fastify.post("/settings", settings);
 
 fastify.post("/update_history", update_history);
@@ -114,6 +114,53 @@ fastify.post("/add_friend", add_friend);
 fastify.post("/decline_friend", decline_friend);
 
 fastify.post("/get_avatar", get_avatar);
+
+fastify.post('/2fa/verify', twofaverify);
+
+fastify.post('/2fa/setup', setup2fa);
+
+fastify.post('/userExists', checkUserExists);
+
+fastify.post("/2fa/get_secret", async (request, reply) => {
+  const { email } = request.body;
+
+  if (!email) {
+      return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+  }
+
+  try {
+      const response = await axios.post("http://users:5000/2fa/get_secret",
+          { email },
+          { headers: { "Content-Type": "application/json" } }
+      );
+
+      return reply.send(response.data);
+  } catch (error) {
+      console.error("Erreur:", error.message);
+      return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+  }
+});
+
+fastify.post("/2fa/get_secret_two", async (request, reply) => {
+	const { email } = request.body;
+
+	if (!email) {
+		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+	}
+
+	try {
+		const response = await axios.post("http://users:5000/2fa/get_secret_two",
+			{ email },
+			{ headers: { "Content-Type": "application/json" } }
+		);
+
+		return reply.send(response.data);
+	} catch (error) {
+		console.error("Erreur:", error.message);
+		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+	}
+  });
+
 
 fastify.get('/:page', async (request, reply) => {
   let page = request.params.page
@@ -141,5 +188,7 @@ const start = async () => {
         process.exit(1);
     }
 };
+
+
 
 start();

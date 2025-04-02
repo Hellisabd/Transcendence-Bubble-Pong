@@ -60,9 +60,9 @@ async function set_up_bars() {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
         </button>
-    
-    
-        <div id="sidebar" class="animate-leftFadeInBar hidden h-full w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg">
+
+
+        <div id="sidebar" class="animate-leftFadeInBar overflow-y-scroll hidden h-[100vh] w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg z-[9990]">
             <div class="pl-5 pt-20">
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
@@ -74,7 +74,7 @@ async function set_up_bars() {
                     </button>
                 </form>
             </div>
-    
+
             <div id="pending_request_div" class="p-4 mt-10">
                 <h2 class="font-bold text-center text-2xl">Requête en attente:</h2>
                 <div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
@@ -237,16 +237,16 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
         }
-        
+
         const html: string = await response.text();
-        
+
         const tempDiv: HTMLDivElement = document.createElement("div");
         let bodyClass: string = "";
         if (-1 != html.indexOf("body class=\""))
             bodyClass = html.substring(html.indexOf("body class=\"") + 12, html.indexOf(">", html.indexOf("body class=\"")) - 1);
         document.body.className = bodyClass;
         tempDiv.innerHTML = html;
-        
+
         // ✅ Mise à jour du contenu principal
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
@@ -305,7 +305,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         else
             disable_bars();
-        
+
     } catch (error) {
         console.error('❌ Erreur de chargement de la page:', error);
     }
