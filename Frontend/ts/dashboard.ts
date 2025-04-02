@@ -278,13 +278,13 @@ function display_friend_menu() {
 }
 
 async function resizeCanvas() {
-	if (window.innerWidth <= 600) {
+	if (window.innerWidth <= 700) {
 		const user = await get_user();
 		if (general_canvas) {
 			general_ctx = general_canvas.getContext("2d");
 			if (!general_ctx)
 				return ;
-			let scale = window.innerWidth / 600;
+			let scale = window.innerWidth / 700;
 			general_ctx.setTransform(1, 0, 0, 1, 0, 0);
 			general_ctx.clearRect(0, 0, general_canvas.width, general_canvas.height);
 			general_ctx.translate(general_canvas.width / 2, general_canvas.height / 2);
