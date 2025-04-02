@@ -33,15 +33,6 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 		const ctx_canva:CanvasRenderingContext2D | null = canvas.getContext("2d");
 		console.log(json.winrate_against_friends[0].winrate)
 		if (ctx_canva) {
-<<<<<<< HEAD
-			if (window.innerWidth <= 600) {
-				let scale = window.innerWidth / 600;
-				ctx_canva.setTransform(1, 0, 0, 1, 0, 0);
-				ctx_canva.clearRect(0, 0, canvas.width, canvas.height);
-				ctx_canva.translate(canvas.width / 2, canvas.height / 2);
-				ctx_canva.scale(scale, scale);
-				ctx_canva.translate(-canvas.width / 2, -canvas.height / 2);
-			}
 			let size: number = friend.username.length;
 			let image_height: number = 50;
 			let image_width: number = 175 + 30 * size;
@@ -55,13 +46,6 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 			draw_cheese(canvas.width - canvas.width / 3 + 50, canvas.height -  3 * image_height / 2 - 40, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "#374151", 25); 
 			draw_cheese(canvas.width / 3 - 50, canvas.height - image_height - 20, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "#374151", 25);
 			draw_cheese(canvas.width - canvas.width / 3 + 50, canvas.height - image_height / 2, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "#374151", 25);
-=======
-			console.log()
-			shadow_text(`Stats against ${friend.username}`, 420, 50, 15, "center", ctx_canva);
-			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 - 300, "WINRATE", json.winrate_against_friends[i].winrate || 0, canvas.width / 8, ctx_canva, "green", "red", 30);
-			draw_cheese(canvas.width / 3 - 50, canvas.height / 2, "WINRATE PONG", json.winrate_against_friends_pong[i].winrate || 0, canvas.width / 8, ctx_canva, "purple", "red", 30);
-			draw_cheese(canvas.width / 3 * 2 + 100, canvas.height / 2 + 300, "WINRATE PING", json.winrate_against_friends_ping[i].winrate || 0, canvas.width / 8, ctx_canva, "cyan", "red", 30);
->>>>>>> main
 			canvas_map.push({name: `${friend.username}`, canvas: canvas});
 			const div = document.createElement("div");
 			div.id = `friend_${friend.username}`;
