@@ -1885,8 +1885,19 @@ video {
 }
 
 .ping-help {
-  background-image: url('/Frontend/assets/help.png');
+  background-image: url('/Frontend/assets/RULES_PING.png');
   position: absolute;
+  background-size: contain;
+  background-position: center;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+}
+
+.ping-solo-help {
+  background-image: url('/Frontend/assets/RULES_SOLO_PING.png');
+  position: absolute;
+  background-size: contain;
   background-position: center;
   width: 100%;
   height: 100%;

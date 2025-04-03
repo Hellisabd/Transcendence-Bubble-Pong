@@ -15,6 +15,16 @@
         <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="solopingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
+      <div>
+        <p class="relative font-canted font-bold text-2xl">Press H to get some help</p>
+      </div>
+      <div id="div_ping_solo_help" class="ping-solo-help hidden"></div>
+      <script>
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "h")
+            document.getElementById("div_ping_solo_help")?.classList.toggle("hidden");  
+      });
+     </script>
     </div>
   </div>
   <%- include('scripts.ejs') %>

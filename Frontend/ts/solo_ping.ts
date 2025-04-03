@@ -24,6 +24,12 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
 
         let ratio: number = canvasWidth / 1000;
 
+        const PING_image = new Image();
+        PING_image.src = "Frontend/assets/PING.png";
+
+        const PONG_image = new Image();
+        PONG_image.src = "Frontend/assets/PONG.png";
+
         animation_ping_stop();
         animation_pong_stop();
 
@@ -48,6 +54,10 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         let end_solo: boolean = false;
         let solo_bonus_bool: number = 0;
         let score: number = 0;
+        let draw_bounce: boolean = false;
+        let image_bounce_refresh: number = 0;
+        let x_bounce: number = 0;
+        let y_bounce: number = 0;
 
         document.addEventListener("keydown", (event) => {
         
@@ -194,6 +204,12 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             if (bonus.tag == 'P') {
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
                 if (up_down == true) {
                     bonus_glowing++;
@@ -207,12 +223,18 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
             if (bonus.tag == 'G') {
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
@@ -228,13 +250,19 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
 
             if (bonus.tag == 'S') {
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
@@ -250,10 +278,25 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
+            }
+
+            if (draw_bounce == true) {
+                let image: HTMLImageElement = PING_image;
+                if (bounce % 2 == 0)
+                    image = PING_image;
+                else if (bounce % 2 != 0)
+                    image = PONG_image;
+                let image_size: number = 100 * ratio;
+                ctx.drawImage(image, (x_bounce - image_size / 2), (y_bounce - image_size / 2), image_size, image_size);
+                image_bounce_refresh++;
+                if (image_bounce_refresh == 60) {
+                    draw_bounce = false;
+                    image_bounce_refresh = 0;
+                }
             }
 
             if (start_solo == false) {
@@ -350,7 +393,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal && ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
+                        ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -361,7 +404,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal || ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
+                        ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                         ctx.fillStyle = "red";
                         ctx.textAlign = "center";
                         ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -396,6 +439,9 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             } 
             if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > last_bounce ) {
                 bounce++;
+                draw_bounce = true;
+                x_bounce = ball.x;
+                y_bounce = ball.y;
                 last_bounce = Date.now() + bounceInterval;
                 let normalX: number = dx / ball_dist;
                 let normalY: number = dy / ball_dist;
