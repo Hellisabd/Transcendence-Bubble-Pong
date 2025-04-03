@@ -3,7 +3,7 @@ console.log("game.js chargé");
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
-let mystatus = "online";
+let mystatus: string | null = null;
 
 let player_id = 0;
 
@@ -146,22 +146,22 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 }
 
 function Disconnect_from_game() {
-    if (window.location.pathname !== "/waiting_room" && window.location.pathname !== "/pong_tournament")
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({"status": "online"})
+    });
+    mystatus = "online";
+    if (window.location.pathname !== "/waiting_room" && window.location.pathname !== "/pong_tournament") {
         animation_pong_stop();
+        animation_ping_stop();
+    }
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     Wsocket?.close();
     socket?.close();
     Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
     Tsocket?.close();
-    if (mystatus != "online") {
-        fetch("/update_status", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({"status": "online"})
-        });
-        mystatus = "online";
-    }
     socket = null;
     lobbyKey = null;
     id_tournament = 0;

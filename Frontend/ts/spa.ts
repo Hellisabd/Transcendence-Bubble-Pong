@@ -47,10 +47,8 @@ async function set_up_bars() {
     let sideDiv = document.getElementById("sidebarAll") as HTMLDivElement;
     if (navDiv && sideDiv)
     {
-        console.log("caca?");
         return ;
     }
-    console.log("caca?2");
     if (!sideDiv) {
         sideDiv = document.createElement("div");
         sideDiv.innerHTML = `<div id="sidebarAll">
@@ -200,17 +198,27 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             page = "index";
         }
     }
+    const status = await fetch("/get_status", {
+        method: "GET",
+        credentials: "include",
+    });
+    const statusJson = await status.json();
+    console.log(`status: ${statusJson.status}`);
+    if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
+        page = "index";
+      }
     if (!loged && !afficheUser) {
         navigateTo("login", true, null);
         return ;
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     let userDiv = document.getElementById("user") as HTMLDivElement;
-
+    
     if (!userDiv)
         userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
+
 
     let url: string = page == "index" ? "/" : `/${page}`;
 
@@ -256,7 +264,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
         console.log("document title: ", document.title);
-        // console.log("caca8", window.history.state.page);
         if (addHistory/*  && window.history.state.page !== page */) {
             // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -293,7 +300,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             console.log("passse dans dashboard");
         }
         if (page != "login") {
-            console.log("TEST");
             await set_up_bars();
             if (!check_friend_list_state())
                 set_up_friend_list(username);

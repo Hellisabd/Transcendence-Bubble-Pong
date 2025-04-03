@@ -1,10 +1,16 @@
 console.log("solo_ping.js chargé");
 
-function soloping_initializeGame(user1: string, user2: string, myuser: string | null): void {
+document.addEventListener("keydown", (event) => {
+    if (window.location.pathname === "/solo_ping") {
+        if (event.key === "h")
+          document.getElementById("div_ping_solo_help")?.classList.toggle("hidden");  
+    }
+});
+
+function soloping_initializeGame(): void {
     console.log("Initialisation du jeu...");
     let solo_score = document.getElementById("solo_score") as HTMLDataElement;
     const canvas = document.getElementById("solopingCanvas") as HTMLCanvasElement;
-	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,6 +64,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         let image_bounce_refresh: number = 0;
         let x_bounce: number = 0;
         let y_bounce: number = 0;
+        let sending:boolean = false;
 
         document.addEventListener("keydown", (event) => {
         
@@ -141,6 +148,21 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.stroke();
             ctx.stroke();
             ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = "red";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle - goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle - goal.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle + goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle + goal.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
             ctx.shadowBlur = 0;
 
             //BALL
@@ -158,7 +180,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - (19 * ratio),
+                Math.max(0, canvas.width / 2 - (19 * ratio)),
                 player.angle - player.size,
                 player.angle + player.size
             );
@@ -191,7 +213,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - (19 * ratio),
+                Math.max(0, canvas.width / 2 - (19 * ratio)),
                 player.angle - player.size,
                 player.angle + player.size
             );
@@ -393,10 +415,6 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal && ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
-                        ctx.fillStyle = "red";
-                        ctx.textAlign = "center";
-                        ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
                         send_score();
                     }
                 }
@@ -404,10 +422,6 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal || ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
-                        ctx.fillStyle = "red";
-                        ctx.textAlign = "center";
-                        ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
                         send_score();
                     } 
                 }
@@ -529,7 +543,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             solo_drawGame();
             if (end_solo == true) {
-                ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
+                ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                 ctx.fillStyle = "red";
                 ctx.textAlign = "center";
                 ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -539,9 +553,13 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             requestAnimationFrame(solo_loop);
         }
-        solo_loop();
+        if (end_solo == false)
+            solo_loop();
 
         async function send_score() {
+            if (sending == true)
+                return;
+            sending = true;
             const player = await get_user();
             try {
                 const response = await fetch('/update_solo_score', {
@@ -551,11 +569,11 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 });
         
                 const data = await response.json();
-                console.log(data);
             }
             catch (error) {
                 console.log('Error sending score to db', error);
             }
+            sending = false;
         }
     } 
     else {

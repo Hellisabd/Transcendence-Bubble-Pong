@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("prouuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuut");
     set_up_friend_list(null);
 });
 

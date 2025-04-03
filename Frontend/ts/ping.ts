@@ -1,5 +1,12 @@
 console.log("ping.js chargé");
 
+document.addEventListener("keydown", (event) => {
+    if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") {
+        if (event.key === "h")
+          document.getElementById("div_ping_help")?.classList.toggle("hidden");  
+    }
+});
+
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -193,7 +200,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         document.getElementById("ping_animation")?.classList.add("hidden");
         document.getElementById("ping_animation_arena")?.classList.add("hidden");
         document.getElementById("div_ping_anim")?.classList.add("hidden");
-        document.getElementById("div_ping_game")?.classList.toggle("hidden");
+        document.getElementById("div_ping_game")?.classList.remove("hidden");
 
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
@@ -377,6 +384,21 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.stroke();
             ctx.stroke();
             ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = "red";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player1.angle - gameState.goals.player1.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player1.angle - gameState.goals.player1.size / 2)), arena_radius / 20, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player1.angle + gameState.goals.player1.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player1.angle + gameState.goals.player1.size / 2)), arena_radius / 20, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
             ctx.shadowBlur = 0;
 
             //GOAL 2
@@ -396,6 +418,21 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.strokeStyle = "blue";
             ctx.stroke();
             ctx.stroke();
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = "blue";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player2.angle - gameState.goals.player2.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player2.angle - gameState.goals.player2.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player2.angle + gameState.goals.player2.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player2.angle + gameState.goals.player2.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
             ctx.stroke();
             ctx.closePath();
             ctx.shadowBlur = 0;

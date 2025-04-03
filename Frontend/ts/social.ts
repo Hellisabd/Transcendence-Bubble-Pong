@@ -14,7 +14,6 @@ function check_friend_list_state() {
 let displaying_friends: boolean = false;
 
 async function display_friends() {
-	console.log("passe dans display friends");
 	if (displaying_friends) {
 		return ;
 	}
@@ -23,7 +22,6 @@ async function display_friends() {
     const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
     if (friendsDiv) {
 		friendsDiv.innerHTML = "";
-		console.log("friends.length", friends);
         for (let i = 0; i < friends.length; i++) {
 			const avatarDiv = document.createElement("div");
 			avatarDiv.classList.add("relative");
@@ -89,7 +87,6 @@ async function display_friends() {
 let displaying_pending: boolean = false;
 
 async function display_pending(user: string[]) {
-	console.log("user tab:", user);
 	if (!user || displaying_pending)
 		return ;
 	displaying_pending = true;
@@ -225,10 +222,7 @@ async function set_up_friend_list(user: string | null) {
 		}
 		console.log(i);
 		if (data.display)
-		{
 			display_friends();
-			console.log("affiche quand je veux");
-		}
     };
 	// pending_request();
 }

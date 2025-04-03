@@ -58,7 +58,14 @@ tournamentMapPing.set(id_tournamentPing, {
 
 })
 
-
+function isUsernameInAnyTournament(username) {
+    for (const tournamentData of tournamentMapPing.values()) {
+      if (tournamentData.tournamentsUsernames.includes(username)) {
+        return true;
+      }
+    }
+    return false;
+}
 
 fastify.register(async function (fastify) {
     let username1 = 0;
@@ -121,6 +128,8 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
+                if (isUsernameInAnyTournament(data.username))
+                    return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
@@ -300,7 +309,8 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                console.log("data: ", data);
+                if (isUsernameInAnyTournament(data.username)) 
+                    return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMapPing.get(id_tournament_key_from_player);
@@ -320,7 +330,7 @@ fastify.register(async function (fastify) {
                                 console.log(`users in tournament: ${currentTournament.tournamentsUsernames}`);
                                 if (index !== -1)
                                     currentTournament.classements.splice(index, 1);
-                                return ;
+                                return ; 
                             }
                         }
                     }
