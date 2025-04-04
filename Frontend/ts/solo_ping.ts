@@ -150,14 +150,14 @@ function soloping_initializeGame(): void {
             ctx.closePath();
             ctx.beginPath();
             ctx.fillStyle = "red";
-            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle - goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle - goal.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle - goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle - goal.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
             ctx.fill();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "black";
             ctx.stroke();
             ctx.closePath();
             ctx.beginPath();
-            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle + goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle + goal.size / 2)), arena_radius / 40, 0, 2 * Math.PI);
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle + goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle + goal.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
             ctx.fill();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "black";

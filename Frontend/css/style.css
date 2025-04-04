@@ -118,3 +118,24 @@
     height: 100%;
     background-repeat: no-repeat;
 }
+
+.bubble {
+    position: relative;        
+    display: inline-block;
+    padding: 10px 30px;
+    z-index: 1;                
+    text-align: center;
+}
+
+.bubble:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 110%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: -1;
+    left: 0;
+    background-image: url('/Frontend/assets/BUBBLE.png');
+}

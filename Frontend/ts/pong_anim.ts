@@ -16,6 +16,8 @@ let pong_ballSpeedX: number  = 0;
 let pong_ballSpeedY: number  = 0;
 let pong_speed: number  = 0;
 
+let id_pong_anim: number | null = null;
+
 function initializeAnimationPong() {
     pong_canvas = document.getElementById("pong_animation") as HTMLCanvasElement;
     pong_ctx = pong_canvas.getContext("2d");
@@ -137,10 +139,14 @@ function pong_gameLoop() {
     let ratio: number = canvasWidth / 1000;
     pong_update();
     pong_draw(ratio);
-    requestAnimationFrame(pong_gameLoop);
+    id_pong_anim = requestAnimationFrame(pong_gameLoop);
 }
 
 function animation_pong_stop() {
+    if (id_pong_anim != null) {
+        cancelAnimationFrame(id_pong_anim);
+        id_pong_anim = null;
+    }
 	pong_ctx = null;
 	pong_canvas = null;
 }
