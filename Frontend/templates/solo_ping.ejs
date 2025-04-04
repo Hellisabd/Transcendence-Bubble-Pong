@@ -8,22 +8,22 @@
 </head>
 <body class="font-mainFont bg-paper min-h-screen">
   <%- include('navbar.ejs') %>
-  <div id="content" class="flex justify-center items-center">
+  <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
       <p id="solo_score" class="text-red-600 text-3xl font-kablam"></p>
       <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
         <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="solopingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
-      <div>
+      <div class="hidden md:block">
         <p class="mt-8 bubble relative font-canted font-bold text:xl md:text-2xl">Press H to get some help</p>
       </div>
       <div id="div_ping_solo_help" class="ping-solo-help hidden absolute z-50 top-0 left-0"></div>
     </div>
     <div class="relative flex justify-center mt-24 md:hidden">
-      <button class="bg-white" id="btnDown">Down</button>
-      <button class="ml-10 bg-white" id="btnUp">Up</button>
-      <button class="ml-10 bg-white" onclick="mobile_ready_pong()">Ready</button>
+      <button class="arrow-clock w-24 h-24" id="btnDownsolo"></button>
+      <button class="ml-20 bubble text-2xl font-kablam" id="btnStartsolo">START</button>
+      <button class="ml-20 arrow-cclock w-24 h-24" id="btnUpsolo"></button>
     </div>
   </div>
   <%- include('scripts.ejs') %>

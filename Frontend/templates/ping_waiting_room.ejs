@@ -21,15 +21,15 @@
         <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
-      <div>
+      <div class="hidden md:block">
         <p class="mt-8 bubble relative font-canted font-bold text:xl md:text-2xl">Press H to get some help</p>
       </div>
       <div id="div_ping_help" class="ping-help hidden absolute z-50 top-0 left-0"></div>
     </div>
     <div class="relative flex justify-center mt-24 md:hidden">
-      <button class="bg-white" id="btnDown">Down</button>
-      <button class="ml-10 bg-white" id="btnUp">Up</button>
-      <button class="ml-10 bg-white" onclick="mobile_ready_pong()">Ready</button>
+      <button class="arrow-clock w-24 h-24" id="btnDownping"></button>
+      <button class="ml-20 bubble text-2xl font-kablam" onclick="mobile_ready_ping()">START</button>
+      <button class="ml-20 arrow-cclock w-24 h-24" id="btnUpping"></button>
     </div>
   </div>
   <%- include('scripts.ejs') %>

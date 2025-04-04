@@ -65,6 +65,21 @@ async function play_ping() {
     };
 }
 
+function mobile_ready_ping() {
+    if (ping_lobbyKey && ping_disp == true) {
+        ping_win = 0;
+        const message = { playerReady: true, player: ping_player_id, "ping_lobbyKey": ping_lobbyKey }
+        ping_socket?.send(JSON.stringify(message))
+    }
+}
+
+function move_mobile_ping(input: string) {
+    if (ping_socket?.readyState === WebSocket.OPEN) {
+        const message = { player: ping_player_id, move: input, "ping_lobbyKey": ping_lobbyKey };
+        ping_socket?.send(JSON.stringify(message));
+    }
+}
+
 async function ping_tournament() {
     ping_Disconnect_from_game();
     const user = await get_user();
@@ -153,6 +168,17 @@ function ping_Disconnect_from_game() {
 
 function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
+    const btnUp = document.getElementById("btnUpping");
+    btnUp?.addEventListener("mousedown", () => move_mobile_ping("left"));
+    btnUp?.addEventListener("mouseup", () => move_mobile_ping("stop"));
+    btnUp?.addEventListener("touchstart", () => move_mobile_ping("left"));
+    btnUp?.addEventListener("touchend", () => move_mobile_ping("stop"));
+
+    const btnDown = document.getElementById("btnDownping");
+    btnDown?.addEventListener("mousedown", () => move_mobile_ping("right"));
+    btnDown?.addEventListener("mouseup", () => move_mobile_ping("stop"));
+    btnDown?.addEventListener("touchstart", () => move_mobile_ping("right"));
+    btnDown?.addEventListener("touchend", () => move_mobile_ping("stop"));
     const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {

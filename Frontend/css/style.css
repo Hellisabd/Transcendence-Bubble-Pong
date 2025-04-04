@@ -153,3 +153,17 @@
     background-position: top center;
     background-repeat: no-repeat;
 }
+
+.arrow-clock {
+    background-image: url('/Frontend/assets/ROTATE_CLOCKWISE.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+.arrow-cclock {
+    background-image: url('/Frontend/assets/ROTATE_COUNTER.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}

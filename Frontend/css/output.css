@@ -808,6 +808,10 @@ video {
   margin-left: 0.5rem;
 }
 
+.ml-20 {
+  margin-left: 5rem;
+}
+
 .ml-3 {
   margin-left: 0.75rem;
 }
@@ -906,6 +910,10 @@ video {
   height: 0.5rem;
 }
 
+.h-24 {
+  height: 6rem;
+}
+
 .h-4 {
   height: 1rem;
 }
@@ -992,6 +1000,10 @@ video {
 
 .w-2 {
   width: 0.5rem;
+}
+
+.w-24 {
+  width: 6rem;
 }
 
 .w-4 {
@@ -1975,6 +1987,20 @@ video {
   background-repeat: no-repeat;
 }
 
+.arrow-clock {
+  background-image: url('/Frontend/assets/ROTATE_CLOCKWISE.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.arrow-cclock {
+  background-image: url('/Frontend/assets/ROTATE_COUNTER.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -2311,6 +2337,10 @@ video {
 
   .md\:top-\[23px\] {
     top: 23px;
+  }
+
+  .md\:block {
+    display: block;
   }
 
   .md\:hidden {
