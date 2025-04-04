@@ -18,7 +18,7 @@ let pong_speed: number  = 0;
 
 let id_pong_anim: number | null = null;
 
-function initializeAnimationPong() {
+function initializeAnimationPong(): void {
     pong_canvas = document.getElementById("pong_animation") as HTMLCanvasElement;
     pong_ctx = pong_canvas.getContext("2d");
     if (pong_ctx) {
@@ -44,7 +44,7 @@ function initializeAnimationPong() {
     }
 }
 
-function pong_draw(ratio: number) {
+function pong_draw(ratio: number): void {
     if (!pong_ctx || !pong_canvas) {
       return ;
     }
@@ -72,7 +72,7 @@ function pong_draw(ratio: number) {
     }    
 }
 
-function pong_update() {
+function pong_update(): void {
     if (!pong_canvas) {
         return ;
     }
@@ -110,7 +110,7 @@ function pong_update() {
         pong_player2Y = pong_canvas.height - pong_paddleHeight;
 }
 
-function pong_resetBall() {
+function pong_resetBall(): void {
     if (!pong_canvas) {
         return ;
     }
@@ -131,7 +131,7 @@ function pong_resetBall() {
 }
 
 
-function pong_gameLoop() {
+function pong_gameLoop(): void {
 	if (!pong_ctx || !pong_canvas) {
 		return;
 	}
@@ -142,7 +142,7 @@ function pong_gameLoop() {
     id_pong_anim = requestAnimationFrame(pong_gameLoop);
 }
 
-function animation_pong_stop() {
+function animation_pong_stop(): void {
     if (id_pong_anim != null) {
         cancelAnimationFrame(id_pong_anim);
         id_pong_anim = null;

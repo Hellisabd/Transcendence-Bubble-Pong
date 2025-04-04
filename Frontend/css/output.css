@@ -800,6 +800,10 @@ video {
   margin-bottom: 2rem;
 }
 
+.ml-10 {
+  margin-left: 2.5rem;
+}
+
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -826,6 +830,10 @@ video {
 
 .mt-2 {
   margin-top: 0.5rem;
+}
+
+.mt-24 {
+  margin-top: 6rem;
 }
 
 .mt-3 {
@@ -1569,6 +1577,10 @@ video {
   padding-bottom: 0.75rem;
 }
 
+.pl-10 {
+  padding-left: 2.5rem;
+}
+
 .pl-2 {
   padding-left: 0.5rem;
 }
@@ -1949,6 +1961,20 @@ video {
   background-image: url('/Frontend/assets/BUBBLE.png');
 }
 
+.arrow-up {
+  background-image: url('/Frontend/assets/ARROW_UP.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
+.arrow-down {
+  background-image: url('/Frontend/assets/ARROW_DOWN.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -2233,10 +2259,6 @@ video {
     width: 652px;
   }
 
-  .sm\:w-\[700px\] {
-    width: 700px;
-  }
-
   .sm\:w-\[800px\] {
     width: 800px;
   }
@@ -2291,6 +2313,10 @@ video {
     top: 23px;
   }
 
+  .md\:hidden {
+    display: none;
+  }
+
   .md\:h-\[400px\] {
     height: 400px;
   }
@@ -2305,6 +2331,10 @@ video {
 
   .md\:h-\[700px\] {
     height: 700px;
+  }
+
+  .md\:h-\[800px\] {
+    height: 800px;
   }
 
   .md\:w-\[1000px\] {

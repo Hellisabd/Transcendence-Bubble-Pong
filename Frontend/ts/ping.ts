@@ -662,7 +662,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             draw_score(ratio);
             draw_winner(ratio);
             if (ping_disp == true) {
-                document.getElementById("playersdiv")?.classList.remove("hidden");
+                document.getElementById("ping_playersdiv")?.classList.remove("hidden");
                 ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "black";
                 ctx.textAlign = "center";

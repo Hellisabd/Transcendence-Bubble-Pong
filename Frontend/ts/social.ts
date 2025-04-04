@@ -7,7 +7,7 @@ let friends: { username: string; status: string }[] = [];
 
 let socialSocket: WebSocket | null = null;
 
-function check_friend_list_state() {
+function check_friend_list_state(): WebSocket | null {
 	return socialSocket;
 }
 

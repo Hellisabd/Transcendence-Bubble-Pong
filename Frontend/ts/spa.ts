@@ -4,12 +4,15 @@ let old_url: null | string = null;
 
 declare function display_friends(): void;
 declare function set_up_friend_list(user: string | null);
-
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
 declare function get_stats(username: string | null, canva_name: string): void;
+declare function initializeAnimationPong(): void;
+declare function initializeAnimationPing(): void;
+declare function soloping_initializeGame(): void;
+declare function check_friend_list_state(): WebSocket | null;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -297,7 +300,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
 
         if (page === "dashboard") {
             get_stats(username, "general");
-            console.log("passse dans dashboard");
         }
         if (page != "login") {
             await set_up_bars();
