@@ -16,7 +16,6 @@ module.exports = {
 			mainFont: ['"Oxanium"', 'sans-serif'],
 			secondFont: ['"Press Start 2P"', 'system-ui'],
 			canted: ['Canted Comic', 'sans-serif'],
-			giants: ['Giants', 'sans-serif'],
 			kablam: ['KaBlam', 'sans-serif'],
 		},
 		keyframes:{
