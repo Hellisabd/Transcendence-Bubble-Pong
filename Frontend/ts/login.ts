@@ -108,21 +108,15 @@ async function create_account(event: Event): Promise<void> {
 			if (repResult) {
 				alert("2FA setup completed! Scan this QR code to complete the setup.");
 				// Create and display the QR code modal
+				let create_account_card = document.getElementById('content') as HTMLDivElement;
+				create_account_card.classList.add('hidden');
 				qrCodeModal = document.createElement('div');
 				qrCodeModal.innerHTML = `
-					<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-								background: white; padding: 20px; border: 1px solid #ccc; z-index: 1000;">
-						<p>Scan this QR Code:</p>
-						<img src="${repResult.qr_code}" alt="QR Code" style="max-width: 100%;"/>
-						<br/>
-						<button id="qr-alert-close">Close</button>
+					<div class="bulle fixed top-[40%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] bg-[#c0b9ac] hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
+						<h2 class="text-center text-2xl font-bold font-kablam mb-4 tracking-[0.1em]">QR CODE</h2>
+						<img class="mx-auto mb-4 min-w-[100%]" src="${repResult.qr_code}" alt="QR Code"/>
 					</div>`;
 				document.body.appendChild(qrCodeModal);
-				(document.getElementById("qr-alert-close") as HTMLButtonElement)?.addEventListener("click", () => {
-					if (qrCodeModal && document.body.contains(qrCodeModal)) {
-						document.body.removeChild(qrCodeModal);
-					}
-				});
 			}
 			console.log("2FA setup result:", repResult);
 		} catch (e) {
@@ -135,22 +129,30 @@ async function create_account(event: Event): Promise<void> {
 		try {
 			await new Promise<void>((resolve, reject) => {
 				const verifyModal = document.createElement('div');
+				let create_account_card = document.getElementById('content') as HTMLDivElement;
 				verifyModal.innerHTML = `
-					<div style="position: fixed; top: 80%; left: 50%; transform: translate(-50%, -50%);
-								background: white; padding: 20px; border: 1px solid #ccc; z-index: 1001;">
-						<p>Entrez le code 2FA affiché par votre application authentificatrice:</p>
-						<input id="qr-verify-code" type="text" style="width: 100%; margin-bottom: 10px;"/>
-						<br/>
-						<button id="qr-verify-submit">Vérifier</button>
-						<button id="qr-verify-cancel">Annuler</button>
+					<div class="bulle w-fit fixed top-[65%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] bg-[#c0b9ac] hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
+						<p class="text-center font-canted mb-2">Entrez votre code 2fa</p>
+						<input class="mx-auto block" id="qr-verify-code" type="text"/>
+						<div class ="flex justify-around mt-4">
+							<button id="qr-verify-submit" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Vérifier</button>
+							<button id="qr-alert-annuler" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Annuler</button>
+						</div>
 					</div>`;
 				document.body.appendChild(verifyModal);
 				const submitBtn = document.getElementById("qr-verify-submit") as HTMLButtonElement;
-				const cancelBtn = document.getElementById("qr-verify-cancel") as HTMLButtonElement;
 
+				(document.getElementById("qr-alert-annuler") as HTMLButtonElement)?.addEventListener("click", () => {
+					if (qrCodeModal && document.body.contains(qrCodeModal)) {
+						document.body.removeChild(qrCodeModal);
+						create_account_card.classList.remove('hidden');
+						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
+							reject(new Error("2FA verification annulée"));
+					}
+				});
 				submitBtn.addEventListener("click", async () => {
 					const code = (document.getElementById("qr-verify-code") as HTMLInputElement).value;
-
+					console.log("Code 2FA entré ipipipipipipip:", code);
 					const verifResponse = await fetch("/2fa/verify", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
@@ -169,11 +171,6 @@ async function create_account(event: Event): Promise<void> {
 					} else {
 						alert("Code 2FA incorrect, réessayez.");
 					}
-				});
-
-				cancelBtn.addEventListener("click", () => {
-					if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
-					reject(new Error("2FA verification annulée"));
 				});
 			});
 		} catch (error) {

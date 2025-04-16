@@ -6,28 +6,42 @@
         <title>Settings</title>
         <%- include('links.ejs') %>
     </head>
-    <body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
-        <div id="content">
-            <h2>Modify User</h2>
-            <form id="modifyUserForm" onsubmit="settings(event)">
-                <label for="email">Adresse Email :</label>
-                <input type="text" id="email" name="email" required>
-                <br>
-                <label for="username">Nom d'utilisateur :</label>
-                <input type="text" id="username" name="username" required>
-                <br>
-                <label for="password">Mot de passe :</label>
-                <input type="password" id="password" name="password" required>
-                <br>
-                <button type="submit">Modifier Informations</button>
-            </form>
-            <div id="upload-section">
-                <h3>Upload Profile Picture</h3>
-                <input type="file" id="profileImage" accept="image/*">
-                <button onclick="uploadProfileImage()">Upload Image</button>
-            </div>
-            <canvas id="friends_list" width="300" height="500"></canvas>
-        </div>
+    <body class="font-mainFont bg-paper min-h-screen">
+		<div id="content" class="flex justify-center items-center pt-16 pb-52 min-h-screen">
+			<div class="bg-[#c0b9ac] bg-opacity-80 border-[#efe5d1] border-4 shadow-lg p-8 rounded-3xl card-height w-screen max-w-md transition-transform transform hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
+				<h2 class="text-2xl font-bold font-kablam mb-4 text-center tracking-widest">MODIFIER UTILISATEUR</h2>
+				<form id="modifyUserForm" onsubmit="settings(event)" class="space-y-4 flex flex-col items-center">
+					<div>
+						<label for="email" class="block font-canted text-sm font-medium">Adresse Email :</label>
+						<input type="email" id="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#efe5d1]">
+					</div>
+					<div>
+						<label for="username" class="block font-canted text-sm font-medium">Nom d'utilisateur :</label>
+						<input type="text" id="username" name="username" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#efe5d1]">
+					</div>
+					<div>
+						<label for="password" class="block font-canted text-sm font-medium">Mot de passe :</label>
+						<input type="password" id="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#efe5d1]">
+					</div>
+					<button type="submit" class="bg-[#efe5d1] text-[#736f67] font-semibold p-2 rounded-lg hover:bg-[#d6cbb5] transition">Modifier Informations</button>
+				</form>
+				<div id="upload-section" class="mt-6">
+					<h2 class="text-sm font-bold font-canted mb-4 text-center tracking-widest">Télécharger une photo de profil :</h2>
+						<div class="flex flex-col items-center">
+							<label for="profileImage" class="bg-[#bde0fe] text-[#14213d] px-[10px] py-[5px] rounded-lg border-2 border-solid hover:scale-105 hover:shadow-2xl hover:shadow-[#bde0fe] cursor-pointer">Upload file</label>
+							<input
+								class="opacity-0"
+								type="file"
+								id="profileImage"
+								name="profileImage"
+								accept="image/*"/>
+						</div>
+						<div class="flex flex-col items-center">
+							<button onclick="uploadProfileImage()" class="bg-[#efe5d1] text-[#736f67] font-semibold py-2 px-4 rounded-lg hover:bg-[#d6cbb5] transition">Télécharger</button>
+						</div>
+				</div>
+			</div>
+		</div>
         <%- include('scripts.ejs') %>
     </body>
 </html>

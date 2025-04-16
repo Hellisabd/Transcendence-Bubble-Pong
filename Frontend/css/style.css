@@ -21,13 +21,6 @@
 }
 
 @font-face {
-    font-family: 'Giants';
-    src: url('/Frontend/assets/fonts/Giants.ttf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
     font-family: 'KaBlam';
     src: url('/Frontend/assets/fonts/Ka Blam.ttf') format('opentype');
     font-weight: normal;
@@ -58,10 +51,10 @@
 
 .bg-paper {
     background-image: url('/Frontend/assets/BACKGROUND.png');
-    background-size: cover; 
-    background-position: center; 
+    background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
-    background-attachment: fixed; 
+    background-attachment: fixed;
     width: 100%;
     height: 100%;
 }
@@ -78,10 +71,10 @@
 }
 
 .player-bubble-left, .player-bubble-right {
-    position: relative;        
+    position: relative;
     display: inline-block;
     padding: 0px 30px 20px 30px;
-    z-index: 1;                
+    z-index: 1;
     text-align: center;
 }
 
