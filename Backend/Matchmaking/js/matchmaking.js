@@ -60,11 +60,40 @@ tournamentMapPing.set(id_tournamentPing, {
 })
 
 function isUsernameInAnyTournament(username) {
-    for (const tournamentData of tournamentMapPing.values()) {
-      if (tournamentData.tournamentsUsernames.includes(username)) {
-        return true;
-      }
+    if (tournamentMapPing.length) {
+        for (const tournamentData of tournamentMapPing.values()) {
+            if (tournamentData.tournamentsUsernames.includes(username)) {
+                console.log(username + " found in ping");
+                return true;
+            }
+            if (tournamentData.tournamentsQueue[username] != undefined) {
+                console.log(username + " found in ping");
+                return true;
+            }
+        }
     }
+    if (tournamentMapPong.length) {
+        for (const tournamentData of tournamentMapPong.values()) {
+            if (tournamentData.tournamentsUsernames.includes(username)) {
+                console.log(username + " found in pong");
+                return true;
+            }
+            if (tournamentData.tournamentsQueue[username] != undefined) {
+                console.log(username + " found in pong");
+                return true;
+            }
+        }
+    }
+    if (Object.values(waitingClientPing).includes(username)) {
+        console.log(username + " found in ping");
+        return true;
+    }
+    console.log("object waiting client : " + Object.values(waitingClientPong));
+    if (Object.values(waitingClientPong).includes(username)) {
+        console.log(username + " found in pong");
+        return true;
+    }
+    console.log("caca8");
     return false;
 }
 
@@ -82,6 +111,8 @@ fastify.register(async function (fastify) {
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
+            if (isUsernameInAnyTournament(data.username) && data.init == true)
+                return ;
             if (pong_i == 0) {
                 waitingClientPong[0] = data.username;
                 username1 = data.username;
@@ -129,7 +160,7 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                if (isUsernameInAnyTournament(data.username))
+                if (isUsernameInAnyTournament(data.username) && data.init == true)
                     return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
@@ -262,6 +293,8 @@ fastify.register(async function (fastify) {
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
+            if (isUsernameInAnyTournament(data.username) && data.init == true)
+                return ;
             if (ping_i == 0) {
                 waitingClientPing[0] = data.username;
                 username1 = data.username;
@@ -310,7 +343,7 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                if (isUsernameInAnyTournament(data.username)) 
+                if (isUsernameInAnyTournament(data.username) && data.init == true) 
                     return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 

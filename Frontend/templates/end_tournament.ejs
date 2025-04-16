@@ -7,21 +7,21 @@
       <%- include('/usr/src/app/Frontend/templates/links.ejs') %>
 
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen">
+<body class="font-mainFont bg-paper min-h-screen">
   <%- include('/usr/src/app/Frontend/templates/navbar.ejs') %>
 	<%- include('/usr/src/app/Frontend/templates/sidebar.ejs') %>
   <div id="content">
     <br><br><br>
-    <div class="pt-24 px-4 max-w-7xl mx-auto font-canted text-white">
-      <h1 class="text-4xl font-bold mb-8 text-center font-kablam shadow-black">🏆 CLASSEMENT DU TOURNOI 🏆</h1>
+    <div class="pt-24 px-4 max-w-7xl mx-auto font-canted text-center">
+      <h1 class="bubble text-4xl font-bold mb-8 font-kablam text-black">🏆 TOURNAMENT RANKING 🏆</h1>
     
       <% if (classement.length > 0) { %>
         <div class="relative overflow-x-auto overflow-y-auto mb-12 h-[400px] z-10">
           <table class="min-w-full text-center font-canted table-fixed">
             <thead class="bg-black text-white sticky top-0 z-10">
               <tr>
-                <th class="w-[120px] px-2 py-2">Position</th>
-                <th class="w-[150px] px-2 py-2">Joueur</th>
+                <th class="w-[120px] px-2 py-2">Rank</th>
+                <th class="w-[150px] px-2 py-2">Player</th>
                 <th class="w-[120px] px-2 py-2">Score</th>
               </tr>
             </thead>
@@ -47,7 +47,7 @@
           </table>
         </div>
       <% } else { %>
-        <p class="text-center text-lg">Aucun classement disponible.</p>
+        <p class="text-center text-lg">No ranking available.</p>
       <% } %>
     </div>
 </body>

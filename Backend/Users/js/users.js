@@ -170,7 +170,6 @@ fastify.post("/pending_request", async (request, reply) => {
       `).all(user_id);
       if (!pending_request)
         return reply.send(JSON.stringify({success: false}));
-    console.log("pending in back: ", pending_request);
     let username_invit = [];
     for (let i = 0; i < pending_request.length; i++) {
       username_invit.push(await get_user_with_id(pending_request[i].user_id));
@@ -190,7 +189,6 @@ async function get_user_with_id(user_id) {
 
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
-  console.log("username: ", username)
   if (!username)
     return reply.send(JSON.stringify({success: false}));
   const user = await db.prepare(`

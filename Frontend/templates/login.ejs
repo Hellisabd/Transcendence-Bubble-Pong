@@ -16,59 +16,59 @@
 		<div id="content">
 			<div class=" bg-[#c0b9ac] bg-opacity-80 border-[#efe5d1] border-4 shadow-lg p-8 rounded-3xl card-height w-screen max-w-md transition-transform transform hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
 				<div id="login">
-					<h2 class="text-2xl font-bold font-kablam mb-4 text-center tracking-widest">CONNEXION</h2>
+					<h2 class="text-2xl font-bold font-kablam mb-4 text-center tracking-widest">LOG IN</h2>
 					<form onsubmit="login(event)" class="space-y-6">
 						<div class="relative">
-							<label for="email" class="block font-canted text-sm font-medium">Email :</label>
+							<label for="email" class="block font-canted text-sm font-medium">Email:</label>
 							<input type="text" id="email" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="relative">
-							<label for="password" class="block font-canted text-sm font-medium">Mot de passe :</label>
+							<label for="password" class="block font-canted text-sm font-medium">Password:</label>
 							<input type="password" id="password" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="flex justify-center">
 							<button type="submit" class="w-48 py-3 px-4 border-2 border-neutral-200/0 text-lg bg-[#efe5d1] text-[#736f67] font-semibold rounded-lg hover:bg-[#d6cbb5] transition">
-								Se connecter
+								Log in
 							</button>
 						</div>
 					</form>
 					<div class="mt-6 text-right">
 						<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('create_account')">
-							Créer un compte >
+							Sign up >
 						</button>
 					</div>
 				</div>
 
 
 				<div id="register" class="hidden">
-					<h2 class="text-2xl font-bold font-kablam mb-4 text-center tracking-widest">CREER UN COMPTE</h2>
+					<h2 class="text-2xl font-bold font-kablam mb-4 text-center tracking-widest">SIGN UP</h2>
 					<form onsubmit="create_account(event)" class="space-y-6">
 						<div class="relative">
-							<label for="name" class="block font-canted text-sm font-medium">Nom :</label>
+							<label for="name" class="block font-canted text-sm font-medium">Name:</label>
 							<input type="text" id="name" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="relative">
-							<label for="email" class="block font-canted text-sm font-medium">Email :</label>
+							<label for="email" class="block font-canted text-sm font-medium">Email:</label>
 							<input type="text" id="email_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="relative">
-							<label for="password" class="block font-canted text-sm font-medium">Mot de passe :</label>
+							<label for="password" class="block font-canted text-sm font-medium">Password:</label>
 							<input type="password" id="password_creation" required class="block w-full px-5 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
 						</div>
 						<div class="flex items-center gap-2">
 							<input type="checkbox" id="twofa" class="hidden peer">
 							<label for="twofa" class="w-5 h-5 border-2 border-gray-500 rounded-md cursor-pointer peer-checked:bg-green-500 peer-checked:border-green-500 transition-all"></label>
-							<span class="block font-canted text-sm font-medium">2fa activé</span>
+							<span class="block font-canted text-sm font-medium">2fa activated</span>
 						</div>
 						<div class="flex justify-center">
 							<button type="submit" class="w-48 py-3 px-4 border-2 border-neutral-200/0 text-lg bg-[#efe5d1] text-[#736f67] font-semibold rounded-lg hover:bg-[#d6cbb5] transition">
-								S'inscrire
+								Sign up
 							</button>
 						</div>
 					</form>
 					<div class="mt-6 text-right">
 						<button class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all" onclick="fadeOutCard('login')">
-							Déjà un compte ? Se connecter >
+							Already signed up? Log in >
 						</button>
 					</div>
 				</div>

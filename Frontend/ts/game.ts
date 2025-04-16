@@ -205,7 +205,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
     btnDown?.addEventListener("touchend", () => move_mobile_pong("stop"));
 
     const arena = document.getElementById("pongarena") as HTMLDivElement;
-    arena?.classList.toggle("hidden");
+    arena?.classList.remove("hidden");
 
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
     fetch("/update_status", {

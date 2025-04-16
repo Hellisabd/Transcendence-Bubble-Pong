@@ -68,21 +68,20 @@ async function set_up_bars() {
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
                         class="pl-2 py-1 w-[10rem] text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-green-300"
-                        placeholder="Ajouter un ami" />
+                        placeholder="Add friend
                     <button class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-200"
                         type="submit">
-                        Ajouter
-                    </button>
+                        Add                    </button>
                 </form>
             </div>
 
             <div id="pending_request_div" class="p-4 mt-10">
-                <h2 class="font-bold text-center text-2xl">Requête en attente:</h2>
+                <h2 class="font-bold text-center text-2xl">Pending requesth2>
                 <div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
                 <div id="pending_request"></div>
             </div>
             <div class="p-4 mt-32">
-                <h2 class="font-bold text-center text-2xl">Liste d'amis:</h2>
+                <h2 class="font-bold text-center text-2xl">Friends list</h2>
                 <div class="border justify-self-center border-slate-500 w-40 mt-2"></div>
                 <div id="friends_list" class=""></div>
             </div>
@@ -95,7 +94,6 @@ async function set_up_bars() {
         navDiv.innerHTML = `<nav id="navbar" class="fixed w-full bg-gray-800 z-[9999]">
             <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                 <div class="relative flex h-16 items-center justify-between">
-                    <!-- Bouton Mobile -->
                     <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                         <button onclick="displayMenu()" id="mobile-menu-button" type="button"
                             class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -111,10 +109,10 @@ async function set_up_bars() {
                         </button>
                     </div>
                     <div id="mobile-menu" class="absolute left-0 top-16 hidden sm:hidden bg-gray-800 p-4 space-y-2">
-                        <a onclick="navigateTo('index')" class="block text-white p-2 rounded hover:bg-gray-700">Accueil</a>
-                        <a onclick="navigateTo('pong_game')" class="block text-white p-2 rounded hover:bg-gray-700">Jeux</a>
-                        <a onclick="navigateTo('dashboard')" class="block text-white p-2 rounded hover:bg-gray-700">Dashboard</a>
-                        <a onclick="navigateTo('history')" class="block text-white p-2 rounded hover:bg-gray-700">Stats</a>
+                        <a onclick="navigateTo('index')" class="block text-white p-2 rounded hover:bg-gray-700">Home</a>
+                        <a onclick="navigateTo('pong_game')" class="block text-white p-2 rounded hover:bg-gray-7Homees</a>
+                        <a onclick="navigateTo('dashboard')" class="block text-white p-2 rounded hover:bg-gray-700">Gamesboard</a>
+                        <a onclick="navigateTo('history')" class="block text-white p-2 rounded hover:bg-gray-700">History</a>
                     </div>
                     <!-- Logo et liens -->
                     <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -141,12 +139,10 @@ async function set_up_bars() {
                         </div>
                     </div>
 
-                    <!-- Titre -->
                     <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-3xl sm:text-5xl font-kablam">
                         PONG GAME
                     </h1>
 
-                    <!-- User -->
                     <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                         <div class="hidden sm:ml-6 sm:block">
                             <div id="user" class="relative ml-3"></div>
@@ -161,13 +157,13 @@ async function set_up_bars() {
                             <div id="user-menu"
                                 class="hidden absolute right-0 top-14 bg-gray-800 p-4 space-y-2 z-[9998]">
                                 <div onclick="navigateTo('settings')" class="flex items-center text-white p-2 rounded hover:bg-gray-700 space-x-2 cursor-pointer">
-                                    <span>Paramètres</span>
+                                    <span>Settings</span>
                                 </div>
                                 <div onclick="logout(1)" class="flex items-center text-white p-2 rounded hover:bg-red-700 space-x-2 cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <svg xSettings://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg>
-                                    <span class="">Déconnexion</span>
+                                    <span class="inline-block whitespace-nowrap">Log out</span>
                                 </div>
                             </div>
                         </div>
@@ -209,7 +205,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     console.log(`status: ${statusJson.status}`);
     if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
         page = "index";
-      }
+    }
     if (!loged && !afficheUser) {
         navigateTo("login", true, null);
         return ;

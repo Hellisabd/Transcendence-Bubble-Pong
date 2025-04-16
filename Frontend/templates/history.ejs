@@ -9,18 +9,18 @@
 <body class="font-mainFont bg-paper">
   <div id="content">
     <div class="flex flex-col items-center justify-center pt-24 px-4 max-w-7xl mx-auto font-canted">
-      <h1 class="bubble text-4xl font-bold mb-8 text-center font-kablam shadow-black">HISTORIQUE DES MATCHS</h1>
+      <h1 class="bubble text-4xl font-bold mb-8 text-center font-kablam shadow-black">GAMES HISTORY</h1>
 
       <% if (history.length === 0) { %>
-        <p class="bubble text-center text-lg">Aucun match trouvé.</p>
+        <p class="bubble text-center text-lg">No game found.</p>
       <% } else { %>
         <div class=" relative overflow-x-auto overflow-y-auto mb-12 h-[400px] z-10">
 			<table class="min-w-full text-center font-canted table-fixed">
 				<thead class="bg-black text-white sticky top-0">
 				  <tr class="">
 					<th class="w-[120px] px-2 py-2 ">Game</th>
-					<th class="w-[150px] px-2 py-2 ">Joueur 1</th>
-					<th class="w-[150px] px-2 py-2 ">Joueur 2</th>
+					<th class="w-[150px] px-2 py-2 ">Player 1</th>
+					<th class="w-[150px] px-2 py-2 ">Player 2</th>
 					<th class="w-[120px] px-2 py-2 ">Score</th>
 					<th class="w-[180px] px-2 py-2">Date</th> 
 				  </tr>
@@ -47,20 +47,20 @@
         </div>
       <% } %>
 
-	  <h1 class="bubble text-4xl font-bold mb-6 text-center font-kablam">TOURNOIS</h1>
+	  <h1 class="bubble text-4xl font-bold mb-6 text-center font-kablam">TOURNAMENTS</h1>
 
 	  <% if (tournament.length === 0) { %>
-		<p class="bubble text-center text-lg">Aucun tournoi joué.</p>
+		<p class="bubble text-center text-lg">No tournament found.</p>
 	  <% } else { %>
-		<h2 class="text-2xl font-semibold mb-4 text-center font-kablam">CLASSEMENTS DES TOURNOIS</h2>
+		<h2 class="text-2xl font-semibold mb-4 text-center font-kablam">TOURNAMENT RANKING</h2>
 	  
 		<div class="overflow-x-auto overflow-y-auto mb-12 h-[400px]">
 		  <table class="min-w-full text-center font-canted table-fixed">
 			<thead class="bg-black text-white sticky top-0 z-10">
 			  <tr>
 				<th class="w-[120px] px-2 py-2">Game</th>
-				<th class="w-[150px] px-2 py-2">Position</th>
-				<th class="w-[150px] px-2 py-2">Joueur</th>
+				<th class="w-[150px] px-2 py-2">Rank</th>
+				<th class="w-[150px] px-2 py-2">Player</th>
 				<th class="w-[120px] px-2 py-2">Score</th>
 			  </tr>
 			</thead>
@@ -69,7 +69,7 @@
 				<!-- Ligne de séparation avec la date -->
 				<tr class="bg-gray-800 text-white font-bold border-b border-black">
 				  <td colspan="5" class="px-4 py-2 text-left">
-					🗓️ Tournoi du <%= new Date(tournoi.created_at).toLocaleString('fr-FR') %>
+					🗓️ <%= new Date(tournoi.created_at).toLocaleString('fr-FR') %>
 				  </td>
 				</tr>
 	  
