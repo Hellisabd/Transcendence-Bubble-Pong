@@ -2,7 +2,8 @@ const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
 const axios = require("axios"); // Pour faire des requêtes HTTP
 
-let i = 0;
+let pong_i = 0;
+let ping_i = 0;
 
 let waitingClientPong = {};
 
@@ -58,7 +59,14 @@ tournamentMapPing.set(id_tournamentPing, {
 
 })
 
-
+function isUsernameInAnyTournament(username) {
+    for (const tournamentData of tournamentMapPing.values()) {
+      if (tournamentData.tournamentsUsernames.includes(username)) {
+        return true;
+      }
+    }
+    return false;
+}
 
 fastify.register(async function (fastify) {
     let username1 = 0;
@@ -69,38 +77,38 @@ fastify.register(async function (fastify) {
         connection.socket.on("close", () => {
             clientsWaitingPong.clear();
             waitingClientPong = {};
-            i = 0;
+            pong_i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            if (i == 0) {
+            if (pong_i == 0) {
                 waitingClientPong[0] = data.username;
                 username1 = data.username;
-                i++;
-            } else if (i == 1) {
+                pong_i++;
+            } else if (pong_i == 1) {
                 if (data.username == username1)
                     return ;
                 waitingClientPong[1] = data.username;
                 username2 = data.username;
-                i++;
+                pong_i++;
             }
-            if (i == 2) {
-                i = 0;
+            if (pong_i == 2) {
+                pong_i = 0;
                 const lobbyKey = `${username1}${username2}`;
                 clientsWaitingPong.forEach(clientsWaiting => {
-                    i++;
+                    pong_i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
                         player1: username1,
                         player2: username2,
-                        player_id: i,
+                        player_id: pong_i,
                         "lobbyKey": lobbyKey
                     }));
                 });
                 clientsWaitingPong.clear();
                 waitingClientPong = {};
-                i = 0;
+                pong_i = 0;
             }
         });
     })
@@ -121,6 +129,8 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
+                if (isUsernameInAnyTournament(data.username))
+                    return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
@@ -247,39 +257,39 @@ fastify.register(async function (fastify) {
         connection.socket.on("close", () => {
             clientsWaitingPing.clear();
             waitingClientPing = {};
-            i = 0;
+            ping_i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            if (i == 0) {
+            if (ping_i == 0) {
                 waitingClientPing[0] = data.username;
                 username1 = data.username;
-                i++;
-            } else if (i == 1) {
+                ping_i++;
+            } else if (ping_i == 1) {
                 if (data.username == username1)
                     return ;
                 waitingClientPing[1] = data.username;
                 username2 = data.username;
-                i++;
+                ping_i++;
             }
-            if (i == 2) {
-                i = 0;
+            if (ping_i == 2) {
+                ping_i = 0;
                 const lobbyKey = `${username1}${username2}`;
                 console.log("lobby: ", lobbyKey); 
                 clientsWaitingPing.forEach(clientsWaiting => {
-                    i++;
+                    ping_i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
                         player1: username1,
                         player2: username2,
-                        player_id: i,
+                        player_id: ping_i,
                         "lobbyKey": lobbyKey
                     }));
                 });
                 clientsWaitingPing.clear();
                 waitingClientPing = {};
-                i = 0;
+                ping_i = 0;
             }
         });
     })
@@ -300,7 +310,8 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                console.log("data: ", data);
+                if (isUsernameInAnyTournament(data.username)) 
+                    return ;
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMapPing.get(id_tournament_key_from_player);
@@ -320,7 +331,7 @@ fastify.register(async function (fastify) {
                                 console.log(`users in tournament: ${currentTournament.tournamentsUsernames}`);
                                 if (index !== -1)
                                     currentTournament.classements.splice(index, 1);
-                                return ;
+                                return ; 
                             }
                         }
                     }

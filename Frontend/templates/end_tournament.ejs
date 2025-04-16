@@ -12,39 +12,43 @@
 	<%- include('/usr/src/app/Frontend/templates/sidebar.ejs') %>
   <div id="content">
     <br><br><br>
-    <h1>🏆 Classement du Tournoi 🏆</h1>
-
-    <% if (classement.length > 0) { %>
-      <table border="1">
-        <tr>
-          <th>Position</th>
-          <th>Joueur</th>
-          <th>Score</th>
-        </tr>
-        <% let oldScore = 0; %>
-        <% let oldPlace = 1; %>
-        <% let Place = 0; %>
-        <% classement.forEach((player, index) => { %>
-          <% if (oldScore == player.score && index != 0) { %>
-              <% Place = oldPlace %>
-            <% } else { %>
-              <% Place = index + 1 %>
-            <% } %>
-          <tr>
-            <td><%= Place%> 🏅</td>
-            <td><%= player.username %></td>
-            <td><%= player.score %></td>
-          </tr>
-          <% oldScore = player.score%>
-          <% oldPlace = Place%>
-        <% }) %>
-      </table>
-    <% } else { %>
-      <p>Aucun classement disponible.</p>
-    <% } %>
-
-    <%- include('/usr/src/app/Frontend/templates/scripts.ejs') %>
-    <canvas id="friends_list" width="300" height="500"></canvas>
-  </div>
+    <div class="pt-24 px-4 max-w-7xl mx-auto font-canted text-white">
+      <h1 class="text-4xl font-bold mb-8 text-center font-kablam shadow-black">🏆 CLASSEMENT DU TOURNOI 🏆</h1>
+    
+      <% if (classement.length > 0) { %>
+        <div class="relative overflow-x-auto overflow-y-auto mb-12 h-[400px] z-10">
+          <table class="min-w-full text-center font-canted table-fixed">
+            <thead class="bg-black text-white sticky top-0 z-10">
+              <tr>
+                <th class="w-[120px] px-2 py-2">Position</th>
+                <th class="w-[150px] px-2 py-2">Joueur</th>
+                <th class="w-[120px] px-2 py-2">Score</th>
+              </tr>
+            </thead>
+            <tbody class="bg-black text-white">
+              <% let oldScore = 0; %>
+              <% let oldPlace = 1; %>
+              <% let Place = 0; %>
+              <% classement.forEach((player, index) => { %>
+                <% if (oldScore == player.score && index != 0) { %>
+                  <% Place = oldPlace %>
+                <% } else { %>
+                  <% Place = index + 1 %>
+                <% } %>
+                <tr class="border-b border-black">
+                  <td class="px-2 py-2 h-[80px]"><%= Place %> 🏅</td>
+                  <td class="px-2 py-2 h-[80px]"><%= player.username %></td>
+                  <td class="px-2 py-2 h-[80px]"><%= player.score %></td>
+                </tr>
+                <% oldScore = player.score %>
+                <% oldPlace = Place %>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p class="text-center text-lg">Aucun classement disponible.</p>
+      <% } %>
+    </div>
 </body>
 </html>

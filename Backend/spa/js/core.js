@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists } = require("./proxy");
+const { log, create_account , get_user , logout, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_status } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -97,6 +97,8 @@ fastify.post("/update_history", update_history);
 
 fastify.get("/history", get_history);
 
+fastify.get("/get_status", get_status);
+
 fastify.post("/dashboard", get_stats);
 
 fastify.post("/update_status", update_status);
@@ -163,9 +165,10 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 
 
 fastify.get('/:page', async (request, reply) => {
+  const token = request.cookies.session;
   let page = request.params.page
   if (page[page.length - 1] == '/')
-    page = page.substring(0, page.length - 1)
+    page = page.substring(0, page.length - 1);
   if (page == '' || page == "end_tournament") // siamais on redirige end_tournament ici
     page = 'index'
   let filePath = "Frontend/templates/" + page + ".ejs"

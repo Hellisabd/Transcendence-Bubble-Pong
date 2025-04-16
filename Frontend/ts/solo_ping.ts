@@ -1,10 +1,16 @@
 console.log("solo_ping.js chargé");
 
-function soloping_initializeGame(user1: string, user2: string, myuser: string | null): void {
+document.addEventListener("keydown", (event) => {
+    if (window.location.pathname === "/solo_ping") {
+        if (event.key === "h")
+            document.getElementById("div_ping_solo_help")?.classList.toggle("hidden");  
+    }
+});
+
+function soloping_initializeGame(): void {
     console.log("Initialisation du jeu...");
     let solo_score = document.getElementById("solo_score") as HTMLDataElement;
     const canvas = document.getElementById("solopingCanvas") as HTMLCanvasElement;
-	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -15,18 +21,37 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         if (!ctx) {
             return ;
         }
-
+        const btnstart = document.getElementById("btnStartsolo");
+        btnstart?.addEventListener("click", () => new_solo_game());
+        const btnUp = document.getElementById("btnUpsolo");
+        btnUp?.addEventListener("mousedown", () => move_mobile_soloping("left"));
+        btnUp?.addEventListener("mouseup", () => move_mobile_soloping("stop"));
+        btnUp?.addEventListener("touchstart", () => move_mobile_soloping("left"));
+        btnUp?.addEventListener("touchend", () => move_mobile_soloping("stop"));
+        
+        const btnDown = document.getElementById("btnDownsolo");
+        btnDown?.addEventListener("mousedown", () => move_mobile_soloping("right"));
+        btnDown?.addEventListener("mouseup", () => move_mobile_soloping("stop"));
+        btnDown?.addEventListener("touchstart", () => move_mobile_soloping("right"));
+        btnDown?.addEventListener("touchend", () => move_mobile_soloping("stop"));
+        
         let canvasWidth: number = canvas.offsetWidth;
         let canvasHeight: number = canvas.offsetHeight;
         
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-
+        
         let ratio: number = canvasWidth / 1000;
-
+        
+        const PING_image = new Image();
+        PING_image.src = "Frontend/assets/PING.png";
+        
+        const PONG_image = new Image();
+        PONG_image.src = "Frontend/assets/PONG.png";
+        
         animation_ping_stop();
         animation_pong_stop();
-
+        
 		const arena_radius = canvasWidth / 2;
         const ballRadius = 10;
         const bonusRadius = 50;
@@ -35,7 +60,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         const bonus_set = "PPGGS";
         let bonus_glowing: number = 0;
         let up_down: boolean = true;
-
+        
         let ball: {x:number, y: number, speedX: number, speedY: number} = {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5}
 		let speed: number = Math.sqrt(ball.speedX ** 2 + ball.speedY ** 2);
         let player: {angle: number, size: number, move: {up: boolean, down: boolean, right: boolean, left: boolean}} = { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} }
@@ -48,48 +73,53 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
         let end_solo: boolean = false;
         let solo_bonus_bool: number = 0;
         let score: number = 0;
-
-        document.addEventListener("keydown", (event) => {
+        let draw_bounce: boolean = false;
+        let image_bounce_refresh: number = 0;
+        let x_bounce: number = 0;
+        let y_bounce: number = 0;
+        let sending:boolean = false;
         
-                if (event.key === "ArrowUp") {
-                    player.move.up = true;
-                    player.move.down = false;
-                    player.move.right = false;
-                    player.move.left = false;
-                }
-                if (event.key === "ArrowDown") {
-                    player.move.up = false;
-                    player.move.down = true;
-                    player.move.right = false;
-                    player.move.left = false;
-                }
-                if (event.key === "ArrowRight") {
-                    player.move.up = false;
-                    player.move.down = false;
-                    player.move.right = true;
-                    player.move.left = false;
-                }
-                if (event.key === "ArrowLeft") {
-                    player.move.up = false;
-                    player.move.down = false;
-                    player.move.right = false;
-                    player.move.left = true;
-                } 
-                if (event.key === " ") {
-                    new_solo_game();
-                }
-            });
-
-        document.addEventListener("keyup", (event) => {
-
-                if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
-                    player.move.up = false;
-                    player.move.down = false;
-                    player.move.right = false;
-                    player.move.left = false;
-                }
+        document.addEventListener("keydown", (event) => {
+            
+            if (event.key === "ArrowUp") {
+                player.move.up = true;
+                player.move.down = false;
+                player.move.right = false;
+                player.move.left = false;
+            }
+            if (event.key === "ArrowDown") {
+                player.move.up = false;
+                player.move.down = true;
+                player.move.right = false;
+                player.move.left = false;
+            }
+            if (event.key === "ArrowRight") {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = true;
+                player.move.left = false;
+            }
+            if (event.key === "ArrowLeft") {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = false;
+                player.move.left = true;
+            } 
+            if (event.key === " ") {
+                new_solo_game();
+            }
         });
-
+        
+        document.addEventListener("keyup", (event) => {
+            
+            if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = false;
+                player.move.left = false;
+            }
+        });
+        
         function solo_drawGame(): void {
             if (!ctx) {
                 return ;
@@ -99,19 +129,19 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-        
+            
             let arena_radius: number = canvasWidth / 2 - canvasWidth / 20;
             let scale = arena_radius / (canvasWidth / 2);
-        
+            
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
+            
             ctx.translate(canvas.width / 2, canvas.height / 2);
-        
+            
             ctx.scale(scale, scale);
-        
+            
             ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
+            
             //GOAL
             ctx.beginPath();
             ctx.arc(
@@ -131,8 +161,23 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.stroke();
             ctx.stroke();
             ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = "red";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle - goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle - goal.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(goal.angle + goal.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(goal.angle + goal.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
             ctx.shadowBlur = 0;
-
+            
             //BALL
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ballRadius, 0, Math.PI * 2);
@@ -142,20 +187,20 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.strokeStyle = "black";
             ctx.stroke();
             ctx.closePath();
-
+            
             //PADDLE
             ctx.beginPath();
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - (19 * ratio),
+                Math.max(0, canvas.width / 2 - (19 * ratio)),
                 player.angle - player.size,
                 player.angle + player.size
             );
             ctx.lineWidth = 20 * ratio;
             ctx.strokeStyle = "black";
             ctx.stroke();
-        
+            
             ctx.beginPath();
             ctx.moveTo(
                 canvas.width / 2 + (canvas.width / 2 - (28 * ratio)) * Math.cos(player.angle - player.size),
@@ -181,7 +226,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.arc(
                 canvas.width / 2,
                 canvas.height / 2,
-                canvas.width / 2 - (19 * ratio),
+                Math.max(0, canvas.width / 2 - (19 * ratio)),
                 player.angle - player.size,
                 player.angle + player.size
             );
@@ -189,9 +234,15 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             ctx.lineWidth = 15 * ratio;
             ctx.stroke();
             ctx.closePath();
-
+            
             //BONUS
             if (bonus.tag == 'P') {
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
@@ -207,12 +258,18 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur +=  Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
             if (bonus.tag == 'G') {
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
@@ -228,13 +285,19 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
-
+            
             if (bonus.tag == 'S') {
+                ctx.beginPath();
+                ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 20 * ratio;
+                ctx.stroke();
+                ctx.closePath();
                 ctx.beginPath();
                 ctx.arc(bonus.x, bonus.y, bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
@@ -250,12 +313,27 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 }     
                 ctx.shadowBlur += Math.floor(15 + bonus_glowing / 5);
                 ctx.shadowColor = ctx.strokeStyle;
-                ctx.lineWidth = 20;
+                ctx.lineWidth = 15 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.shadowBlur = 0;
             }
-
+            
+            if (draw_bounce == true) {
+                let image: HTMLImageElement = PING_image;
+                if (bounce % 2 == 0)
+                    image = PING_image;
+                else if (bounce % 2 != 0)
+                    image = PONG_image;
+                let image_size: number = 100 * ratio;
+                ctx.drawImage(image, (x_bounce - image_size / 2), (y_bounce - image_size / 2), image_size, image_size);
+                image_bounce_refresh++;
+                if (image_bounce_refresh == 60) {
+                    draw_bounce = false;
+                    image_bounce_refresh = 0;
+                }
+            }
+            
             if (start_solo == false) {
                 ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "black";
@@ -264,12 +342,33 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
         }
 
+        
+        function move_mobile_soloping(input: string) {
+            if (input === "left") {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = false;
+                player.move.left = true;
+            }
+            else if (input === "right") {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = true;
+                player.move.left = false;
+            } else {
+                player.move.up = false;
+                player.move.down = false;
+                player.move.right = false;
+                player.move.left = false;
+            }
+        }
+        
         function solo_update(): void {
             if (!ctx)
                 return;
             ball.x += ball.speedX;
             ball.y += ball.speedY;
-
+            
             if (ball.speedX > 10)
                 ball.speedX = 10;
             if (ball.speedX < -10)
@@ -278,7 +377,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 ball.speedY = 10;
             if (ball.speedY < -10)
                 ball.speedY = -10;
-
+            
             let dx: number = ball.x - arena_radius;
             let dy: number = ball.y - arena_radius;
             let ball_dist: number = Math.sqrt(dx * dx + dy * dy);
@@ -303,6 +402,13 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             if (lim_inf_player < 0)
                 lim_inf_player += 2 * Math.PI;
             let lim_sup_player: number = player.angle + player.size;
+            let lim_inf_goal: number = goal.angle - goal.size / 2;
+            if (lim_inf_goal < 0)
+                lim_inf_goal += 2 * Math.PI;
+        
+            let lim_sup_goal: number = goal.angle + goal.size / 2;
+            if (lim_sup_goal > 2 * Math.PI)
+                lim_sup_goal -= 2 * Math.PI;
             if (ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness && Date.now() > last_bounce) {
                 if (lim_inf_player < lim_sup_player) {
                     if (ball_angle >= lim_inf_player && ball_angle <= lim_sup_player) {
@@ -337,23 +443,11 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     }
                 }
             }
-            let lim_inf_goal: number = goal.angle - goal.size / 2;
-            if (lim_inf_goal < 0)
-                lim_inf_goal += 2 * Math.PI;
-        
-            let lim_sup_goal: number = goal.angle + goal.size / 2;
-            if (lim_sup_goal > 2 * Math.PI)
-                lim_sup_goal -= 2 * Math.PI;
-        
             if (goal.protected == false && Date.now() > last_bounce && ball_dist + ballRadius + 5 > arena_radius) {
                 if (lim_inf_goal < lim_sup_goal) {
                     if (ball_angle >= lim_inf_goal && ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
-                        ctx.fillStyle = "red";
-                        ctx.textAlign = "center";
-                        ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
                         send_score();
                     }
                 }
@@ -361,15 +455,10 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                     if (ball_angle >= lim_inf_goal || ball_angle <= lim_sup_goal) {
                         start_solo = false;
                         end_solo = true;
-                        ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
-                        ctx.fillStyle = "red";
-                        ctx.textAlign = "center";
-                        ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
                         send_score();
                     } 
                 }
             }
-        
             if (goal.protected == true && ball_dist + ballRadius + 5 > arena_radius) {
                 if (lim_inf_goal < lim_sup_goal) {
                     if (ball_angle >= lim_inf_goal && ball_angle <= lim_sup_goal) {
@@ -396,6 +485,9 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             } 
             if (ball_dist + ballRadius + 5 > arena_radius && Date.now() > last_bounce ) {
                 bounce++;
+                draw_bounce = true;
+                x_bounce = ball.x;
+                y_bounce = ball.y;
                 last_bounce = Date.now() + bounceInterval;
                 let normalX: number = dx / ball_dist;
                 let normalY: number = dy / ball_dist;
@@ -483,7 +575,7 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             solo_drawGame();
             if (end_solo == true) {
-                ctx.font = `bold ${30 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
+                ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
                 ctx.fillStyle = "red";
                 ctx.textAlign = "center";
                 ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
@@ -493,9 +585,13 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
             }
             requestAnimationFrame(solo_loop);
         }
-        solo_loop();
+        if (end_solo == false)
+            solo_loop();
 
         async function send_score() {
+            if (sending == true)
+                return;
+            sending = true;
             const player = await get_user();
             try {
                 const response = await fetch('/update_solo_score', {
@@ -505,11 +601,11 @@ function soloping_initializeGame(user1: string, user2: string, myuser: string | 
                 });
         
                 const data = await response.json();
-                console.log(data);
             }
             catch (error) {
                 console.log('Error sending score to db', error);
             }
+            sending = false;
         }
     } 
     else {

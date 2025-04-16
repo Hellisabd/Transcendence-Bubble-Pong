@@ -6,13 +6,13 @@
   <title>History</title>
   <%- include('links.ejs') %>
 </head>
-<body class="font-mainFont bg-gradient-to-l from-cyan-800 to-sky-950 min-h-screen text-white">
+<body class="font-mainFont bg-paper">
   <div id="content">
-    <div class="pt-24 px-4 max-w-7xl mx-auto font-canted">
-      <h1 class="text-4xl font-bold mb-8 text-center font-kablam shadow-black">HISTORIQUE DES MATCHS</h1>
+    <div class="flex flex-col items-center justify-center pt-24 px-4 max-w-7xl mx-auto font-canted">
+      <h1 class="bubble text-4xl font-bold mb-8 text-center font-kablam shadow-black">HISTORIQUE DES MATCHS</h1>
 
       <% if (history.length === 0) { %>
-        <p class="text-center text-lg">Aucun match trouvé.</p>
+        <p class="bubble text-center text-lg">Aucun match trouvé.</p>
       <% } else { %>
         <div class=" relative overflow-x-auto overflow-y-auto mb-12 h-[400px] z-10">
 			<table class="min-w-full text-center font-canted table-fixed">
@@ -47,10 +47,10 @@
         </div>
       <% } %>
 
-	  <h1 class="text-4xl font-bold mb-6 text-center font-kablam">TOURNOIS</h1>
+	  <h1 class="bubble text-4xl font-bold mb-6 text-center font-kablam">TOURNOIS</h1>
 
 	  <% if (tournament.length === 0) { %>
-		<p class="text-center text-lg">Aucun tournoi joué.</p>
+		<p class="bubble text-center text-lg">Aucun tournoi joué.</p>
 	  <% } else { %>
 		<h2 class="text-2xl font-semibold mb-4 text-center font-kablam">CLASSEMENTS DES TOURNOIS</h2>
 	  

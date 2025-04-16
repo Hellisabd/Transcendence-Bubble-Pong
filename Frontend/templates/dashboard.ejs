@@ -25,6 +25,7 @@
 							<a onclick="display_canvas('general')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">GENERAL</a>
 							<a onclick="display_canvas('pong')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PONG</a>
 							<a onclick="display_canvas('ping')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PING</a>
+							<a onclick="display_canvas('solo')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">LEADERBOARD SOLO</a>
 							<a onclick="display_friend_menu()" id="friend-menu-button" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">FRIENDS</a>
 							<div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 								<div id="friends-menu"
@@ -33,9 +34,10 @@
 							</div>
 						</div>
 					</div>
-					<canvas style="border-color: black;" id="general_stats" width="600" height="600"></canvas>
-					<canvas style="border-color: black;" id="pong_stats" width="600" height="600"></canvas>
-					<canvas style="border-color: black;" id="ping_stats" width="600" height="800"></canvas>
+					<canvas id="general_stats" class="w-[320px] h-[320px] sm:w-[600px] sm:h-[600px]" width=600 height=600></canvas>
+					<canvas id="pong_stats" class="w-[320px] h-[320px] sm:w-[600px] sm:h-[600px]" width=600 height=600></canvas>
+					<canvas id="ping_stats" class="w-[320px] h-[427px] sm:w-[600px] sm:h-[800px]" width=600 height=800></canvas>
+					<canvas id="ping_solo" class="w-[320px] h-[427px] sm:w-[600px] sm:h-[600px]" width=600 height=600></canvas>
 				</div>
 			</div>
 		</div>

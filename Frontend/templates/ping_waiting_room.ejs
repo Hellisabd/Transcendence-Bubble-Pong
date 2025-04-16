@@ -9,7 +9,7 @@
 <body class="font-mainFont bg-paper min-h-screen">
   <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
-      <div id="playersdiv" class="relative hidden flex justify-between items-center w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
+      <div id="ping_playersdiv" class="relative hidden flex justify-between items-center w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
         <p id="playerOne" class="player-bubble-left top-0 left-0 text-red-600 text-2xl font-canted"></p>
         <p id="playerTwo" class="player-bubble-right top-0 right-0 text-blue-700 text-2xl font-canted"></p>
       </div>
@@ -17,10 +17,19 @@
         <div id="ping_animation_arena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="ping_animation" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
-      <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
-        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px] hidden"></div>
+      <div id="div_ping_game" class="relative hidden flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
+        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
       </div>
+      <div class="hidden md:block">
+        <p class="mt-8 bubble relative font-canted font-bold text:xl md:text-2xl">Press H to get some help</p>
+      </div>
+      <div id="div_ping_help" class="ping-help hidden absolute z-50 top-0 left-0"></div>
+    </div>
+    <div class="relative flex justify-center mt-24 md:hidden">
+      <button class="arrow-clock w-24 h-24" id="btnDownping"></button>
+      <button class="ml-20 bubble text-2xl font-kablam" onclick="mobile_ready_ping()">START</button>
+      <button class="ml-20 arrow-cclock w-24 h-24" id="btnUpping"></button>
     </div>
   </div>
   <%- include('scripts.ejs') %>

@@ -4,12 +4,15 @@ let old_url: null | string = null;
 
 declare function display_friends(): void;
 declare function set_up_friend_list(user: string | null);
-
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
-declare function get_stats(username: string | null): void;
+declare function get_stats(username: string | null, canva_name: string): void;
+declare function initializeAnimationPong(): void;
+declare function initializeAnimationPing(): void;
+declare function soloping_initializeGame(): void;
+declare function check_friend_list_state(): WebSocket | null;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -47,10 +50,8 @@ async function set_up_bars() {
     let sideDiv = document.getElementById("sidebarAll") as HTMLDivElement;
     if (navDiv && sideDiv)
     {
-        console.log("caca?");
         return ;
     }
-    console.log("caca?2");
     if (!sideDiv) {
         sideDiv = document.createElement("div");
         sideDiv.innerHTML = `<div id="sidebarAll">
@@ -200,17 +201,27 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             page = "index";
         }
     }
+    const status = await fetch("/get_status", {
+        method: "GET",
+        credentials: "include",
+    });
+    const statusJson = await status.json();
+    console.log(`status: ${statusJson.status}`);
+    if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
+        page = "index";
+      }
     if (!loged && !afficheUser) {
         navigateTo("login", true, null);
         return ;
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     let userDiv = document.getElementById("user") as HTMLDivElement;
-
+    
     if (!userDiv)
         userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
+
 
     let url: string = page == "index" ? "/" : `/${page}`;
 
@@ -256,7 +267,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
         console.log("document title: ", document.title);
-        // console.log("caca8", window.history.state.page);
         if (addHistory/*  && window.history.state.page !== page */) {
             // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -289,11 +299,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         display_friends();
 
         if (page === "dashboard") {
-            get_stats(username);
-            console.log("passse dans dashboard");
+            get_stats(username, "general");
         }
         if (page != "login") {
-            console.log("TEST");
             await set_up_bars();
             if (!check_friend_list_state())
                 set_up_friend_list(username);
