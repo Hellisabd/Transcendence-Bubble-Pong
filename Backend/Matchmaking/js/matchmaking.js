@@ -60,25 +60,30 @@ tournamentMapPing.set(id_tournamentPing, {
 })
 
 function isUsernameInAnyTournament(username) {
-    if (tournamentMapPing.length) {
+    console.log("PING size:", tournamentMapPing.size);
+    console.log("PONG size:", tournamentMapPong.size);
+    if (tournamentMapPing.size != 1) {
         for (const tournamentData of tournamentMapPing.values()) {
             if (tournamentData.tournamentsUsernames.includes(username)) {
                 console.log(username + " found in ping");
                 return true;
             }
-            if (tournamentData.tournamentsQueue[username] != undefined) {
+            if (tournamentData.tournamentQueue.hasOwnProperty(username)) {
                 console.log(username + " found in ping");
                 return true;
             }
         }
     }
-    if (tournamentMapPong.length) {
+    console.log("caca8");
+    if (tournamentMapPong.size != 1) {
+        console.log("caca9");
         for (const tournamentData of tournamentMapPong.values()) {
+            console.log("tournament pong : " + tournamentData);
             if (tournamentData.tournamentsUsernames.includes(username)) {
                 console.log(username + " found in pong");
                 return true;
             }
-            if (tournamentData.tournamentsQueue[username] != undefined) {
+            if (tournamentData.tournamentQueue.hasOwnProperty(username)) {
                 console.log(username + " found in pong");
                 return true;
             }
@@ -88,12 +93,10 @@ function isUsernameInAnyTournament(username) {
         console.log(username + " found in ping");
         return true;
     }
-    console.log("object waiting client : " + Object.values(waitingClientPong));
     if (Object.values(waitingClientPong).includes(username)) {
         console.log(username + " found in pong");
         return true;
     }
-    console.log("caca8");
     return false;
 }
 
@@ -160,8 +163,9 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                if (isUsernameInAnyTournament(data.username) && data.init == true)
+                if (isUsernameInAnyTournament(data.username) && data.init == true) {
                     return ;
+                }
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
@@ -188,6 +192,7 @@ fastify.register(async function (fastify) {
                         if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                     }
+                    tournamentMapPong.delete(id_tournament_key_from_player);
                     console.log("Connexion WebSocket fermée.");
                 }
                 if (data.init) {
@@ -343,8 +348,9 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                if (isUsernameInAnyTournament(data.username) && data.init == true) 
+                if (isUsernameInAnyTournament(data.username) && data.init == true) {
                     return ;
+                }
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMapPing.get(id_tournament_key_from_player);
@@ -374,6 +380,7 @@ fastify.register(async function (fastify) {
                         if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                     }
+                    tournamentMapPing.delete(id_tournament_key_from_player);
                     console.log("Connexion WebSocket fermée.");
                 }
                 if (data.init) {

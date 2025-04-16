@@ -275,6 +275,10 @@ async function update_status(req, reply) {
     if (!token)
         return ;
     const {status} = req.body;
+    if (!status)
+        return ;
+    if (!usersession.get(token))
+        return ;
     usersession.get(token).status = status;
     send_to_friend(usersession.get(token).username, token);
 }

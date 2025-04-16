@@ -204,7 +204,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
     const statusJson = await status.json();
     console.log(`status: ${statusJson.status}`);
     if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
-        page = "index";
+        navigateTo("index", true, null);
     }
     if (!loged && !afficheUser) {
         navigateTo("login", true, null);
