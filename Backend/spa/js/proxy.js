@@ -89,7 +89,7 @@ async function log(req, reply) {
         for (const [oldToken, session] of usersession.entries()) {
             if (session.username === username) {
                 usersession.delete(oldToken);
-                break; 
+                break;
             }
         }
         usersession.set(token, {username: username, status: 'online'});
@@ -129,7 +129,6 @@ async function create_account(req, reply) {
 			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
 			{ headers: { "Content-Type": "application/json" } })
-			secret_keys[i] = "";
 		}
 		else{
 			response = await axios.post("http://users:5000/create_account",
@@ -201,7 +200,7 @@ async function get_stats(req, reply) {
 
 async function get_history(req, reply) {
     const token = req.cookies.session;
-    if (!token) { 
+    if (!token) {
         return reply.view("login.ejs");
     }
 
@@ -355,7 +354,6 @@ async function setup2fa(request, reply) {
 		// Générer l'URL pour le QR Code
 		const otplibUrl = otplib.authenticator.keyuri(email, 'MyApp', secret);
 		secret_keys.push([email, secret]);
-		console.log("URL du QR Code generee :", otplibUrl);
 
 		// Utiliser un async/await pour gérer correctement la génération du QR code
 		const dataUrl = await new Promise((resolve, reject) => {
@@ -382,8 +380,8 @@ async function setup2fa(request, reply) {
 async function twofaverify(request, reply) {
 	try {
 		const { email, code } = request.body;
-		console.log(email);
-		console.log(code);
+		console.log("email :" + email);
+		console.log("code : ", code);
 		const response = await axios.post("http://users:5000/2fa/get_secret",
 			{ email },  // ✅ Envoie le JSON correctement
 			{ headers: { "Content-Type": "application/json" } }
@@ -404,9 +402,6 @@ async function twofaverify(request, reply) {
 		if (!sekret) {
 			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
 		}
-        if (secret_keys[i])
-            console.log("Secret_key : ", secret_keys[i][1]);
-        console.log("Sekret : " ,response.data.secret);
 
 		// Vérifier le code OTP avec la clé secrète
 		const isValid = authenticator.check(code, sekret);
