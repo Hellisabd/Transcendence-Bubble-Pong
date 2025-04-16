@@ -152,7 +152,7 @@ async function create_account(event: Event): Promise<void> {
 				});
 				submitBtn.addEventListener("click", async () => {
 					const code = (document.getElementById("qr-verify-code") as HTMLInputElement).value;
-					console.log("Code 2FA entré ipipipipipipip:", code);
+					create_account_card.classList.remove('hidden');
 					const verifResponse = await fetch("/2fa/verify", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
