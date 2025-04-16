@@ -59,17 +59,6 @@
     height: 100%;
 }
 
-.image-index {
-    background-image: url('/Frontend/assets/INDEX2.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    aspect-ratio: 1 / 1;
-}
-
 .player-bubble-left, .player-bubble-right {
     position: relative;
     display: inline-block;

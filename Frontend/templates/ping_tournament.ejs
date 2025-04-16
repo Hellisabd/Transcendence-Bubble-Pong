@@ -3,6 +3,7 @@
 <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="icon" type="image/png" href="/Frontend/assets/public/favicon.png">
       <title>Ping Tournament</title>
       <%- include('links.ejs') %>
 </head>
@@ -20,6 +21,11 @@
       <div id="div_ping_game" class="relative hidden flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
         <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
         <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      </div>
+      <div class="bubble font-canted">
+        <h2 class="font-bold text-2xl">Next Matches:</h2>
+          <div id="next_match1"></div>
+          <div id="next_match2"></div>
       </div>
       <div>
         <p class="mt-8 bubble relative font-canted font-bold text-2xl">Press H to get some help</p>

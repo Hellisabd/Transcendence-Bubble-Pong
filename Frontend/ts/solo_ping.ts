@@ -495,7 +495,7 @@ function soloping_initializeGame(): void {
                 ball.speedX -= 2.05 * dotProduct * normalX;
                 ball.speedY -= 2.05 * dotProduct * normalY;
                 goal.size += 0.05 * Math.PI;
-                if (goal.size >= Math.PI * 2)
+                if (goal.size >= Math.PI)
                     goal.size = Math.PI;
                 score += goal.size * speed * 2;
             }
@@ -524,7 +524,7 @@ function soloping_initializeGame(): void {
                     score += 1000;
                     if (bonus.tag == 'P') {
                         player.size += Math.PI * 0.03;
-                        if (player.size > Math.PI / 2)
+                        if (player.size > Math.PI)
                             player.size = Math.PI;
                     }
                     if (bonus.tag == 'G') {

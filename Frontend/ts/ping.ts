@@ -34,6 +34,24 @@ let bounce: number = 0;
 
 let bonus_stats: any = null;
 
+function display_next_match(match: any) {
+    console.log("passe dans display next_match");
+    let html: any = document.getElementById("next_match1");
+    if (!html)
+        return ;
+    if (match != "last_match")
+        html.innerHTML = `${match[0]} vs ${match[1]}`;
+    else
+        html.innerHTML = "No More Match";
+    html = document.getElementById("next_match2");
+    if (!html)
+        return ;
+    if (match != "last_match")
+        html.innerHTML = `${match[2]} vs ${match[3]}`;
+    else
+        html.innerHTML = "No More Match";
+}
+
 async function play_ping() {
     ping_Disconnect_from_game();
     const user = await get_user();
@@ -120,6 +138,9 @@ async function ping_tournament() {
             ping_lobbyKey = data.lobbyKey;
             console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             ping_initializeGame(data.player1, data.player2, user);
+        }
+        if (data.next_match) {
+            display_next_match(data.next_match);
         }
     };
 }
