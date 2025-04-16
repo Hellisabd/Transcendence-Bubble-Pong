@@ -272,6 +272,8 @@ async function send_to_friend(username, token) {
 
 async function update_status(req, reply) {
     const token = req.cookies.session;
+    if (!token)
+        return ;
     const {status} = req.body;
     usersession.get(token).status = status;
     send_to_friend(usersession.get(token).username, token);
