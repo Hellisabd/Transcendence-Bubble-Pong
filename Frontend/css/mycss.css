@@ -79,3 +79,12 @@
 #sidebar::-webkit-scrollbar-thumb:hover {
 	background: #475569;
 }
+
+.bulle {
+	border: 2px solid #333;
+	border-radius: 15px;
+	padding: 20px;
+	width: fit-content;
+	max-width: 300px;
+	box-shadow: 3px 3px 0 #333;
+  }
