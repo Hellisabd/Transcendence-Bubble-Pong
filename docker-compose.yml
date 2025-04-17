@@ -22,6 +22,8 @@ services:
       - prom-network
     container_name: nginx
 
+# Dev
+
   spa:
     build:
       context: .
@@ -47,6 +49,29 @@ services:
       - .env
     ports:
       - "7000:7000"
+
+# # Prod
+#   spa:
+#     build:
+#       context: .
+#       dockerfile: ./Backend/spa/Dockerfile
+#       args:
+#         USER_ID: ${USER_ID}
+#         GROUP_ID: ${GROUP_ID}
+#     volumes:
+#       - ./Backend/spa:/usr/src/app/Backend
+#       - spa-vol:/usr/src/app/Frontend/avatar
+#     networks:
+#       - spa-network
+#       - ping-network
+#       - pong-network
+#     depends_on:
+#       - pong
+#     container_name: spa
+#     env_file:
+#       - .env
+#     ports:
+#       - "7000:7000"
 
   pong:
     build:
@@ -187,3 +212,4 @@ volumes:
   sqlite_data:
   grafana:
   prom-data:
+  spa-vol:

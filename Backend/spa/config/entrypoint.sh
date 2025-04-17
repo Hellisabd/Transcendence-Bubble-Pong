@@ -1,9 +1,14 @@
 #!/bin/bash
 
 npx tsc
-chown -R root:root /usr/src/app/Frontend
+chown -R spa:spa /usr/src/app/Frontend
 
 npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
+
+# Prod
+# npm start 
+
+Dev
 npm start &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/templates; do
