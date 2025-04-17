@@ -1532,8 +1532,16 @@ video {
   --tw-gradient-to: #082f49 var(--tw-gradient-to-position);
 }
 
+.fill-black {
+  fill: #000;
+}
+
 .fill-emerald-600 {
   fill: #059669;
+}
+
+.stroke-black {
+  stroke: #000;
 }
 
 .stroke-emerald-600 {
@@ -2170,9 +2178,9 @@ video {
   --tw-ring-color: rgb(239 229 209 / var(--tw-ring-opacity, 1));
 }
 
-.focus\:ring-gray-800:focus {
+.focus\:ring-black:focus {
   --tw-ring-opacity: 1;
-  --tw-ring-color: rgb(31 41 55 / var(--tw-ring-opacity, 1));
+  --tw-ring-color: rgb(0 0 0 / var(--tw-ring-opacity, 1));
 }
 
 .focus\:ring-green-300:focus {
@@ -2202,8 +2210,16 @@ video {
   --tw-ring-offset-color: #1f2937;
 }
 
+.group:hover .group-hover\:fill-black {
+  fill: #000;
+}
+
 .group:hover .group-hover\:fill-emerald-600 {
   fill: #059669;
+}
+
+.group:hover .group-hover\:stroke-black {
+  stroke: #000;
 }
 
 .group:hover .group-hover\:stroke-emerald-600 {
@@ -2448,6 +2464,10 @@ video {
     bottom: 5rem;
   }
 
+  .lg\:left-\[20\%\] {
+    left: 20%;
+  }
+
   .lg\:left-\[22px\] {
     left: 22px;
   }
@@ -2525,8 +2545,8 @@ video {
     padding-right: 2rem;
   }
 
-  .lg\:pt-\[25vh\] {
-    padding-top: 25vh;
+  .lg\:pt-\[15vh\] {
+    padding-top: 15vh;
   }
 
   .lg\:text-xl {
@@ -2535,10 +2555,21 @@ video {
   }
 }
 
+@media (min-width: 1280px) {
+  .xl\:left-\[25\%\] {
+    left: 25%;
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .dark\:border-gray-700 {
     --tw-border-opacity: 1;
     border-color: rgb(55 65 81 / var(--tw-border-opacity, 1));
+  }
+
+  .dark\:bg-black {
+    --tw-bg-opacity: 1;
+    background-color: rgb(0 0 0 / var(--tw-bg-opacity, 1));
   }
 
   .dark\:bg-gray-800 {

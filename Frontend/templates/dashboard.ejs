@@ -11,18 +11,18 @@
 		<div id="content">
 			<div class="pt-20 flex flex-row lg:flex-col items-center justify-center">
 				<div id="container" class="flex items-center justify-center">
-					<div class="absolute top-20 left-[10%]">
+					<div class="absolute top-20 left-[10%] lg:left-[20%] xl:left-[25%]">
 						<button
 							onclick="display_dashboard_menu()"
 							id="dropdownButton"
 							type="button"
-							class="px-4 py-2 bg-gray-800 text-white font-kablam md:text-2xl rounded-lg shadow-md
-									hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-800
+							class="px-4 py-2 bg-black text-white font-kablam md:text-2xl rounded-lg shadow-md
+									hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-black
 									focus:ring-opacity-75 transition duration-200">
 							MODE ▼
 						</button>
 						<div id="dropdownMenu" class="absolute left-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg hidden
-							dark:bg-gray-800 dark:border-gray-700">
+							dark:bg-black dark:border-gray-700">
 							<a onclick="display_canvas('general')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">GENERAL</a>
 							<a onclick="display_canvas('pong')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PONG</a>
 							<a onclick="display_canvas('ping')" class="block px-4 py-2 text-white font-kablam md:text-2xl hover:bg-gray-100 dark:hover:bg-gray-700">PING</a>
