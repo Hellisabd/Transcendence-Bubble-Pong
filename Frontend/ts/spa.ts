@@ -68,7 +68,7 @@ async function set_up_bars() {
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
                         class="pl-2 py-1 w-[10rem] text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-green-300"
-                        placeholder="Add friend
+                        placeholder="Add friend" />
                     <button class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-200"
                         type="submit">
                         Add
