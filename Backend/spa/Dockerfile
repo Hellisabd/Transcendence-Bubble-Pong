@@ -35,6 +35,7 @@ RUN npm install @fastify/multipart
 RUN npm install @fastify/cookie
 RUN npm install -g tailwindcss@^3.3.0
 RUN npm install tailwindcss@^3.3.0
+RUN npm install sweetalert2
 
 RUN apt install -y nodejs npm
 RUN npm install @noble/hashes

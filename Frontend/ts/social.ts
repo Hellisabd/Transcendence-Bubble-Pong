@@ -235,7 +235,11 @@ function close_users_socket() {
 async function valid_friend(friend_username: string): Promise<void> {
 	const myusername = await get_user();
 	if (myusername == friend_username) {
-		alert("Prends un Curly");
+		Swal.fire({
+			title: '???',
+			text: 'Prends un Curly',
+			icon: 'question'
+		  });
 		return ;
 	}
 	const response = await fetch("/add_friend", {
@@ -244,14 +248,21 @@ async function valid_friend(friend_username: string): Promise<void> {
 		body: JSON.stringify({ user_sending: myusername, user_to_add: friend_username })
 	});
 	const result: LoginResponse = await response.json();
-	alert(result.message);
+	Swal.fire({
+		text: result.message,
+		icon: 'success'
+	  });
 	return ;
 }
 
 async function decline_friend(friend_username: string): Promise<void> {
 	const myusername = await get_user();
 	if (myusername == friend_username) {
-		alert("Prends un Curly");
+		Swal.fire({
+			title: '???',
+			text: 'Prends un Curly',
+			icon: 'question'
+		  });
 		return;
 	}
 
@@ -265,13 +276,22 @@ async function decline_friend(friend_username: string): Promise<void> {
 		const result = await response.json();
 
 		if (!response.ok || !result.success) {
-			alert(result.message || "Erreur inconnue");
+			Swal.fire({
+				text: result.message,
+				icon: 'success'
+			  });;
 			return;
 		}
 
-		alert(result.message);
+		Swal.fire({
+			text: result.message,
+			icon: 'success'
+		  });
 	} catch (error) {
-		alert("Une erreur réseau est survenue");
+		Swal.fire({
+			text: "An error occured.",
+			icon: 'error'
+		  });;
 	}
 }
 
@@ -280,11 +300,18 @@ async function add_friend(event: Event): Promise<void> {
 
 	const friend_username = (document.getElementById("friend_username") as HTMLInputElement).value;
 	if (!sanitizeInput(friend_username)) {
-        return alert("Be carefull i can bite");
+        return (Swal.fire({
+			text: "Be carefull i can bite!",
+			icon: 'error'
+		  }));
     }
 	const myusername = await get_user();
 	if (myusername == friend_username) {
-		alert("Prends un Curly");
+		Swal.fire({
+			title: '???',
+			text: 'Prends un Curly',
+			icon: 'question'
+		  });
 		return ;
 	}
 	const response = await fetch("/add_friend", {
@@ -293,7 +320,10 @@ async function add_friend(event: Event): Promise<void> {
 		body: JSON.stringify({ user_sending: myusername, user_to_add: friend_username })
 	});
 	const result: LoginResponse = await response.json();
-	alert(result.message);
+	Swal.fire({
+		text: result.message,
+		icon: 'success'
+	  });
 	return ;
 }
 

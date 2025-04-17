@@ -26,7 +26,10 @@ async function login(event: Event): Promise<void> {
     const password = (document.getElementById("password") as HTMLInputElement).value;
 
     if (!sanitizeInput(email) || !sanitizeInput(password)) {
-        return alert("Be carefull i can bite");
+        return (Swal.fire({
+			text: "Be carefull i can bite!",
+			icon: 'error'
+		  }));
     }
 
 
@@ -42,7 +45,11 @@ async function login(event: Event): Promise<void> {
 
 	if (data.success) {
 		const code = prompt("Veuillez saisir votre code 2FA:");
-		if (!code) return alert("Le code 2FA est requis pour vous connecter.");
+		if (!code) 
+			return (Swal.fire({
+				text: "The 2FA code is required for connection!",
+				icon: 'error'
+			  }));
 
 		const verifResponse = await fetch("/2fa/verify", {
 			method: "POST",
@@ -52,7 +59,10 @@ async function login(event: Event): Promise<void> {
 		const verifResult = await verifResponse.json();
 
 		if (!verifResult.success) {
-			return alert("Code 2FA invalide.");
+			return (Swal.fire({
+				text: "Invalid 2FA code.",
+				icon: 'error'
+			  }));
 		}
 
 	}
@@ -67,14 +77,23 @@ async function login(event: Event): Promise<void> {
         const result: LoginResponse = await response.json();
 
         if (result.success) {
-            alert(JSON.stringify(result));
+            Swal.fire({
+				text: JSON.stringify(result),
+				icon: 'success'
+			  });
             navigateTo("index", true, null);
             set_up_friend_list(await get_user());
         } else {
-            alert(JSON.stringify(result));
+			Swal.fire({
+				text: JSON.stringify(result),
+				icon: 'error'
+			  });
         }
     } catch (error) {
-        alert("Erreur de connexion au serveur.");
+		Swal.fire({
+			text: "Connexion to server failed.",
+			icon: 'error'
+		  });
     }
 }
 
@@ -99,14 +118,20 @@ async function create_account(event: Event): Promise<void> {
 
 		const repjson = await rep.json();
 		if (repjson.success == false) {
-			alert(repjson.message);
+			Swal.fire({
+				text: repjson.message,
+				icon: 'error'
+			});
 			return;
 		}
 
 		try {
 			repResult = repjson;
 			if (repResult) {
-				alert("2FA setup completed! Scan this QR code to complete the setup.");
+				Swal.fire({
+					text: "2FA setup completed! Scan this QR code to complete the setup.",
+					icon: 'success'
+				});
 				// Create and display the QR code modal
 				let create_account_card = document.getElementById('content') as HTMLDivElement;
 				create_account_card.classList.add('hidden');
@@ -161,7 +186,10 @@ async function create_account(event: Event): Promise<void> {
 
 					const verifResult = await verifResponse.json();
 					if (verifResult.success) {
-						alert("2FA vérifiée avec succès.");
+						Swal.fire({
+							text: "2FA code successfully checked!",
+							icon: 'success'
+						});
 						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
 						// Close the QR code modal if it is still open
 						if (qrCodeModal && document.body.contains(qrCodeModal)) {
@@ -169,7 +197,10 @@ async function create_account(event: Event): Promise<void> {
 						}
 						resolve();
 					} else {
-						alert("Incorrect 2FA code, please try again.");
+						Swal.fire({
+							text: "Incorrect 2FA code, please try again.",
+							icon: 'error'
+						});
 					}
 				});
 			});
@@ -199,10 +230,16 @@ async function create_account(event: Event): Promise<void> {
 	}
 	console.log(result.success);
 	if (result.success) {
-		alert("Compte créé!");
+		Swal.fire({
+			text: "Account successfully created!",
+			icon: 'success'
+		});
 		navigateTo("login", true, null);
 	} else {
-		alert("Erreur: utilisateur existant");
+		Swal.fire({
+			text: "User name already used.",
+			icon: 'error'
+		});
 	}
 }
 
@@ -210,7 +247,10 @@ async function logout(print: boolean): Promise<void> {
 	await fetch("/logout", { method: "GET" });
 
 	if (print) {
-		alert("Déconnexion!");
+		Swal.fire({
+			text: "Bye! See you soon!",
+			icon: 'success'
+		});
 		navigateTo("", true, null);
 	}
 	close_users_socket();
@@ -231,9 +271,15 @@ async function uploadProfileImage() {
             const data = await response.json();
 
         if (data.success) {
-            alert('Image uploaded successfully!');
+			Swal.fire({
+				text: "Image uploaded successfully!",
+				icon: 'success'
+			});
         } else {
-            alert('Failed to upload image.');
+			Swal.fire({
+				text: "Failed to upload image.",
+				icon: 'error'
+			});
         }
         } catch (error) {
         console.error('Error uploading image:', error);
@@ -249,12 +295,18 @@ async function settings(event: Event): Promise<void> {
     const email = (document.getElementById("email") as HTMLInputElement).value;
 
     if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(newusername)) {
-        return alert("Be carefull i can bite");
+        return (Swal.fire({
+			text: "Be carefull i can bite!",
+			icon: 'error'
+		  }));
     }
 
     const username = await get_user();
     if (!username) {
-        alert("Impossible de récupérer l'utilisateur!");
+		Swal.fire({
+			text: "Unable to retrieve user!",
+			icon: 'error'
+		});
 
     } else {
         const response = await fetch("/settings", {
@@ -267,10 +319,16 @@ async function settings(event: Event): Promise<void> {
         const result: ModifyUserResponse = await response.json();
         if (result.success) {
             logout(false);
-            alert("Modification effectuée!");
+			Swal.fire({
+				text: "Modification done!",
+				icon: 'success'
+			});
             navigateTo("login", true, null);
         } else {
-            alert("Erreur lors de la modification.");
+			Swal.fire({
+				text: "Error while modifying infos.",
+				icon: 'error'
+			});
         }
     }
 }

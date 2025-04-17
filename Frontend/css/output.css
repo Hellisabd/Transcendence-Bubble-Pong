@@ -2060,6 +2060,25 @@ video {
   background-repeat: no-repeat;
 }
 
+.swal2-title {
+  font-family: 'Canted Comic';
+  font-size: 24px;
+  color: #333;
+}
+
+.swal2-html-container {
+  font-family: 'Canted Comic';
+  font-size: 18px;
+  color: #555;
+}
+
+.swal2-confirm {
+  font-family: 'Canted Comic';
+  font-size: 16px;
+  background-color: #3085d6;
+  color: white;
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
