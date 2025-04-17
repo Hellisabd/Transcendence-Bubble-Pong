@@ -78,14 +78,14 @@ async function login(event: Event): Promise<void> {
 
         if (result.success) {
             Swal.fire({
-				text: JSON.stringify(result),
+				text: "Welcome!",
 				icon: 'success'
 			  });
             navigateTo("index", true, null);
             set_up_friend_list(await get_user());
         } else {
 			Swal.fire({
-				text: JSON.stringify(result),
+				text: "Wrong informations!",
 				icon: 'error'
 			  });
         }
