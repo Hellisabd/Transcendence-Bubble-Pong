@@ -223,22 +223,22 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         let ratio: number = canvasWidth / 1000;
 
         const PING_image = new Image();
-        PING_image.src = "Frontend/assets/PING.png";
+        PING_image.src = "Frontend/assets/PING.webp";
 
         const PONG_image = new Image();
-        PONG_image.src = "Frontend/assets/PONG.png";
+        PONG_image.src = "Frontend/assets/PONG.webp";
 
         const RED_GOAL_image = new Image();
-        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.png";
+        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.webp";
 
         const BLUE_GOAL_image = new Image();
-        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.png";
+        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.webp";
 
         const WIN_image = new Image();
-        WIN_image.src = "Frontend/assets/WIN.png";
+        WIN_image.src = "Frontend/assets/WIN.webp";
 
         const LOSE_image = new Image();
-        LOSE_image.src = "Frontend/assets/LOSE.png";
+        LOSE_image.src = "Frontend/assets/LOSE.webp";
 
         let image_bounce_refresh: number = 0;
         let image_goal_refresh: number = 0;

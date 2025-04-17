@@ -29,10 +29,10 @@ const RED_PADDLE = new Image();
 RED_PADDLE.src = "Frontend/assets/RED_PADDLE.png";
 
 const WIN_image = new Image();
-WIN_image.src = "Frontend/assets/WIN.png";
+WIN_image.src = "Frontend/assets/WIN.webp";
 
 const LOSE_image = new Image();
-LOSE_image.src = "Frontend/assets/LOSE.png";
+LOSE_image.src = "Frontend/assets/LOSE.webp";
 
 async function play_pong() {
     Disconnect_from_game();

@@ -35,14 +35,14 @@
 }
 
 .bg-pong {
-    background-image: url('/Frontend/assets/PONG_ARENA.png');
+    background-image: url('/Frontend/assets/PONG_ARENA.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
 }
 
 .bg-ping {
-    background-image: url('/Frontend/assets/PING_ARENA_WHITE.png');
+    background-image: url('/Frontend/assets/PING_ARENA.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
@@ -50,7 +50,7 @@
 }
 
 .bg-paper {
-    background-image: url('/Frontend/assets/BACKGROUND.png');
+    background-image: url('/Frontend/assets/BACKGROUND.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -89,7 +89,7 @@
 }
 
 .ping-help {
-    background-image: url('/Frontend/assets/RULES_PING.png');
+    background-image: url('/Frontend/assets/RULES_PING.webp');
     position: absolute;
     background-size: contain;
     background-position: center;
@@ -99,7 +99,7 @@
 }
 
 .ping-solo-help {
-    background-image: url('/Frontend/assets/RULES_SOLO_PING.png');
+    background-image: url('/Frontend/assets/RULES_SOLO_PING.webp');
     position: absolute;
     background-size: contain;
     background-position: center;
