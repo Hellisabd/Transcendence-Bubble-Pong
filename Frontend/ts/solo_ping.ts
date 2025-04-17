@@ -44,10 +44,10 @@ function soloping_initializeGame(): void {
         let ratio: number = canvasWidth / 1000;
         
         const PING_image = new Image();
-        PING_image.src = "Frontend/assets/PING.png";
+        PING_image.src = "Frontend/assets/PING.webp";
         
         const PONG_image = new Image();
-        PONG_image.src = "Frontend/assets/PONG.png";
+        PONG_image.src = "Frontend/assets/PONG.webp";
         
         animation_ping_stop();
         animation_pong_stop();

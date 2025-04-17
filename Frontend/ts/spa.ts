@@ -121,7 +121,7 @@ async function set_up_bars() {
                             <div class="flex space-x-4">
                             <div class="flex shrink-0 items-center">
                                 <img class="h-14 w-14"
-                                    src="/Frontend/assets/PING_LOGO.png"
+                                    src="/Frontend/assets/PING_LOGO.webp"
                                     alt="Website logo"
                                     onclick="navigateTo('index')">
                             </div>
