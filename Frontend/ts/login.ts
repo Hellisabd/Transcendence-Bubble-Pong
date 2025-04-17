@@ -37,7 +37,6 @@ async function login(event: Event): Promise<void> {
 	});
 
 	const data = await response.json();
-	console.log(data);
 
 
 	if (data.success) {

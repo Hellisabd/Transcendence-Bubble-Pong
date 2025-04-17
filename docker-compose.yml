@@ -70,8 +70,8 @@ services:
   ping:
     build:
       context: .
-      dockerfile: ./Backend/ping/Dockerfile 
-      args: 
+      dockerfile: ./Backend/ping/Dockerfile
+      args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
     volumes:
