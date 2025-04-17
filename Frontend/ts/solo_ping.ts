@@ -377,11 +377,15 @@ function soloping_initializeGame(): void {
                 ball.speedY = 10;
             if (ball.speedY < -10)
                 ball.speedY = -10;
+
+            function normalizeAngle(angle: number): number {
+                return (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            }
             
             let dx: number = ball.x - arena_radius;
             let dy: number = ball.y - arena_radius;
             let ball_dist: number = Math.sqrt(dx * dx + dy * dy);
-            let ball_angle: number = Math.atan2(ball.y - arena_radius, ball.x - arena_radius);
+            let ball_angle: number = normalizeAngle(Math.atan2(ball.y - arena_radius, ball.x - arena_radius));
             if (ball_angle < 0)
                 ball_angle += 2 * Math.PI;
 
@@ -398,17 +402,17 @@ function soloping_initializeGame(): void {
                 player.angle += 2 * Math.PI;
 
             //BOUNCES
-            let lim_inf_player: number = player.angle - player.size;
+            let lim_inf_player: number = normalizeAngle(player.angle - player.size);
             if (lim_inf_player < 0)
                 lim_inf_player += 2 * Math.PI;
-            let lim_sup_player: number = player.angle + player.size;
-            let lim_inf_goal: number = goal.angle - goal.size / 2;
+            let lim_sup_player: number = normalizeAngle(player.angle + player.size);
+            let lim_inf_goal: number = normalizeAngle(goal.angle - goal.size / 2);
             if (lim_inf_goal < 0)
-                lim_inf_goal += 2 * Math.PI;
-        
-            let lim_sup_goal: number = goal.angle + goal.size / 2;
+                lim_inf_goal += 2 * Math.PI;        
+            let lim_sup_goal: number = normalizeAngle(goal.angle + goal.size / 2);
             if (lim_sup_goal > 2 * Math.PI)
                 lim_sup_goal -= 2 * Math.PI;
+
             if (ball_dist + ballRadius + paddle_thickness > arena_radius - paddle_thickness && Date.now() > last_bounce) {
                 if (lim_inf_player < lim_sup_player) {
                     if (ball_angle >= lim_inf_player && ball_angle <= lim_sup_player) {
