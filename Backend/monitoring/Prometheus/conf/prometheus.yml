@@ -4,6 +4,7 @@ global:
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
   # scrape_timeout is set to the global default (10s).
 
+
 # Alertmanager configuration
 alerting:
   alertmanagers:
@@ -33,4 +34,4 @@ scrape_configs:
     static_configs:
       - targets: ['nginx-exporter:9113']
     metrics_path: "/metrics"
-    scheme: "http"
+    scheme: "https"

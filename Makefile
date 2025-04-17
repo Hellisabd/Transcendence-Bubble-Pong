@@ -14,11 +14,13 @@ WHITE = \033[0;97m
 
 RM	= @rm -rf
 
-all : 
+all :
 	@if ! grep -q "127.0.0.1 transcendence" /etc/hosts; then \
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
 	export DOCKER_ROOT=/goinfre/$(whoami)/docker-root
+	@./generate_certs_prome.sh > /dev/null 2>&1
+	@chmod -R 755 ./Backend/monitoring/Prometheus/certs
 	docker-compose down
 	docker-compose up
 

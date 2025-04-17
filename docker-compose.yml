@@ -154,9 +154,14 @@ services:
     image: prom/prometheus:latest
     volumes:
       - ./Backend/monitoring/Prometheus/conf/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./Backend/monitoring/Prometheus/conf/web-config.yml:/etc/prometheus/web-config.yml
+      - ./Backend/monitoring/Prometheus/certs/prometheus.crt:/etc/prometheus/certs/prometheus.crt
+      - ./Backend/monitoring/Prometheus/certs/prometheus.key:/etc/prometheus/certs/prometheus.key
       - prom-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.config.file=/etc/prometheus/web-config.yml"
+      - "--web.listen-address=:9090"
       - "--storage.tsdb.retention.time=30d"
       - "--storage.tsdb.path=/prometheus"
     ports:
@@ -181,6 +186,7 @@ services:
       - grafana:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_PROTOCOL=https
     depends_on:
       - prometheus
     networks:
