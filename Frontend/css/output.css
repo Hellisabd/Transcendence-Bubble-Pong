@@ -2125,11 +2125,6 @@ video {
   background-color: rgb(153 27 27 / var(--tw-bg-opacity, 1));
 }
 
-.hover\:bg-violet-800:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(91 33 182 / var(--tw-bg-opacity, 1));
-}
-
 .hover\:text-indigo-400:hover {
   --tw-text-opacity: 1;
   color: rgb(129 140 248 / var(--tw-text-opacity, 1));
@@ -2229,16 +2224,8 @@ video {
   fill: #000;
 }
 
-.group:hover .group-hover\:fill-emerald-600 {
-  fill: #059669;
-}
-
 .group:hover .group-hover\:stroke-black {
   stroke: #000;
-}
-
-.group:hover .group-hover\:stroke-emerald-600 {
-  stroke: #059669;
 }
 
 .peer:checked ~ .peer-checked\:border-green-500 {
