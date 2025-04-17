@@ -2,7 +2,8 @@ const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
 const axios = require("axios"); // Pour faire des requêtes HTTP
 
-let i = 0;
+let pong_i = 0;
+let ping_i = 0;
 
 let waitingClientPong = {};
 
@@ -58,7 +59,35 @@ tournamentMapPing.set(id_tournamentPing, {
 
 })
 
-
+function isUsernameInAnyTournament(username) {
+    if (tournamentMapPing.size != 1) {
+        for (const tournamentData of tournamentMapPing.values()) {
+            if (tournamentData.tournamentsUsernames.includes(username)) {
+                return true;
+            }
+            if (tournamentData.tournamentQueue.hasOwnProperty(username)) {
+                return true;
+            }
+        }
+    }
+    if (tournamentMapPong.size != 1) {
+        for (const tournamentData of tournamentMapPong.values()) {
+            if (tournamentData.tournamentsUsernames.includes(username)) {
+                return true;
+            }
+            if (tournamentData.tournamentQueue.hasOwnProperty(username)) {
+                return true;
+            }
+        }
+    }
+    if (Object.values(waitingClientPing).includes(username)) {
+        return true;
+    }
+    if (Object.values(waitingClientPong).includes(username)) {
+        return true;
+    }
+    return false;
+}
 
 fastify.register(async function (fastify) {
     let username1 = 0;
@@ -69,38 +98,40 @@ fastify.register(async function (fastify) {
         connection.socket.on("close", () => {
             clientsWaitingPong.clear();
             waitingClientPong = {};
-            i = 0;
+            pong_i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            if (i == 0) {
+            if (isUsernameInAnyTournament(data.username) && data.init == true)
+                return ;
+            if (pong_i == 0) {
                 waitingClientPong[0] = data.username;
                 username1 = data.username;
-                i++;
-            } else if (i == 1) {
+                pong_i++;
+            } else if (pong_i == 1) {
                 if (data.username == username1)
                     return ;
                 waitingClientPong[1] = data.username;
                 username2 = data.username;
-                i++;
+                pong_i++;
             }
-            if (i == 2) {
-                i = 0;
+            if (pong_i == 2) {
+                pong_i = 0;
                 const lobbyKey = `${username1}${username2}`;
                 clientsWaitingPong.forEach(clientsWaiting => {
-                    i++;
+                    pong_i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
                         player1: username1,
                         player2: username2,
-                        player_id: i,
+                        player_id: pong_i,
                         "lobbyKey": lobbyKey
                     }));
                 });
                 clientsWaitingPong.clear();
                 waitingClientPong = {};
-                i = 0;
+                pong_i = 0;
             }
         });
     })
@@ -121,6 +152,9 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
+                if (isUsernameInAnyTournament(data.username) && data.init == true) {
+                    return ;
+                }
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
@@ -147,6 +181,7 @@ fastify.register(async function (fastify) {
                         if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                     }
+                    tournamentMapPong.delete(id_tournament_key_from_player);
                     console.log("Connexion WebSocket fermée.");
                 }
                 if (data.init) {
@@ -165,7 +200,7 @@ fastify.register(async function (fastify) {
                         id_tournamentPong++;
                         currentTournament.count_game++;
                         console.log("game 1");
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player, currentTournament);
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament);
                     }
                 }
                 if (data.endgame) {
@@ -183,13 +218,13 @@ fastify.register(async function (fastify) {
                     console.log("nombre de joueurs dans la queue pour le tournoi: ", currentTournament.end_lobby)
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
                         console.log("game 2");
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player, currentTournament)
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.count_game++;
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
                         console.log("game 3");
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], id_tournament_key_from_player, currentTournament)
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0;
                         currentTournament.count_game++; 
                     }
@@ -247,39 +282,41 @@ fastify.register(async function (fastify) {
         connection.socket.on("close", () => {
             clientsWaitingPing.clear();
             waitingClientPing = {};
-            i = 0;
+            ping_i = 0;
             console.log("Connexion WebSocket Waiting fermée.");
         });
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
-            if (i == 0) {
+            if (isUsernameInAnyTournament(data.username) && data.init == true)
+                return ;
+            if (ping_i == 0) {
                 waitingClientPing[0] = data.username;
                 username1 = data.username;
-                i++;
-            } else if (i == 1) {
+                ping_i++;
+            } else if (ping_i == 1) {
                 if (data.username == username1)
                     return ;
                 waitingClientPing[1] = data.username;
                 username2 = data.username;
-                i++;
+                ping_i++;
             }
-            if (i == 2) {
-                i = 0;
+            if (ping_i == 2) {
+                ping_i = 0;
                 const lobbyKey = `${username1}${username2}`;
                 console.log("lobby: ", lobbyKey); 
                 clientsWaitingPing.forEach(clientsWaiting => {
-                    i++;
+                    ping_i++;
                     clientsWaiting.socket.send(JSON.stringify({ 
                         success: true,
                         player1: username1,
                         player2: username2,
-                        player_id: i,
+                        player_id: ping_i,
                         "lobbyKey": lobbyKey
                     }));
                 });
                 clientsWaitingPing.clear();
                 waitingClientPing = {};
-                i = 0;
+                ping_i = 0;
             }
         });
     })
@@ -300,7 +337,9 @@ fastify.register(async function (fastify) {
                     old_id_tournamentPing = id_tournamentPing; // Met à jour l'ancien ID
                 }
                 const data = JSON.parse(message.toString());
-                console.log("data: ", data);
+                if (isUsernameInAnyTournament(data.username) && data.init == true) {
+                    return ;
+                }
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPing;
                 console.log("matchmaking id_tournament a la reception du client", id_tournament_key_from_player); 
                 let currentTournament = tournamentMapPing.get(id_tournament_key_from_player);
@@ -320,7 +359,7 @@ fastify.register(async function (fastify) {
                                 console.log(`users in tournament: ${currentTournament.tournamentsUsernames}`);
                                 if (index !== -1)
                                     currentTournament.classements.splice(index, 1);
-                                return ;
+                                return ; 
                             }
                         }
                     }
@@ -330,6 +369,7 @@ fastify.register(async function (fastify) {
                         if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
                     }
+                    tournamentMapPing.delete(id_tournament_key_from_player);
                     console.log("Connexion WebSocket fermée.");
                 }
                 if (data.init) {
@@ -350,7 +390,7 @@ fastify.register(async function (fastify) {
                         }
                         id_tournamentPing++;
                         currentTournament.count_game++;
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player, currentTournament);
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament);
                     }
                 }
                 if (data.endgame) {
@@ -372,13 +412,13 @@ fastify.register(async function (fastify) {
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
                         console.log("game 2"); 
     
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], id_tournament_key_from_player, currentTournament)
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.count_game++;
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
                         console.log("game 3");
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], id_tournament_key_from_player, currentTournament)
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0;
                         currentTournament.count_game++; 
                     }
@@ -435,17 +475,33 @@ fastify.register(async function (fastify) {
     })
 });
 
-function launchTournament(user1, user2, user3, user4, id_tournament_key_from_player, currentTournament) {
+function launchTournament(user1, user2, user3, user4, count_game, currentTournament) {
     let users = [user1, user2, user3, user4];
     if (!currentTournament) {
         console.error("no tournament in lauch tournament");
         return ;
     }
+    let next_match = null;
     let lobbyKey = null;
     let username1 = null;
     let username2 = null;
     const lobbyKeypart1 = `${user1}${user2}`;
     const lobbyKeypart2 = `${user3}${user4}`;
+    if (count_game == 1) {
+        next_match = [];
+        next_match.push(user1);
+        next_match.push(user3);
+        next_match.push(user2);
+        next_match.push(user4);
+    } else if (count_game == 2) {
+        next_match = [];
+        next_match.push(user1);
+        next_match.push(user4);
+        next_match.push(user2);
+        next_match.push(user3);
+    } else if (count_game == 3) {
+        next_match = "last_match";
+    }
     for (let i = 0; i < users.length; i++) {
         if (i <= 1) {
             lobbyKey = lobbyKeypart1;
@@ -458,14 +514,15 @@ function launchTournament(user1, user2, user3, user4, id_tournament_key_from_pla
             username2 = user4;
         }
         if (currentTournament.tournamentQueue[users[i]]) {
+            console.log(next_match);
             if (currentTournament.count_game == 1){
                 currentTournament.tournamentQueue[users[i]].socket.send(JSON.stringify({
                     success: true, 
                     player1: username1,
                     player2: username2,
-                    player_id: i % 2 + 1, // for format 0 or 1
+                    player_id: i % 2 + 1, // for format 2 or 1
                     "lobbyKey": lobbyKey,
-                    tournament_order: users
+                    next_match : next_match
                 }));
             }
             else {
@@ -473,8 +530,9 @@ function launchTournament(user1, user2, user3, user4, id_tournament_key_from_pla
                         success: true, 
                         player1: username1,
                         player2: username2,
-                        player_id: i % 2 + 1, // for format 0 or 1
-                        "lobbyKey": lobbyKey
+                        player_id: i % 2 + 1, // for format 2 or 1
+                        "lobbyKey": lobbyKey,
+                        next_match : next_match
                     }));
             }
         }

@@ -1,5 +1,12 @@
 console.log("ping.js chargé");
 
+document.addEventListener("keydown", (event) => {
+    if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") {
+        if (event.key === "h")
+          document.getElementById("div_ping_help")?.classList.toggle("hidden");  
+    }
+});
+
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -26,6 +33,24 @@ let up_down: boolean = true;
 let bounce: number = 0;
 
 let bonus_stats: any = null;
+
+function display_next_match(match: any) {
+    console.log("passe dans display next_match");
+    let html: any = document.getElementById("next_match1");
+    if (!html)
+        return ;
+    if (match != "last_match")
+        html.innerHTML = `${match[0]} vs ${match[1]}`;
+    else
+        html.innerHTML = "No More Match";
+    html = document.getElementById("next_match2");
+    if (!html)
+        return ;
+    if (match != "last_match")
+        html.innerHTML = `${match[2]} vs ${match[3]}`;
+    else
+        html.innerHTML = "No More Match";
+}
 
 async function play_ping() {
     ping_Disconnect_from_game();
@@ -56,6 +81,21 @@ async function play_ping() {
             ping_initializeGame(data.player1, data.player2, user);
         }
     };
+}
+
+function mobile_ready_ping() {
+    if (ping_lobbyKey && ping_disp == true) {
+        ping_win = 0;
+        const message = { playerReady: true, player: ping_player_id, "ping_lobbyKey": ping_lobbyKey }
+        ping_socket?.send(JSON.stringify(message))
+    }
+}
+
+function move_mobile_ping(input: string) {
+    if (ping_socket?.readyState === WebSocket.OPEN) {
+        const message = { player: ping_player_id, move: input, "ping_lobbyKey": ping_lobbyKey };
+        ping_socket?.send(JSON.stringify(message));
+    }
 }
 
 async function ping_tournament() {
@@ -98,6 +138,9 @@ async function ping_tournament() {
             ping_lobbyKey = data.lobbyKey;
             console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             ping_initializeGame(data.player1, data.player2, user);
+        }
+        if (data.next_match) {
+            display_next_match(data.next_match);
         }
     };
 }
@@ -146,8 +189,17 @@ function ping_Disconnect_from_game() {
 
 function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    const arena = document.getElementById("pingarena") as HTMLDivElement;
-    arena?.classList.toggle("hidden");
+    const btnUp = document.getElementById("btnUpping");
+    btnUp?.addEventListener("mousedown", () => move_mobile_ping("left"));
+    btnUp?.addEventListener("mouseup", () => move_mobile_ping("stop"));
+    btnUp?.addEventListener("touchstart", () => move_mobile_ping("left"));
+    btnUp?.addEventListener("touchend", () => move_mobile_ping("stop"));
+
+    const btnDown = document.getElementById("btnDownping");
+    btnDown?.addEventListener("mousedown", () => move_mobile_ping("right"));
+    btnDown?.addEventListener("mouseup", () => move_mobile_ping("stop"));
+    btnDown?.addEventListener("touchstart", () => move_mobile_ping("right"));
+    btnDown?.addEventListener("touchend", () => move_mobile_ping("stop"));
     const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
 	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
@@ -171,22 +223,22 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         let ratio: number = canvasWidth / 1000;
 
         const PING_image = new Image();
-        PING_image.src = "Frontend/assets/PING.png";
+        PING_image.src = "Frontend/assets/PING.webp";
 
         const PONG_image = new Image();
-        PONG_image.src = "Frontend/assets/PONG.png";
+        PONG_image.src = "Frontend/assets/PONG.webp";
 
         const RED_GOAL_image = new Image();
-        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.png";
+        RED_GOAL_image.src = "Frontend/assets/RED_GOAL.webp";
 
         const BLUE_GOAL_image = new Image();
-        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.png";
+        BLUE_GOAL_image.src = "Frontend/assets/BLUE_GOAL.webp";
 
         const WIN_image = new Image();
-        WIN_image.src = "Frontend/assets/WIN.png";
+        WIN_image.src = "Frontend/assets/WIN.webp";
 
         const LOSE_image = new Image();
-        LOSE_image.src = "Frontend/assets/LOSE.png";
+        LOSE_image.src = "Frontend/assets/LOSE.webp";
 
         let image_bounce_refresh: number = 0;
         let image_goal_refresh: number = 0;
@@ -195,6 +247,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         document.getElementById("ping_animation")?.classList.add("hidden");
         document.getElementById("ping_animation_arena")?.classList.add("hidden");
         document.getElementById("div_ping_anim")?.classList.add("hidden");
+        document.getElementById("div_ping_game")?.classList.remove("hidden");
 
         const sock_name = window.location.host
         ping_socket = new WebSocket("wss://" + sock_name + "/ws/ping");
@@ -378,6 +431,21 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.stroke();
             ctx.stroke();
             ctx.closePath();
+            ctx.beginPath();
+            ctx.fillStyle = "red";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player1.angle - gameState.goals.player1.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player1.angle - gameState.goals.player1.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player1.angle + gameState.goals.player1.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player1.angle + gameState.goals.player1.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
             ctx.shadowBlur = 0;
 
             //GOAL 2
@@ -399,17 +467,34 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             ctx.stroke();
             ctx.stroke();
             ctx.closePath();
-            ctx.shadowBlur = 0;
-
-            //BALL
             ctx.beginPath();
-            ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
-            ctx.fillStyle = "#efb60a";
-            ctx.fill(); 
+            ctx.fillStyle = "blue";
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player2.angle - gameState.goals.player2.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player2.angle - gameState.goals.player2.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "black";
             ctx.stroke();
             ctx.closePath();
+            ctx.beginPath();
+            ctx.arc((canvas.width / 2 + canvas.width / 2 * Math.cos(gameState.goals.player2.angle + gameState.goals.player2.size / 2)), (canvas.width / 2 + canvas.width / 2 * Math.sin(gameState.goals.player2.angle + gameState.goals.player2.size / 2)), arena_radius / 30, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black";
+            ctx.stroke();
+            ctx.closePath();
+            ctx.shadowBlur = 0;
+
+            //BALL
+            if (ping_disp == false) {
+                ctx.beginPath();
+                ctx.arc(gameState.ball.x * ratio, gameState.ball.y * ratio, ballRadius * ratio, 0, Math.PI * 2);
+                ctx.fillStyle = "#efb60a";
+                ctx.fill(); 
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "black";
+                ctx.stroke();
+                ctx.closePath();
+            }
 
             //PADDLE 1
             ctx.beginPath();
@@ -624,7 +709,7 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             draw_score(ratio);
             draw_winner(ratio);
             if (ping_disp == true) {
-                document.getElementById("playersdiv")?.classList.remove("hidden");
+                document.getElementById("ping_playersdiv")?.classList.remove("hidden");
                 ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "black";
                 ctx.textAlign = "center";

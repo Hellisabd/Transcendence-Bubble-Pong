@@ -646,7 +646,11 @@ function randBallPos(gameState) {
     let dx = gameState.ball.x - arena_width / 2;
     let dy = gameState.ball.y - arena_height / 2;
     let ball_dist = Math.sqrt(dx * dx + dy * dy);
-    if (ball_dist + ballRadius + 50 >= arena_radius)
+    let ball_angle = Math.atan2(dy, dx);
+    if (ball_dist + ballRadius + 50 >= arena_radius || 
+        (ball_angle > gameState.goals.player1.angle - gameState.goals.player1.size / 2 && ball_angle < gameState.goals.player1.angle + gameState.goals.player1.size / 2 && ball_dist > arena_width / 4) ||
+        (ball_angle > gameState.goals.player2.angle - gameState.goals.player2.size / 2 && ball_angle < Math.PI * 2 && ball_dist > arena_width / 4) ||
+        (ball_angle > 0 && ball_angle < gameState.goals.player2.angle + gameState.goals.player2.size / 2 && ball_dist > arena_width / 4))
         randBallPos(gameState);
 }
 

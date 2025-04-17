@@ -3,7 +3,9 @@ console.log("game.js chargé");
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
-let mystatus = "online";
+let mystatus: string | null = null;
+
+let mobile_move_interval: any = null;
 
 let player_id = 0;
 
@@ -27,10 +29,10 @@ const RED_PADDLE = new Image();
 RED_PADDLE.src = "Frontend/assets/RED_PADDLE.png";
 
 const WIN_image = new Image();
-WIN_image.src = "Frontend/assets/WIN.png";
+WIN_image.src = "Frontend/assets/WIN.webp";
 
 const LOSE_image = new Image();
-LOSE_image.src = "Frontend/assets/LOSE.png";
+LOSE_image.src = "Frontend/assets/LOSE.webp";
 
 async function play_pong() {
     Disconnect_from_game();
@@ -61,6 +63,25 @@ async function play_pong() {
             initializeGame(data.player1, data.player2, user);
         }
     };
+}
+
+function mobile_ready_pong() {
+    if (lobbyKey && disp == true) {
+        win = 0;
+        const message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
+        socket?.send(JSON.stringify(message))
+    }
+}
+
+function move_mobile_pong(input: string) {
+    if (socket?.readyState === WebSocket.OPEN) {
+        const message = {
+            player: player_id,
+            move: input,
+            lobbyKey: lobbyKey
+        };
+        socket.send(JSON.stringify(message));
+    }
 }
 
 function display_order (player1: string, player2: string, player3: string, player4: string) {
@@ -124,8 +145,9 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2, user);
         }
-        if (data.tournament_order) {
-            display_order(data.tournament_order[0], data.tournament_order[1], data.tournament_order[2], data.tournament_order[3]);
+        console.log("censee ne pas etre vide" + data.next_match);
+        if (data.next_match) {
+            display_next_match(data.next_match);
         }
     };
 }
@@ -146,22 +168,22 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 }
 
 function Disconnect_from_game() {
-    if (window.location.pathname !== "/waiting_room" && window.location.pathname !== "/pong_tournament")
+    fetch("/update_status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({"status": "online"})
+    });
+    mystatus = "online";
+    if (window.location.pathname !== "/waiting_room" && window.location.pathname !== "/pong_tournament") {
         animation_pong_stop();
+        animation_ping_stop();
+    }
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     Wsocket?.close();
     socket?.close();
     Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
     Tsocket?.close();
-    if (mystatus != "online") {
-        fetch("/update_status", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({"status": "online"})
-        });
-        mystatus = "online";
-    }
     socket = null;
     lobbyKey = null;
     id_tournament = 0;
@@ -171,8 +193,17 @@ function Disconnect_from_game() {
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
     console.log("Initialisation du jeu...");
-    const arena = document.getElementById("pongarena") as HTMLDivElement;
-    arena?.classList.toggle("hidden");
+    const btnUp = document.getElementById("btnUp");
+    btnUp?.addEventListener("mousedown", () => move_mobile_pong("up"));
+    btnUp?.addEventListener("mouseup", () => move_mobile_pong("stop"));
+    btnUp?.addEventListener("touchstart", () => move_mobile_pong("up"));
+    btnUp?.addEventListener("touchend", () => move_mobile_pong("stop"));
+
+    const btnDown = document.getElementById("btnDown");
+    btnDown?.addEventListener("mousedown", () => move_mobile_pong("down"));
+    btnDown?.addEventListener("mouseup", () => move_mobile_pong("stop"));
+    btnDown?.addEventListener("touchstart", () => move_mobile_pong("down"));
+    btnDown?.addEventListener("touchend", () => move_mobile_pong("stop"));
 
     const canvas = document.getElementById("pongCanvas") as HTMLCanvasElement;
     fetch("/update_status", {
@@ -191,6 +222,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         document.getElementById("pong_animation")?.classList.add("hidden");
         document.getElementById("pong_animation_arena")?.classList.add("hidden");
         document.getElementById("div_pong_anim")?.classList.add("hidden");
+        document.getElementById("div_pong_game")?.classList.remove("hidden");
 
         const sock_name = window.location.host
         socket = new WebSocket("wss://" + sock_name + "/ws/pong");
@@ -333,6 +365,7 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             draw_score(ratio);
             draw_winner(ratio);
             if (disp == true) {
+                document.getElementById("pong_playersdiv")?.classList.remove("hidden");
                 ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
                 ctx.fillStyle = "black";
                 ctx.textAlign = "center";

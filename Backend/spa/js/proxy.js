@@ -236,7 +236,6 @@ async function ping_waiting_room(req, reply) {
 }
 
 async function display_friends(username, connection) {
-    console.log("username in display friends:")
     const data = await get_friends(username);
     const friends = data.friends;
     if (!friends) {
@@ -272,9 +271,20 @@ async function send_to_friend(username, token) {
 
 async function update_status(req, reply) {
     const token = req.cookies.session;
+    if (!token)
+        return ;
     const {status} = req.body;
+    if (!status)
+        return ;
+    if (!usersession.get(token))
+        return ;
     usersession.get(token).status = status;
     send_to_friend(usersession.get(token).username, token);
+}
+
+async function get_status(req, reply) {
+    const token = req.cookies.session;
+    return reply.send(JSON.stringify({status: usersession.get(token)?.status}));
 }
 
 async function add_friend(req, reply) {
@@ -460,4 +470,4 @@ async function get_secret_two(email){
     }
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists };
+module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };

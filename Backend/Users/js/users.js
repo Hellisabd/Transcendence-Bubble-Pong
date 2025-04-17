@@ -51,7 +51,7 @@ db.prepare(`
 		password TEXT NOT NULL,
 		avatar_name TEXT DEFAULT 'default.jpg',
 		secret TEXT UNIQUE DEFAULT NULL,
-    	high_score INTEGER NOT NULL DEFAULT 0)
+    high_score INTEGER NOT NULL DEFAULT 0)
 `).run();
 
 db.prepare(`
@@ -170,7 +170,6 @@ fastify.post("/pending_request", async (request, reply) => {
       `).all(user_id);
       if (!pending_request)
         return reply.send(JSON.stringify({success: false}));
-    console.log("pending in back: ", pending_request);
     let username_invit = [];
     for (let i = 0; i < pending_request.length; i++) {
       username_invit.push(await get_user_with_id(pending_request[i].user_id));
@@ -190,7 +189,6 @@ async function get_user_with_id(user_id) {
 
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
-  console.log("username: ", username)
   if (!username)
     return reply.send(JSON.stringify({success: false}));
   const user = await db.prepare(`
@@ -502,6 +500,16 @@ async function get_stats(history, history_tournament, username) {
       friends.push(friendUsername);
     }
   }
+  const topPlayers = await db.prepare(`
+    SELECT username, high_score 
+    FROM users 
+    ORDER BY high_score DESC 
+    LIMIT 5
+  `).all();
+  const my_high_score = await db.prepare(`
+    SELECT high_score FROM users
+    WHERE username = ?
+  `).get(username);
 
   let win = 0;
   let loose = 0;
@@ -608,13 +616,9 @@ async function get_stats(history, history_tournament, username) {
     nbr_of_tournament_won: nbr_of_tournament_won || 0,
     nbr_of_tournament_won_pong: nbr_of_tournament_won_pong || 0,
     nbr_of_tournament_won_ping: nbr_of_tournament_won_ping || 0,
+    topPlayers: topPlayers || 0,
+    my_high_score: my_high_score || 0,
   }
-  console.log("goal_after_bonus_paddle: ", goal_after_bonus_paddle);
-  console.log("goal_taken_after_bonus_paddle: ", goal_taken_after_bonus_paddle);
-  console.log("goal_after_bonus_goal: ", goal_after_bonus_goal);
-  console.log("goal_taken_after_bonus_goal: ", goal_taken_after_bonus_goal);
-  console.log("goal_after_bonus_shield: ", goal_after_bonus_shield);
-  console.log("goal_taken_after_bonus_shield: ", goal_taken_after_bonus_shield);
   console.log(stats);
   return stats;
 }
@@ -998,6 +1002,7 @@ fastify.post("/update_solo_score",  async (request, reply) => {
       }
       return reply.send({success: false});
     }
+    return reply.send({success: true});
   }
   catch (error) {
     console.error(error);

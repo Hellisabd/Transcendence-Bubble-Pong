@@ -12,21 +12,21 @@
 			<form onsubmit="add_friend(event)" class="flex items-center space-x-2">
 				<input type="search" id="friend_username" required
 					class="pl-2 py-1 w-[10rem] text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-green-300"
-					placeholder="Ajouter un ami" />
+					placeholder="Add friend" />
 				<button class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-200"
 					type="submit">
-					Ajouter
+					Add
 				</button>
 			</form>
 		</div>
 
 		<div id="pending_request_div" class="p-4 mt-10">
-			<h2 class="font-bold text-center text-2xl">Requête en attente:</h2>
+			<h2 class="font-bold text-center text-2xl">Pending request:</h2>
 			<div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
 			<div id="pending_request"></div>
 		</div>
 		<div class="p-4 mt-32">
-			<h2 class="font-bold text-center text-2xl">Liste d'amis:</h2>
+			<h2 class="font-bold text-center text-2xl">Friends list:</h2>
 			<div class="border justify-self-center border-slate-500 w-40 mt-2"></div>
 			<div id="friends_list" class=""></div>
 		</div>

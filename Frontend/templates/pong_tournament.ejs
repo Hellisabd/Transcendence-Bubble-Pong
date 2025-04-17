@@ -1,26 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Pong Tournament</title>
-      <%- include('links.ejs') %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="icon" type="image/png" href="/Frontend/assets/public/favicon.webp">
+    <title>Pong Tournament</title>
+    <%- include('links.ejs') %>
 </head>
 <body class="font-mainFont bg-paper min-h-screen">
   <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
-      <div class="relative flex w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
-        <p id="playerOne" class="absolute top-0 left-0 text-red-600 text-2xl sm:text-3xl md:text-4xl font-canted"></p>
-        <p id="playerTwo" class="absolute top-0 right-0 text-blue-700 text-2xl sm:text-3xl md:text-4xl font-canted"></p>
+      <div id="pong_playersdiv" class="relative hidden flex justify-between items-center w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
+        <p id="playerOne" class="player-bubble-left top-0 left-0 text-red-600 text-2xl sm:text-3xl md:text-4xl font-canted"></p>
+        <p id="playerTwo" class="player-bubble-right top-0 right-0 text-blue-700 text-2xl sm:text-3xl md:text-4xl font-canted"></p>
       </div>
       <div id="div_pong_anim" class="relative flex w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px]">
         <div id="pong_animation_arena" class="bg-pong w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px]"></div>
         <canvas id="pong_animation" class="absolute top-[9px] left-[13px] sm:top-[17px] sm:left-[25px] md:top-[23px] md:left-[34px] lg:top-[28px] lg:left-[42px] w-[320px] h-[160px] sm:w-[600px] sm:h-[300px] md:w-[800px] md:h-[400px] lg:w-[1000px] lg:h-[500px]"></canvas>
       </div>
-      <div class="relative flex w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px]">
-        <div id="pongarena" class="bg-pong w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px] hidden"></div>
+      <div id="div_pong_game" class="relative hidden flex w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px]">
+        <div id="pongarena" class="bg-pong w-[347px] h-[178px] sm:w-[652px] sm:h-[334px] md:w-[868px] md:h-[444px] lg:w-[1086px] lg:h-[556px]"></div>
         <canvas id="pongCanvas" class="absolute top-[9px] left-[13px] sm:top-[17px] sm:left-[25px] md:top-[23px] md:left-[34px] lg:top-[28px] lg:left-[42px] w-[320px] h-[160px] sm:w-[600px] sm:h-[300px] md:w-[800px] md:h-[400px] lg:w-[1000px] lg:h-[500px]"></canvas>
       </div>
+      <div class="bubble font-canted">
+        <h2 class="font-bold text-2xl">Next Matches:</h2>
+          <div id="next_match1"></div>
+          <div id="next_match2"></div>
+      </div>
+    </div>
+    <div class="relative flex justify-center mt-24 md:hidden">
+      <button class="arrow-down w-24 h-24" id="btnDown"></button>
+      <button class="ml-20 bubble text-2xl font-kablam" onclick="mobile_ready_pong()">START</button>
+      <button class="ml-20 arrow-up w-24 h-24" id="btnUp"></button>
     </div>
   </div>
   <%- include('scripts.ejs') %>

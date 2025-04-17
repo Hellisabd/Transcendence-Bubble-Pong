@@ -35,14 +35,14 @@
 }
 
 .bg-pong {
-    background-image: url('/Frontend/assets/PONG_ARENA.png');
+    background-image: url('/Frontend/assets/PONG_ARENA.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
 }
 
 .bg-ping {
-    background-image: url('/Frontend/assets/PING_ARENA_WHITE.png');
+    background-image: url('/Frontend/assets/PING_ARENA.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
@@ -50,24 +50,13 @@
 }
 
 .bg-paper {
-    background-image: url('/Frontend/assets/BACKGROUND.png');
+    background-image: url('/Frontend/assets/BACKGROUND.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     width: 100%;
     height: 100%;
-}
-
-.image-index {
-    background-image: url('/Frontend/assets/INDEX2.png');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    max-width: 800px;
-    height: auto;
-    aspect-ratio: 1 / 1;
 }
 
 .player-bubble-left, .player-bubble-right {
@@ -97,4 +86,73 @@
 .player-bubble-right:before {
     right: 0;
     background-image: url('/Frontend/assets/BUBBLE_RIGHT.png');
+}
+
+.ping-help {
+    background-image: url('/Frontend/assets/RULES_PING.webp');
+    position: absolute;
+    background-size: contain;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+}
+
+.ping-solo-help {
+    background-image: url('/Frontend/assets/RULES_SOLO_PING.webp');
+    position: absolute;
+    background-size: contain;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+}
+
+.bubble {
+    position: relative;
+    display: inline-block;
+    padding: 10px 30px;
+    z-index: 1;
+    text-align: center;
+}
+
+.bubble:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 110%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: -1;
+    left: 0;
+    background-image: url('/Frontend/assets/BUBBLE.png');
+}
+
+.arrow-up {
+    background-image: url('/Frontend/assets/ARROW_UP.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+.arrow-down {
+    background-image: url('/Frontend/assets/ARROW_DOWN.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+.arrow-clock {
+    background-image: url('/Frontend/assets/ROTATE_CLOCKWISE.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
+}
+
+.arrow-cclock {
+    background-image: url('/Frontend/assets/ROTATE_COUNTER.png');
+    background-size: contain;
+    background-position: top center;
+    background-repeat: no-repeat;
 }

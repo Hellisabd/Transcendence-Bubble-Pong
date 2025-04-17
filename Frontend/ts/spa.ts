@@ -4,12 +4,15 @@ let old_url: null | string = null;
 
 declare function display_friends(): void;
 declare function set_up_friend_list(user: string | null);
-
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
 declare function ping_tournament(): void;
-declare function get_stats(username: string | null): void;
+declare function get_stats(username: string | null, canva_name: string): void;
+declare function initializeAnimationPong(): void;
+declare function initializeAnimationPing(): void;
+declare function soloping_initializeGame(): void;
+declare function check_friend_list_state(): WebSocket | null;
 
 if (window.location.pathname === "/") {
     window.history.replaceState({ page: "index" }, "Index", "/index");
@@ -47,10 +50,8 @@ async function set_up_bars() {
     let sideDiv = document.getElementById("sidebarAll") as HTMLDivElement;
     if (navDiv && sideDiv)
     {
-        console.log("caca?");
         return ;
     }
-    console.log("caca?2");
     if (!sideDiv) {
         sideDiv = document.createElement("div");
         sideDiv.innerHTML = `<div id="sidebarAll">
@@ -62,26 +63,26 @@ async function set_up_bars() {
         </button>
 
 
-        <div id="sidebar" class="animate-leftFadeInBar overflow-y-scroll hidden h-[100vh] w-80 md:w-[20rem] bg-gray-800 text-white fixed top-0 right-0 text-xs md:text-lg z-[9990]">
+        <div id="sidebar" class="animate-leftFadeInBar overflow-y-scroll hidden h-[100vh] w-80 md:w-[20rem] bg-black text-white fixed top-0 right-0 text-xs md:text-lg z-[9990]">
             <div class="pl-5 pt-20">
                 <form onsubmit="add_friend(event)" class="flex items-center space-x-2">
                     <input type="search" id="friend_username" required
                         class="pl-2 py-1 w-[10rem] text-black border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-green-300"
-                        placeholder="Ajouter un ami" />
+                        placeholder="Add friend" />
                     <button class="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-200"
                         type="submit">
-                        Ajouter
+                        Add
                     </button>
                 </form>
             </div>
 
             <div id="pending_request_div" class="p-4 mt-10">
-                <h2 class="font-bold text-center text-2xl">Requête en attente:</h2>
+                <h2 class="font-bold text-center text-2xl">Pending requesth2>
                 <div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
                 <div id="pending_request"></div>
             </div>
             <div class="p-4 mt-32">
-                <h2 class="font-bold text-center text-2xl">Liste d'amis:</h2>
+                <h2 class="font-bold text-center text-2xl">Friends list</h2>
                 <div class="border justify-self-center border-slate-500 w-40 mt-2"></div>
                 <div id="friends_list" class=""></div>
             </div>
@@ -91,10 +92,9 @@ async function set_up_bars() {
     }
     if (!navDiv) {
         navDiv = document.createElement("div");
-        navDiv.innerHTML = `<nav id="navbar" class="fixed w-full bg-gray-800 z-[9999]">
+        navDiv.innerHTML = `<nav id="navbar" class="fixed w-full bg-black z-[9999]">
             <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                 <div class="relative flex h-16 items-center justify-between">
-                    <!-- Bouton Mobile -->
                     <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                         <button onclick="displayMenu()" id="mobile-menu-button" type="button"
                             class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -110,10 +110,9 @@ async function set_up_bars() {
                         </button>
                     </div>
                     <div id="mobile-menu" class="absolute left-0 top-16 hidden sm:hidden bg-gray-800 p-4 space-y-2">
-                        <a onclick="navigateTo('index')" class="block text-white p-2 rounded hover:bg-gray-700">Accueil</a>
-                        <a onclick="navigateTo('pong_game')" class="block text-white p-2 rounded hover:bg-gray-700">Jeux</a>
+                        <a onclick="navigateTo('pong_game')" class="block text-white p-2 rounded hover:bg-gray-700">Games</a>
                         <a onclick="navigateTo('dashboard')" class="block text-white p-2 rounded hover:bg-gray-700">Dashboard</a>
-                        <a onclick="navigateTo('history')" class="block text-white p-2 rounded hover:bg-gray-700">Stats</a>
+                        <a onclick="navigateTo('history')" class="block text-white p-2 rounded hover:bg-gray-700">History</a>
                     </div>
                     <!-- Logo et liens -->
                     <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -121,31 +120,30 @@ async function set_up_bars() {
                             <div class="flex space-x-4">
                             <div class="flex shrink-0 items-center">
                                 <img class="h-14 w-14"
-                                    src="/Frontend/assets/logo.webp"
+                                    src="/Frontend/assets/PING_LOGO.webp"
                                     alt="Website logo"
                                     onclick="navigateTo('index')">
                             </div>
-                                <svg class="w-14 h-14 group hover:bg-violet-800 p-2 rounded-lg" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="navigateTo('pong_game')">
+                                <svg class="w-14 h-14 group hover:bg-orange-100 p-2 rounded-lg" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg" onclick="navigateTo('pong_game')">
                                     <path d="M9.5 16V14.5H15.5V16M13.5 10.5V14.5M11.5 10.5V14.5M15.5 7.5C15.5 9.15685 14.1569 10.5 12.5 10.5C10.8431 10.5 9.5 9.15685 9.5 7.5C9.5 5.84315 10.8431 4.5 12.5 4.5C14.1569 4.5 15.5 5.84315 15.5 7.5ZM18.5 19.5H6.5C5.94772 19.5 5.5 19.0523 5.5 18.5V17.5C5.5 16.9477 5.94772 16.5 6.5 16.5H18.5C19.0523 16.5 19.5 16.9477 19.5 17.5V18.5C19.5 19.0523 19.0523 19.5 18.5 19.5Z"
-                                    class="stroke-[1.5] stroke-violet-800 group-hover:stroke-emerald-600"/>
+                                    class="stroke-[1.5] stroke-orange-100 group-hover:stroke-black"/>
                                 </svg>
-                                <svg class="w-14 h-14 group hover:bg-violet-800 p-2 rounded-lg" xmlns="http://www.w3.org/2000/svg" onclick="navigateTo('dashboard')" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <svg class="w-14 h-14 group hover:bg-orange-100 p-2 rounded-lg" xmlns="http://www.w3.org/2000/svg" onclick="navigateTo('dashboard')" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"
-                                    class="stroke-[1.5] stroke-violet-800 group-hover:stroke-emerald-600"/>
+                                    class="stroke-[1.5] stroke-orange-100 group-hover:stroke-black"/>
                                 </svg>
-                                <svg class="w-14 h-14 group hover:bg-violet-800 p-2 rounded-lg size-6" fill="#5B21B6" version="1.1" id="Capa_1" onclick="navigateTo('history')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 550.379 550.379" xml:space="preserve" class="size-6">
-                                    <path d="M458.091,128.116v326.842c0,26.698-21.723,48.421-48.422,48.421h-220.92c-26.699,0-48.421-21.723-48.421-48.421V242.439 c6.907,1.149,13.953,1.894,21.184,1.894c5.128,0,10.161-0.381,15.132-0.969v211.594c0,6.673,5.429,12.104,12.105,12.104h220.92 c6.674,0,12.105-5.432,12.105-12.104V128.116c0-6.676-5.432-12.105-12.105-12.105H289.835c0-12.625-1.897-24.793-5.297-36.315 h125.131C436.368,79.695,458.091,101.417,458.091,128.116z M159.49,228.401c-62.973,0-114.202-51.229-114.202-114.199 C45.289,51.229,96.517,0,159.49,0c62.971,0,114.202,51.229,114.202,114.202C273.692,177.172,222.461,228.401,159.49,228.401z M159.49,204.19c49.618,0,89.989-40.364,89.989-89.988c0-49.627-40.365-89.991-89.989-89.991 c-49.626,0-89.991,40.364-89.991,89.991C69.499,163.826,109.87,204.19,159.49,204.19z M227.981,126.308 c6.682,0,12.105-5.423,12.105-12.105s-5.423-12.105-12.105-12.105h-56.386v-47.52c0-6.682-5.423-12.105-12.105-12.105 s-12.105,5.423-12.105,12.105v59.625c0,6.682,5.423,12.105,12.105,12.105H227.981z M367.697,224.456h-131.14 c-6.682,0-12.105,5.423-12.105,12.105c0,6.683,5.423,12.105,12.105,12.105h131.14c6.685,0,12.105-5.423,12.105-12.105 C379.803,229.879,374.382,224.456,367.697,224.456z M367.91,297.885h-131.14c-6.682,0-12.105,5.42-12.105,12.105 s5.423,12.105,12.105,12.105h131.14c6.685,0,12.104-5.42,12.104-12.105S374.601,297.885,367.91,297.885z M367.91,374.353h-131.14 c-6.682,0-12.105,5.426-12.105,12.105c0,6.685,5.423,12.104,12.105,12.104h131.14c6.685,0,12.104-5.42,12.104-12.104 C380.015,379.778,374.601,374.353,367.91,374.353z" class="stroke-[5] stroke-violet-800 group-hover:fill-emerald-600"></path>
+                                <svg class="w-14 h-14 group hover:bg-orange-100 p-2 rounded-lg stroke-orange-100 size-6" fill=#FFEDD5 version="1.1" id="Capa_1" onclick="navigateTo('history')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 550.379 550.379" xml:space="preserve" class="size-6">
+                                    <path d="M458.091,128.116v326.842c0,26.698-21.723,48.421-48.422,48.421h-220.92c-26.699,0-48.421-21.723-48.421-48.421V242.439 c6.907,1.149,13.953,1.894,21.184,1.894c5.128,0,10.161-0.381,15.132-0.969v211.594c0,6.673,5.429,12.104,12.105,12.104h220.92 c6.674,0,12.105-5.432,12.105-12.104V128.116c0-6.676-5.432-12.105-12.105-12.105H289.835c0-12.625-1.897-24.793-5.297-36.315 h125.131C436.368,79.695,458.091,101.417,458.091,128.116z M159.49,228.401c-62.973,0-114.202-51.229-114.202-114.199 C45.289,51.229,96.517,0,159.49,0c62.971,0,114.202,51.229,114.202,114.202C273.692,177.172,222.461,228.401,159.49,228.401z M159.49,204.19c49.618,0,89.989-40.364,89.989-89.988c0-49.627-40.365-89.991-89.989-89.991 c-49.626,0-89.991,40.364-89.991,89.991C69.499,163.826,109.87,204.19,159.49,204.19z M227.981,126.308 c6.682,0,12.105-5.423,12.105-12.105s-5.423-12.105-12.105-12.105h-56.386v-47.52c0-6.682-5.423-12.105-12.105-12.105 s-12.105,5.423-12.105,12.105v59.625c0,6.682,5.423,12.105,12.105,12.105H227.981z M367.697,224.456h-131.14 c-6.682,0-12.105,5.423-12.105,12.105c0,6.683,5.423,12.105,12.105,12.105h131.14c6.685,0,12.105-5.423,12.105-12.105 C379.803,229.879,374.382,224.456,367.697,224.456z M367.91,297.885h-131.14c-6.682,0-12.105,5.42-12.105,12.105 s5.423,12.105,12.105,12.105h131.14c6.685,0,12.104-5.42,12.104-12.105S374.601,297.885,367.91,297.885z M367.91,374.353h-131.14 c-6.682,0-12.105,5.426-12.105,12.105c0,6.685,5.423,12.104,12.105,12.104h131.14c6.685,0,12.104-5.42,12.104-12.104 C380.015,379.778,374.601,374.353,367.91,374.353z" 
+                                    class="stroke-[5] stroke-orange-100 group-hover:fill-black"></path>
                                 </svg>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Titre -->
                     <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-3xl sm:text-5xl font-kablam">
                         PONG GAME
                     </h1>
 
-                    <!-- User -->
                     <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                         <div class="hidden sm:ml-6 sm:block">
                             <div id="user" class="relative ml-3"></div>
@@ -160,13 +158,13 @@ async function set_up_bars() {
                             <div id="user-menu"
                                 class="hidden absolute right-0 top-14 bg-gray-800 p-4 space-y-2 z-[9998]">
                                 <div onclick="navigateTo('settings')" class="flex items-center text-white p-2 rounded hover:bg-gray-700 space-x-2 cursor-pointer">
-                                    <span>Paramètres</span>
+                                    <span>Settings</span>
                                 </div>
                                 <div onclick="logout(1)" class="flex items-center text-white p-2 rounded hover:bg-red-700 space-x-2 cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <svg xSettings://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                     </svg>
-                                    <span class="">Déconnexion</span>
+                                    <span class="inline-block whitespace-nowrap">Log out</span>
                                 </div>
                             </div>
                         </div>
@@ -200,20 +198,33 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             page = "index";
         }
     }
+    const status = await fetch("/get_status", {
+        method: "GET",
+        credentials: "include",
+    });
+    const statusJson = await status.json();
+    console.log(`status: ${statusJson.status}`);
+    if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
+        navigateTo("index", true, null);
+    }
     if (!loged && !afficheUser) {
         navigateTo("login", true, null);
         return ;
     }
     const contentDiv = document.getElementById("content") as HTMLDivElement;
     let userDiv = document.getElementById("user") as HTMLDivElement;
-
+    
     if (!userDiv)
         userDiv = document.createElement("div");
     contentDiv.innerHTML = '';
     userDiv.innerHTML = '';
 
-    let url: string = page == "index" ? "/" : `/${page}`;
 
+    let url: string = page == "index" ? "/" : `/${page}`;
+    if (page == "index") {
+        page = "pong_game";
+        url = "pong_game";
+    }
     try {
         let response: Response | null = null;
         if (url === "/end_tournament" && classement) {
@@ -256,7 +267,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
         console.log("document title: ", document.title);
-        // console.log("caca8", window.history.state.page);
         if (addHistory/*  && window.history.state.page !== page */) {
             // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -289,11 +299,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         display_friends();
 
         if (page === "dashboard") {
-            get_stats(username);
-            console.log("passse dans dashboard");
+            get_stats(username, "general");
         }
         if (page != "login") {
-            console.log("TEST");
             await set_up_bars();
             if (!check_friend_list_state())
                 set_up_friend_list(username);

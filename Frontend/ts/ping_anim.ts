@@ -27,6 +27,8 @@ let ping_speed: number  = 0;
 
 let lastBounce: number = 0;
 
+let id_ping_anim: number | null = null;
+
 function initializeAnimationPing() {
     ping_canvas = document.getElementById("ping_animation") as HTMLCanvasElement;
     ping_ctx = ping_canvas.getContext("2d");
@@ -375,10 +377,14 @@ function ping_gameLoop() {
     let ratio: number = canvasWidth / 1000;
 	ping_update();
 	ping_draw(ratio);
-	requestAnimationFrame(ping_gameLoop);
+	id_ping_anim = requestAnimationFrame(ping_gameLoop);
 }
 
 function animation_ping_stop() {
+    if (id_ping_anim != null) {
+        cancelAnimationFrame(id_ping_anim);
+        id_ping_anim = null;
+    }
 	ping_ctx = null;
 	ping_canvas = null;
 }
