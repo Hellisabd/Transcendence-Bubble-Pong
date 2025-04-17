@@ -132,11 +132,11 @@ async function create_account(event: Event): Promise<void> {
 				let create_account_card = document.getElementById('content') as HTMLDivElement;
 				verifyModal.innerHTML = `
 					<div class="bulle w-fit fixed top-[65%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] bg-[#c0b9ac] hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
-						<p class="text-center font-canted mb-2">Entrez votre code 2fa</p>
+						<p class="text-center font-canted mb-2">Enter your 2fa code</p>
 						<input class="mx-auto block" id="qr-verify-code" type="text"/>
 						<div class ="flex justify-around mt-4">
-							<button id="qr-verify-submit" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Vérifier</button>
-							<button id="qr-alert-annuler" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Annuler</button>
+							<button id="qr-verify-submit" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Check</button>
+							<button id="qr-alert-annuler" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Cancel</button>
 						</div>
 					</div>`;
 				document.body.appendChild(verifyModal);
@@ -169,7 +169,7 @@ async function create_account(event: Event): Promise<void> {
 						}
 						resolve();
 					} else {
-						alert("Code 2FA incorrect, réessayez.");
+						alert("Incorrect 2FA code, please try again.");
 					}
 				});
 			});
