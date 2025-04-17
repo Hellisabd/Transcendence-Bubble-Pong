@@ -24,33 +24,6 @@ services:
 
 # Dev
 
-  # spa:
-  #   build:
-  #     context: .
-  #     dockerfile: ./Backend/spa/Dockerfile
-  #     args:
-  #       USER_ID: ${USER_ID}
-  #       GROUP_ID: ${GROUP_ID}
-  #   volumes:
-  #     - ./Backend/spa:/usr/src/app/Backend
-  #     - ./Frontend/css:/usr/src/app/Frontend/css
-  #     - ./Frontend/templates:/usr/src/app/Frontend/templates
-  #     - ./Frontend/ts:/usr/src/app/Frontend/ts
-  #     - ./Frontend/avatar:/usr/src/app/Frontend/avatar
-  #     - ./Frontend/assets:/usr/src/app/Frontend/assets
-  #   networks:
-  #     - spa-network
-  #     - ping-network
-  #     - pong-network
-  #   depends_on:
-  #     - pong
-  #   container_name: spa
-  #   env_file:
-  #     - .env
-  #   ports:
-  #     - "7000:7000"
-
-# Prod
   spa:
     build:
       context: .
@@ -60,7 +33,11 @@ services:
         GROUP_ID: ${GROUP_ID}
     volumes:
       - ./Backend/spa:/usr/src/app/Backend
-      - spa-vol:/usr/src/app/Frontend/avatar
+      - ./Frontend/css:/usr/src/app/Frontend/css
+      - ./Frontend/templates:/usr/src/app/Frontend/templates
+      - ./Frontend/ts:/usr/src/app/Frontend/ts
+      - ./Frontend/avatar:/usr/src/app/Frontend/avatar
+      - ./Frontend/assets:/usr/src/app/Frontend/assets
     networks:
       - spa-network
       - ping-network
@@ -72,6 +49,29 @@ services:
       - .env
     ports:
       - "7000:7000"
+
+# # Prod
+#   spa:
+#     build:
+#       context: .
+#       dockerfile: ./Backend/spa/Dockerfile
+#       args:
+#         USER_ID: ${USER_ID}
+#         GROUP_ID: ${GROUP_ID}
+#     volumes:
+#       - ./Backend/spa:/usr/src/app/Backend
+#       - spa-vol:/usr/src/app/Frontend/avatar
+#     networks:
+#       - spa-network
+#       - ping-network
+#       - pong-network
+#     depends_on:
+#       - pong
+#     container_name: spa
+#     env_file:
+#       - .env
+#     ports:
+#       - "7000:7000"
 
   pong:
     build:
