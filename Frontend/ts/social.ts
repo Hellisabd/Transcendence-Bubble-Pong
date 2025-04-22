@@ -228,6 +228,12 @@ function close_users_socket() {
 
 async function valid_friend(friend_username: string): Promise<void> {
 	const myusername = await get_user();
+	if (!sanitizeInput(friend_username)) {
+        return (Swal.fire({
+			text: "Be carefull i can bite!",
+			icon: 'error'
+		  }));
+    }
 	if (myusername == friend_username) {
 		Swal.fire({
 			title: '???',
