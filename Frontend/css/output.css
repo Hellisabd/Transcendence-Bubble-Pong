@@ -1706,10 +1706,6 @@ video {
   font-family: KaBlam, sans-serif;
 }
 
-.font-mainFont {
-  font-family: "Oxanium", sans-serif;
-}
-
 .text-2xl {
   font-size: 1.5rem;
   line-height: 2rem;
@@ -2064,6 +2060,25 @@ video {
   background-repeat: no-repeat;
 }
 
+.swal2-title {
+  font-family: 'Canted Comic';
+  font-size: 24px;
+  color: #333;
+}
+
+.swal2-html-container {
+  font-family: 'Canted Comic';
+  font-size: 18px;
+  color: #555;
+}
+
+.swal2-confirm {
+  font-family: 'Canted Comic';
+  font-size: 16px;
+  background-color: #3085d6;
+  color: white;
+}
+
 .hover\:scale-105:hover {
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -2127,11 +2142,6 @@ video {
 .hover\:bg-red-800:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(153 27 27 / var(--tw-bg-opacity, 1));
-}
-
-.hover\:bg-violet-800:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(91 33 182 / var(--tw-bg-opacity, 1));
 }
 
 .hover\:text-indigo-400:hover {
@@ -2233,16 +2243,8 @@ video {
   fill: #000;
 }
 
-.group:hover .group-hover\:fill-emerald-600 {
-  fill: #059669;
-}
-
 .group:hover .group-hover\:stroke-black {
   stroke: #000;
-}
-
-.group:hover .group-hover\:stroke-emerald-600 {
-  stroke: #059669;
 }
 
 .peer:checked ~ .peer-checked\:border-green-500 {
