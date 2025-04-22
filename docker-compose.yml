@@ -157,6 +157,7 @@ services:
       - ./Backend/monitoring/Prometheus/conf/web-config.yml:/etc/prometheus/web-config.yml
       - ./Backend/monitoring/Prometheus/certs/prometheus.crt:/etc/prometheus/certs/prometheus.crt
       - ./Backend/monitoring/Prometheus/certs/prometheus.key:/etc/prometheus/certs/prometheus.key
+      - ./certs/ca/ca.crt:/etc/prometheus/certs/ca.crt:ro
       - prom-data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -212,8 +213,8 @@ services:
       - nginx-exporter
     volumes:
       - ./Backend/monitoring/proxy/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./Backend/monitoring/proxy/exporter.crt:/etc/exporter/certs/exporter.crt:ro
-      - ./Backend/monitoring/proxy/exporter.key:/etc/exporter/certs/exporter.key:ro
+      - ./Backend/monitoring/nginx-exporter/certs/exporter.crt:/etc/nginx-exporter/certs/exporter.crt:ro
+      - ./Backend/monitoring/nginx-exporter/certs/exporter.key:/etc/nginx-exporter/certs/exporter.key:ro
     ports:
       - "9113:9113"
     restart: unless-stopped

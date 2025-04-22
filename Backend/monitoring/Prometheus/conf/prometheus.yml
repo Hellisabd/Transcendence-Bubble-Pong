@@ -7,6 +7,7 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
     tls_config:
+      ca_file: /etc/prometheus/certs/ca.crt
       cert_file: /etc/prometheus/certs/prometheus.crt
       key_file: /etc/prometheus/certs/prometheus.key
       insecure_skip_verify: false
@@ -16,6 +17,7 @@ scrape_configs:
     static_configs:
       - targets: ['nginx-exporter:9113']
     tls_config:
+      ca_file: /etc/prometheus/certs/ca.crt
       cert_file: /etc/exporter/certs/exporter.crt
       key_file: /etc/exporter/certs/exporter.key
       insecure_skip_verify: false

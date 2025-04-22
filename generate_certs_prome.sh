@@ -1,49 +1,139 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
-CERT_DIR="./Backend/monitoring/Prometheus/certs"
+# 1. Crée les répertoires nécessaires
+mkdir -p certs/ca
 
-mkdir -p "$CERT_DIR"
+# 2. Génération de la CA
+echo "1️⃣ Génération de la CA"
+openssl genrsa -out certs/ca/ca.key 4096
+openssl req -x509 -new -nodes \
+  -key certs/ca/ca.key \
+  -sha256 -days 3650 \
+  -out certs/ca/ca.crt \
+  -subj "/CN=Local-CA"
 
-openssl req -x509 -newkey rsa:4096 -sha256 -nodes \
-  -keyout "$CERT_DIR/prometheus.key" \
-  -out "$CERT_DIR/prometheus.crt" \
+# 3. Certificat pour nginx-exporter (via exporter-proxy)
+echo "2️⃣ Certificat serveur pour nginx-exporter"
+openssl genrsa -out Backend/monitoring/nginx-exporter/certs/exporter.key 2048
+openssl req -new \
+  -key Backend/monitoring/nginx-exporter/certs/exporter.key \
+  -out Backend/monitoring/nginx-exporter/certs/exporter.csr \
+  -subj "/CN=exporter-proxy"
+
+cat > Backend/monitoring/nginx-exporter/certs/san-ext-exporter.cnf <<EOF
+subjectAltName = DNS:exporter-proxy, DNS:nginx-exporter, DNS:localhost, IP:127.0.0.1, IP:::1
+EOF
+
+openssl x509 -req \
+  -in Backend/monitoring/nginx-exporter/certs/exporter.csr \
+  -CA certs/ca/ca.crt \
+  -CAkey certs/ca/ca.key \
+  -CAcreateserial \
+  -out Backend/monitoring/nginx-exporter/certs/exporter.crt \
   -days 365 \
-  -subj "/CN=localhost"
+  -sha256 \
+  -extfile Backend/monitoring/nginx-exporter/certs/san-ext-exporter.cnf
 
-echo "✅ Certificats générés dans $CERT_DIR"
+# 4. Certificat pour Prometheus
+echo "3️⃣ Certificat serveur pour Prometheus"
+openssl genrsa -out Backend/monitoring/Prometheus/certs/prometheus.key 2048
+openssl req -new \
+  -key Backend/monitoring/Prometheus/certs/prometheus.key \
+  -out Backend/monitoring/Prometheus/certs/prometheus.csr \
+  -subj "/CN=prometheus"
 
-CERT_DIR="./Backend/monitoring/Grafana/certs"
+cat > Backend/monitoring/Prometheus/certs/san-ext-prometheus.cnf <<EOF
+subjectAltName = DNS:prometheus, DNS:localhost, IP:127.0.0.1, IP:::1
+EOF
 
-mkdir -p "$CERT_DIR"
-
-openssl req -x509 -newkey rsa:4096 -sha256 -nodes \
-  -keyout "$CERT_DIR/grafana.key" \
-  -out "$CERT_DIR/grafana.crt" \
+openssl x509 -req \
+  -in Backend/monitoring/Prometheus/certs/prometheus.csr \
+  -CA certs/ca/ca.crt \
+  -CAkey certs/ca/ca.key \
+  -CAcreateserial \
+  -out Backend/monitoring/Prometheus/certs/prometheus.crt \
   -days 365 \
-  -subj "/CN=localhost"
+  -sha256 \
+  -extfile Backend/monitoring/Prometheus/certs/san-ext-prometheus.cnf
 
-echo "✅ Certificats générés dans $CERT_DIR"
+# 5. Certificat pour Grafana
+echo "4️⃣ Certificat serveur pour Grafana"
+openssl genrsa -out Backend/monitoring/Grafana/certs/grafana.key 2048
+openssl req -new \
+  -key Backend/monitoring/Grafana/certs/grafana.key \
+  -out Backend/monitoring/Grafana/certs/grafana.csr \
+  -subj "/CN=grafana"
 
-CERT_DIR="./Backend/monitoring/nginx-exporter/certs"
+cat > Backend/monitoring/Grafana/certs/san-ext-grafana.cnf <<EOF
+subjectAltName = DNS:grafana, DNS:localhost, IP:127.0.0.1, IP:::1
+EOF
 
-mkdir -p "$CERT_DIR"
-
-openssl req -x509 -newkey rsa:4096 -sha256 -nodes \
-  -keyout "$CERT_DIR/nginx-exporter.key" \
-  -out "$CERT_DIR/nginx-exporter.crt" \
+openssl x509 -req \
+  -in Backend/monitoring/Grafana/certs/grafana.csr \
+  -CA certs/ca/ca.crt \
+  -CAkey certs/ca/ca.key \
+  -CAcreateserial \
+  -out Backend/monitoring/Grafana/certs/grafana.crt \
   -days 365 \
-  -subj "/CN=localhost"
+  -sha256 \
+  -extfile Backend/monitoring/Grafana/certs/san-ext-grafana.cnf
 
-echo "✅ Certificats générés dans $CERT_DIR"
+echo "✅ Tous les certificats ont été générés sous Backend/monitoring/*/certs et la CA dans certs/ca/"
 
-CERT_DIR="./Backend/monitoring/nginx-exporter/certs"
 
-mkdir -p "$CERT_DIR"
 
-openssl req -x509 -newkey rsa:4096 -sha256 -nodes \
-  -keyout "$CERT_DIR/exporter.key" \
-  -out "$CERT_DIR/exporter.crt" \
-  -days 365 \
-  -subj "/CN=localhost"
 
-echo "✅ Certificats générés dans $CERT_DIR"
+# #!/bin/bash
+
+# CERT_DIR="./Backend/monitoring/Prometheus/certs"
+
+# mkdir -p "$CERT_DIR"
+
+# openssl req -x509 -newkey rsa:2048 -sha256 -nodes \
+#   -keyout "$CERT_DIR/prometheus.key" \
+#   -out "$CERT_DIR/prometheus.crt" \
+#   -days 365 \
+#   -subj "/CN=localhost"
+#   -addext "subjectAltName = DNS:localhost, IP:127.0.0.1, IP:::1"
+
+# echo "✅ Certificats générés dans $CERT_DIR"
+
+# CERT_DIR="./Backend/monitoring/Grafana/certs"
+
+# mkdir -p "$CERT_DIR"
+
+# openssl req -x509 -newkey rsa:2048 -sha256 -nodes \
+#   -keyout "$CERT_DIR/grafana.key" \
+#   -out "$CERT_DIR/grafana.crt" \
+#   -days 365 \
+#   -subj "/CN=localhost"
+#   -addext "subjectAltName = DNS:localhost, IP:127.0.0.1, IP:::1"
+
+# echo "✅ Certificats générés dans $CERT_DIR"
+
+# CERT_DIR="./Backend/monitoring/nginx-exporter/certs"
+
+# mkdir -p "$CERT_DIR"
+
+# openssl req -x509 -newkey rsa:2048 -sha256 -nodes \
+#   -keyout "$CERT_DIR/nginx-exporter.key" \
+#   -out "$CERT_DIR/nginx-exporter.crt" \
+#   -days 365 \
+#   -subj "/CN=localhost"
+#   -addext "subjectAltName = DNS:localhost, IP:127.0.0.1, IP:::1"
+
+# echo "✅ Certificats générés dans $CERT_DIR"
+
+# CERT_DIR="./Backend/monitoring/nginx-exporter/certs"
+
+# mkdir -p "$CERT_DIR"
+
+# openssl req -x509 -newkey rsa:2048 -sha256 -nodes \
+#   -keyout "$CERT_DIR/exporter.key" \
+#   -out "$CERT_DIR/exporter.crt" \
+#   -days 365 \
+#   -subj "/CN=localhost"
+#   -addext "subjectAltName = DNS:localhost, IP:127.0.0.1, IP:::1"
+
+# echo "✅ Certificats générés dans $CERT_DIR"
