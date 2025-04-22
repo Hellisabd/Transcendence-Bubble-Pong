@@ -195,20 +195,24 @@ services:
 
   nginx-exporter:
     image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    depends_on:
+      - nginx
     expose:
       - "9113"
     networks:
       - prom-network
-      - monitoring-network
-    container_name: nginx-exporter
-    depends_on:
-      - nginx
+    volumes:
+      - ./certs/ca/ca.crt:/etc/ssl/certs/ca.crt:ro
     command:
       - "--nginx.scrape-uri=https://nginx:8000/stub_status"
+      - "--nginx.ssl-ca-cert=/etc/ssl/certs/ca.crt"
+      - "--nginx.ssl-verify=true"
 
   exporter-proxy:
     # service dédié pour terminer le TLS
     image: nginx:stable
+    container_name: exporter-proxy
     depends_on:
       - nginx-exporter
     volumes:
@@ -219,7 +223,7 @@ services:
       - "9113:9113"
     restart: unless-stopped
     networks:
-      - monitoring-network
+      - prom-network
 
 networks:
   spa-network:
@@ -229,8 +233,6 @@ networks:
   ping-network:
     driver: bridge
   prom-network:
-    driver: bridge
-  monitoring-network:
     driver: bridge
 
 volumes:
