@@ -1,5 +1,3 @@
-console.log("Script spa.ts chargé !");
-
 let old_url: null | string = null;
 
 declare function display_friends(): void;
@@ -141,7 +139,7 @@ async function set_up_bars() {
                     </div>
 
                     <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-3xl sm:text-5xl font-kablam">
-                        PONG GAME
+                        BUBBLE PONG
                     </h1>
 
                     <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
@@ -190,7 +188,6 @@ function disable_bars() {
 }
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-	console.log(`🚀 Changement de page: ${page}`);
 	let afficheUser = false;
 	const username = await get_user();
     const loging: boolean = page == "login";
@@ -207,7 +204,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         credentials: "include",
     });
     const statusJson = await status.json();
-    console.log(`status: ${statusJson.status}`);
     if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
         navigateTo("index", true, null);
     }
@@ -243,7 +239,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 url = "/";
                 page = "index";
             }
-            console.log("url: ", url);
             response = await fetch(url, {
                 credentials: "include",
                 headers: { "Content-Type": "text/html" }
@@ -267,10 +262,8 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         if (newContent) {
             contentDiv.innerHTML = newContent.innerHTML;
         } else {
-            console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
-        console.log("document title: ", document.title);
         if (addHistory/*  && window.history.state.page !== page */) {
             // old_url = page;
             window.history.pushState({ page: page }, "", `/${page}`);
@@ -319,7 +312,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             disable_bars();
 
     } catch (error) {
-        console.error('❌ Erreur de chargement de la page:', error);
     }
 }
 

@@ -1,5 +1,3 @@
-console.log("game.js chargé");
-
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -47,13 +45,10 @@ async function play_pong() {
     const sock_name = window.location.host;
     Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
-        console.log("✅ WebSocket waiting connectée !");
         Wsocket?.send(JSON.stringify({ username: user }));
     };
-    Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket waiting erreur :", user);};
-    Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket waiting fermée :", user);};
+    Wsocket.onerror = (event) => {};
+    Wsocket.onclose = (event) => {};
     Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -122,13 +117,10 @@ async function pong_tournament() {
     const sock_name = window.location.host;
     Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
     Tsocket.onopen = () => {
-        console.log("✅ WebSocket tournament connectée !");
         Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
-    Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket tournament erreur :", user);};
-    Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket tournament fermée :", user);};
+    Tsocket.onerror = (event) => {};
+    Tsocket.onclose = (event) => {};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -145,7 +137,6 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2, user);
         }
-        console.log("censee ne pas etre vide" + data.next_match);
         if (data.next_match) {
             display_next_match(data.next_match);
         }
@@ -192,7 +183,6 @@ function Disconnect_from_game() {
 }
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
-    console.log("Initialisation du jeu...");
     const btnUp = document.getElementById("btnUp");
     btnUp?.addEventListener("mousedown", () => move_mobile_pong("up"));
     btnUp?.addEventListener("mouseup", () => move_mobile_pong("stop"));
@@ -229,17 +219,14 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         if (!socket)
             return ;
         socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");
             socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
-        socket.onerror = (event) => {
-            console.error("❌ WebSocket erreur :", event);};
+        socket.onerror = (event) => {};
         socket.onclose = (event) => {
             socket = null;
             lobbyKey = null;
             disp = true;
             win = 0;
-            console.warn("⚠️ WebSocket fermée :", event);
         };
         
         const paddleWidth = 20;
@@ -311,7 +298,6 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                 if (event.key === " " && disp == true) {
                     win = 0;
                     message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-                    console.log("message from front: ", message);
                 }
 
                 if (message) {
@@ -407,9 +393,6 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             }
         }
     } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
-    }
 }
 
 window.addEventListener("beforeunload", () => {

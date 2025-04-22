@@ -8,7 +8,7 @@ npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
 # Prod
 # npm start 
 
-Dev
+# Dev
 npm start &
 
 while inotifywait -r -e modify,create,delete /usr/src/app/Frontend/templates; do

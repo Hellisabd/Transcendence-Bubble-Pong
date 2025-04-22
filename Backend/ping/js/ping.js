@@ -14,8 +14,6 @@ const bonus = "PPGGS";
 
 fastify.register(async function (fastify) {
     fastify.get("/ws/ping", { websocket: true }, (connection, req) => {
-        console.log("Nouvelle connexion WebSocket !");
-        
         connection.socket.on("message", (message) => {
             const data = JSON.parse(message.toString());
             if (data.disconnect) {
@@ -59,7 +57,6 @@ fastify.register(async function (fastify) {
         });
         connection.socket.on("close", () => {
             cleanupLobby(connection);
-            console.log("Connexion WebSocket fermée.");
         });
     });
 });
@@ -531,8 +528,6 @@ function cleanupLobby(connection) {
         let lobby = lobbies[lobbyKey];
         if (!lobby || !lobby.players) return;
 
-        console.log(`🧹 Nettoyage du lobby: ${lobbyKey}`);
-        
         let newPlayers = [];
         for (let i = 0; i < lobby.players.length; i++) {
             if (lobby.players[i] !== connection) {
@@ -542,8 +537,6 @@ function cleanupLobby(connection) {
         lobby.players = newPlayers;
 
         if (lobby.players.length === 0) {
-            console.log(`🗑️ Suppression du lobby: ${lobbyKey}`);
-            
             if (lobby.gameinterval) {
                 clearInterval(lobby.gameinterval);
                 lobby.gameinterval = null;
@@ -619,18 +612,13 @@ function handleGameInput(data, lobbyKey) {
         }
     }
     if (data.playerReady) {
-        console.log("Registering player state");
-        console.log(data);
         if (data.player == 1) {
-            console.log("player1 ready");
             gameState.playerReady.player1 = true;
         }
         if (data.player == 2) {
-            console.log("player2 ready");
             gameState.playerReady.player2 = true;
         }
         if (gameState.playerReady.player1 && gameState.playerReady.player2) {
-            console.log("🎮 Les deux joueurs sont prêts, démarrage du jeu !");
             lobbies[lobbyKey].players.forEach(client => {
                   client.socket.send(JSON.stringify({ start: "start" }));
             });
@@ -656,7 +644,6 @@ function randBallPos(gameState) {
 
 function startGameLoop(lobbyKey) {
     if (!lobbies[lobbyKey]) {
-        console.log("wrong lobbyKey");
         return;
     }
     if (lobbies[lobbyKey].gameinterval) {
@@ -665,7 +652,6 @@ function startGameLoop(lobbyKey) {
     }
     lobbies[lobbyKey].gameinterval = setInterval(() =>  {
         if (lobbies[lobbyKey] && lobbies[lobbyKey].players.length === 0 && lobbies[lobbyKey].gameinterval) {
-            console.log(`🛑 Arrêt de la partie : ${lobbyKey} (Lobby vide)`);
             clearInterval(lobbies[lobbyKey]?.gameinterval);
             lobbies[lobbyKey].gameinterval = null;
             lobbies[lobbyKey] = null;
@@ -678,7 +664,6 @@ function startGameLoop(lobbyKey) {
 const start = async () => {
     try {
         await fastify.listen({ port: 4002, host: "0.0.0.0" });
-        console.log("🎮 ping WebSocket Server running on port 4002");
     } catch (err) {
         fastify.log.error(err);
         process.exit(1);

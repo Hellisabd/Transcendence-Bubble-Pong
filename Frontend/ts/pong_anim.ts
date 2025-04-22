@@ -1,5 +1,3 @@
-console.log("animation pong chargé !")
-
 let pong_ctx: CanvasRenderingContext2D | null = null;
 let pong_canvas: HTMLCanvasElement | null = null;
 

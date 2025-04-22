@@ -1,4 +1,3 @@
-console.log("Script social.ts chargé !");
 declare function get_user(): Promise<string | null>;
 
 let friends: { username: string; status: string }[] = [];
@@ -97,7 +96,6 @@ async function display_pending(user: string[]) {
 	if (user.length > 0 && pellet) {
 		pellet.classList.remove("hidden");
 		pendingParent.classList.remove("hidden");
-		console.log("enleve le hide de pending");
 	} else {
 		pendingParent.classList.add("hidden");
 		pellet.classList.add("hidden");
@@ -105,7 +103,6 @@ async function display_pending(user: string[]) {
 	if (pendingDiv && user.length > 0) {
 		for (const username of user) {
 			if (document.getElementById(`${username}_pending`)) {
-				console.log("censer ignorer la div")
 				continue ;
 			}
 			const userDiv = document.createElement("div");
@@ -201,11 +198,10 @@ async function set_up_friend_list(user: string | null) {
 		return ;
 	socialSocket = new WebSocket("wss://" + sock_name + "/ws/spa/friends");
     socialSocket.onopen = () => {
-        console.log("✅ WebSocket users connectée !");
         socialSocket?.send(JSON.stringify({ username: user }));
     };
     socialSocket.onerror = (event) => {
-    	console.error("❌ WebSocket users erreur :", user);};
+    	};
 	socialSocket.onclose = (event) => {
         socialSocket = null;
 	}
@@ -218,9 +214,7 @@ async function set_up_friend_list(user: string | null) {
 			friends[index] = {username: data.username, status: data.status};
 		}
 		if (data.success == true && data.user_inviting) {
-			console.log("lol?");
 		}
-		console.log(i);
 		if (data.display)
 			display_friends();
     };

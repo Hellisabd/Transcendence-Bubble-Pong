@@ -1,5 +1,3 @@
-console.log("login.ts chargé");
-
 declare const Swal: any;
 
 type LoginResponse = {
@@ -42,8 +40,6 @@ async function login(event: Event): Promise<void> {
 	});
 
 	const data = await response.json();
-	console.log(data);
-
 
 	if (data.success) {
 		const code = prompt("Veuillez saisir votre code 2FA:");
@@ -145,9 +141,7 @@ async function create_account(event: Event): Promise<void> {
 					</div>`;
 				document.body.appendChild(qrCodeModal);
 			}
-			console.log("2FA setup result:", repResult);
 		} catch (e) {
-			console.error("Erreur de parsing JSON pour 2FA setup:", e);
 		}
 	}
 
@@ -207,7 +201,6 @@ async function create_account(event: Event): Promise<void> {
 				});
 			});
 		} catch (error) {
-			console.error("La vérification 2FA a échoué:", error);
 			return;
 		}
 	}
@@ -222,15 +215,11 @@ async function create_account(event: Event): Promise<void> {
 
 		if (response.ok) {
 			const responseText = await response.text();
-			console.log("Reponse brute create_account:", responseText);
 			if (responseText) {
 				result = JSON.parse(responseText);
 			}
-		} else {
-			console.error("Erreur serveur pour create_account:", response.statusText);
 		}
 	}
-	console.log(result.success);
 	if (result.success) {
 		Swal.fire({
 			text: "Account successfully created!",
@@ -259,34 +248,33 @@ async function logout(print: boolean): Promise<void> {
 }
 
 async function uploadProfileImage() {
-        const fileInput = document.getElementById('profileImage') as HTMLInputElement;
-        const file = fileInput?.files?.[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('profileImage', file);
+	const fileInput = document.getElementById('profileImage') as HTMLInputElement;
+	const file = fileInput?.files?.[0];
+	if (file) {
+		const formData = new FormData();
+		formData.append('profileImage', file);
 
-        try {
-            const response = await fetch('/update_avatar', {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await response.json();
+		try {
+			const response = await fetch('/update_avatar', {
+				method: 'POST',
+				body: formData,
+			});
+			const data = await response.json();
 
-        if (data.success) {
-			Swal.fire({
-				text: "Image uploaded successfully!",
-				icon: 'success'
-			});
-        } else {
-			Swal.fire({
-				text: "Failed to upload image.",
-				icon: 'error'
-			});
-        }
-        } catch (error) {
-        console.error('Error uploading image:', error);
-        }
-    }
+			if (data.success) {
+				Swal.fire({
+					text: "Image uploaded successfully!",
+					icon: 'success'
+				});
+			} else {
+				Swal.fire({
+					text: "Failed to upload image.",
+					icon: 'error'
+				});
+			}
+		} catch (error) {
+		}
+	}
 }
 
 async function settings(event: Event): Promise<void> {

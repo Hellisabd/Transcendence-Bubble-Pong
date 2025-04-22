@@ -1,5 +1,3 @@
-console.log("ping.js chargé");
-
 document.addEventListener("keydown", (event) => {
     if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") {
         if (event.key === "h")
@@ -35,7 +33,6 @@ let bounce: number = 0;
 let bonus_stats: any = null;
 
 function display_next_match(match: any) {
-    console.log("passe dans display next_match");
     let html: any = document.getElementById("next_match1");
     if (!html)
         return ;
@@ -65,13 +62,10 @@ async function play_ping() {
     const sock_name = window.location.host;
     ping_Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping");
     ping_Wsocket.onopen = () => {
-        console.log("✅ WebSocket waiting connectée !");
         ping_Wsocket?.send(JSON.stringify({ username: user }));
     };
-    ping_Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket waiting erreur :", user);};
-    ping_Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket waiting fermée :", user);};
+    ping_Wsocket.onerror = (event) => {};
+    ping_Wsocket.onclose = (event) => {};
     ping_Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -111,19 +105,13 @@ async function ping_tournament() {
     const sock_name = window.location.host;
     ping_Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping_tournament");
     ping_Tsocket.onopen = () => {
-        console.log("✅ WebSocket ping tournament connectée !");
         ping_Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
-    ping_Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket ping tournament erreur :", user);};
-    ping_Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket ping tournament fermée :", user);};
+    ping_Tsocket.onerror = (event) => {};
+    ping_Tsocket.onclose = (event) => {};
     ping_Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
-        console.log("ping_id_tournament in data: ", data.ping_id_tournament);
-        console.log("data: ", data);
         if (data.id_tournament != undefined) {
-            console.log("actualise ping_id_tournament");
             ping_id_tournament = data.id_tournament; 
         }
         if (data.end_tournament && data.classementDecroissant) {
@@ -132,11 +120,9 @@ async function ping_tournament() {
             ping_inTournament = false;
             return ;
         }
-        console.log("success: ", data.success);
         if (data.success == true) {
             ping_player_id = data.player_id;
             ping_lobbyKey = data.lobbyKey;
-            console.log(`data.player1 : ${data.player1} data.player2 : ${data.player2}, user: ${user}`)
             ping_initializeGame(data.player1, data.player2, user);
         }
         if (data.next_match) {
@@ -146,14 +132,11 @@ async function ping_tournament() {
 }
 
 function ping_end_game(ping_win: number, user: string | null, otheruser: string, myscore: number, otherscore: number,  ping_inTournament: boolean) {
-    if (ping_inTournament && (myscore == 3 || otherscore == 3)) { // a changer en 3 c est le score finish
-        console.log("endgame on tournament: ", ping_id_tournament);
+    if (ping_inTournament && (myscore == 3 || otherscore == 3)) {
         ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, username: user, endgame: true, history: {"win": ping_win, myusername: user, "otherusername": otheruser,  "myscore": myscore, "otherscore": otherscore, "gametype": "ping", bounce: bounce, bonus_stats: bonus_stats}}));
         ping_socket?.close();
     }
-    else if (myscore == 3 || otherscore == 3) { // a changer en 3 c est le score finish
-        console.log("bonus_stat_front: ", bonus_stats); 
-
+    else if (myscore == 3 || otherscore == 3) {
         fetch("/update_history", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -188,7 +171,6 @@ function ping_Disconnect_from_game() {
 }
 
 function ping_initializeGame(user1: string, user2: string, myuser: string | null): void {
-    console.log("Initialisation du jeu...");
     const btnUp = document.getElementById("btnUpping");
     btnUp?.addEventListener("mousedown", () => move_mobile_ping("left"));
     btnUp?.addEventListener("mouseup", () => move_mobile_ping("stop"));
@@ -201,7 +183,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
     btnDown?.addEventListener("touchstart", () => move_mobile_ping("right"));
     btnDown?.addEventListener("touchend", () => move_mobile_ping("stop"));
     const canvas = document.getElementById("pingCanvas") as HTMLCanvasElement;
-	console.log("Canvas trouvé :", canvas);
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -254,17 +235,14 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         if (!ping_socket)
             return ;
         ping_socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");
             ping_socket?.send(JSON.stringify({ username1: user1, username2: user2, "ping_lobbyKey": ping_lobbyKey, "myuser": myuser}));
         };
-        ping_socket.onerror = (event) => {
-            console.error("❌ WebSocket erreur :", event);};
+        ping_socket.onerror = (event) => {};
         ping_socket.onclose = (event) => {
             ping_socket = null;
             ping_lobbyKey = null;
             ping_disp = true;
             ping_win = 0;
-            console.warn("⚠️ WebSocket fermée :", event);
         };
 
         const ballRadius = 15;
@@ -750,9 +728,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
                 ping_end_game(ping_win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, ping_inTournament);
             }
         }
-    } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }
 

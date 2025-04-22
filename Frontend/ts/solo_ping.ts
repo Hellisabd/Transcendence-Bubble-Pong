@@ -1,4 +1,3 @@
-console.log("solo_ping.js chargé");
 
 document.addEventListener("keydown", (event) => {
     if (window.location.pathname === "/solo_ping") {
@@ -8,7 +7,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 function soloping_initializeGame(): void {
-    console.log("Initialisation du jeu...");
     let solo_score = document.getElementById("solo_score") as HTMLDataElement;
     const canvas = document.getElementById("solopingCanvas") as HTMLCanvasElement;
     fetch("/update_status", {
@@ -607,12 +605,8 @@ function soloping_initializeGame(): void {
                 const data = await response.json();
             }
             catch (error) {
-                console.log('Error sending score to db', error);
             }
             sending = false;
         }
-    } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }

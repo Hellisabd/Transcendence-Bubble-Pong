@@ -34,13 +34,11 @@ const dbFile = process.env.DB_FILE || "/usr/src/app/dataBase/core.db";
 // 📌 Vérifier et créer le dossier dataBase s'il n'existe pas
 const dbDir = path.dirname(dbFile);
 if (!fs.existsSync(dbDir)) {
-  console.log("📌 Création du dossier dataBase...");
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
 // 📌 Initialiser la base SQLite
 const db = new Database(dbFile);
-console.log(`📌 Base de données utilisée : ${dbFile}`);
 
 // 🔹 Création de la table "users" si elle n'existe pas
 db.prepare(`
@@ -119,9 +117,7 @@ db.prepare(`
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement, gametype} = request.body;
   if (!gametype) {
-    console.log("ici je plante");
-    console.log(gametype);
-    console.log(classement);
+    return ;
   }
   let rank1 = 1;
   let rank2 = 2;
@@ -178,12 +174,10 @@ fastify.post("/pending_request", async (request, reply) => {
 });
 
 async function get_user_with_id(user_id) {
-  console.log("user_id in get user with id: ", user_id);
   const user = await db.prepare(`
     SELECT username FROM users
     WHERE id = ?
     `).get(user_id);
-    console.log(user.username);
     return user.username;
 }
 
@@ -322,22 +316,19 @@ fastify.post("/decline_friend", async (request, reply) => {
 
 // 🔍 Vérifier les tables existantes
 const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table';").all();
-console.log("📌 Tables trouvées dans SQLite:", tables);
 
 // 🚀 Lancement du serveur
 fastify.listen({ port: 5000, host: "0.0.0.0" }, (err, address) => {
   if (err) {
-    console.error(err);
     process.exit(1);
   }
-  console.log(`🚀 Serveur Users démarré sur ${address}`);
 });
 
 // 🔹 Route POST pour le login
 fastify.post("/login", async (request, reply) => {
   const { email, password , domain} = request.body;
   if (!email || !password) {
-    return reply.code(400).send({ success: false, error: "Champs manquants" });
+    return reply.send({ success: false, error: "Champs manquants" });
   }
   try {
     const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
@@ -349,7 +340,7 @@ fastify.post("/login", async (request, reply) => {
     const token = generateToken(user);
     return reply.send({ success: true, token, username: user.username, "domain": domain });
   } catch (error) {
-    return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+    return reply.send({ success: false, error: "Erreur interne du serveur" });
   }
 });
 
@@ -360,8 +351,7 @@ fastify.post("/settings", async (request, reply) => {
   const { email, password, newusername, username } = request.body;
 
   if (!email || !password || !newusername || !username) {
-    console.error("Champs manquants :", { email, password, newusername, username });
-    return reply.code(400).send({ success: false, error: "Champs manquants" });
+    return reply.send({ success: false, error: "Champs manquants" });
   }
 
   try {
@@ -445,7 +435,6 @@ function calc_winrate_against_friends(friends, username, history, tri) {
     history.forEach(match => {
       if (friends[i].username === match.player1_username || friends[i].username === match.player2_username) {
         if (match.winner_username === username) {
-          console.log(match.gametype);
           if (match.gametype == "pong")
             win_against_friend_pong++;
           else
@@ -619,7 +608,6 @@ async function get_stats(history, history_tournament, username) {
     topPlayers: topPlayers || 0,
     my_high_score: my_high_score || 0,
   }
-  console.log(stats);
   return stats;
 }
 
@@ -873,18 +861,18 @@ fastify.post("/update_history", async (request, reply) => {
 fastify.post("/create_account", async (request, reply) => {
   const { username, email, password, secretKey } = request.body;
   if (!username || !email || !password) {
-    return reply.code(400).send({ success: false, error: "Champs manquants" });
+    return reply.send({ success: false, error: "Champs manquants" });
   }
 
   try {
     // 🔍 Vérifier si l'utilisateur existe déjà
     const existingemail = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
     if (existingemail) {
-      return reply.code(409).send({ success: false });
+      return reply.send({ success: false });
     }
     const existingUser = db.prepare("SELECT * FROM users WHERE email = ?").get(username);
     if (existingUser) {
-      return reply.code(409).send({ success: false });
+      return reply.send({ success: false });
     }
     const hashedpasswrd = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -898,8 +886,7 @@ fastify.post("/create_account", async (request, reply) => {
     return reply.send({ success: true, message: "Compte créé avec succès !" });
 
   } catch (error) {
-    console.error("❌ Erreur lors de la création du compte :", error.message);
-    return reply.code(500).send({ error: "Erreur interne du serveur" });
+    return reply.send({ error: "Erreur interne du serveur" });
   }
 });
 
@@ -907,14 +894,13 @@ fastify.post("/userExists", async (request, reply) => {
 	const { username } = request.body;
 	try {
 		const row = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
-		console.log("Test row : ", row);
 		if (row) {
 			reply.send({ success: true, user: row });
 		} else {
-			reply.code(404).send({ success: false, message: "User.js : Utilisateur non trouvé" });
+			reply.send({ success: false, message: "User.js : Utilisateur non trouvé" });
 		}
 	} catch (err) {
-		reply.code(500).send({ success: false, message: "Erreur serveur" });
+		reply.send({ success: false, message: "Erreur serveur" });
 	}
 });
 
@@ -946,7 +932,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
   const { email } = request.body;
 
   if (!email) {
-      return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+      return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
   }
 
   try {
@@ -956,7 +942,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
       }
       return reply.send({ success: true, secret: user.secret });
   } catch (error) {
-      return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+      return reply.send({ success: false, error: "Erreur interne du serveur" });
   }
 });
 
@@ -964,7 +950,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 	const { email } = request.body;
 
 	if (!email) {
-		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+		return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
 	}
 
 	try {
@@ -974,7 +960,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 		}
 		return reply.send({ success: true });
 	} catch (error) {
-		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+		return reply.send({ success: false, error: "Erreur interne du serveur" });
 	}
   });
 fastify.post("/update_solo_score",  async (request, reply) => {
@@ -1005,7 +991,6 @@ fastify.post("/update_solo_score",  async (request, reply) => {
     return reply.send({success: true});
   }
   catch (error) {
-    console.error(error);
     return reply.status(500).send({ success: false, message: "Internal server error" });
   }
 });
