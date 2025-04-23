@@ -350,7 +350,7 @@ async function setup2fa(request, reply) {
 
     const userExists = await checkUserExists(username);
     if (userExists === true) {
-        return reply.send({ success: false, message: "Check user : Utilisateur deja existant." });
+        return reply.send({ success: false, message: "Check user : user already exists." });
     }
 
 	try {
