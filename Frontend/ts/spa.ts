@@ -75,7 +75,7 @@ async function set_up_bars() {
             </div>
 
             <div id="pending_request_div" class="p-4 mt-10">
-                <h2 class="font-bold text-center text-2xl">Pending requesth2>
+                <h2 class="font-bold text-center text-2xl">Pending request</h2>
                 <div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
                 <div id="pending_request"></div>
             </div>
@@ -326,7 +326,7 @@ async function get_user(): Promise<string | null> {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.substring(1) == "end_tournament") {
+    if (window.location.pathname.substring(1) == "end_tournament" || window.location.pathname.substring(1) == "pong_tournament" || window.location.pathname.substring(1) == "ping_tournament" || window.location.pathname.substring(1) == "waiting_room" || window.location.pathname.substring(1) == "ping_waiting_room") {
         window.location.pathname = "/index";
     }
     navigateTo(window.location.pathname.substring(1), false, null);

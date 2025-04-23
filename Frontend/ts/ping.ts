@@ -193,11 +193,11 @@ function ping_Disconnect_from_game() {
         animation_ping_stop();
     if (!ping_Wsocket && !ping_socket && !ping_lobbyKey && !ping_Tsocket)
         return;
-    if (!ping_Wsocket?.close || !ping_Wsocket?.CLOSING)
+    if (ping_Wsocket?.readyState != ping_Wsocket?.CLOSING && ping_Wsocket?.readyState != ping_Wsocket?.CLOSED)
         ping_Wsocket?.close();
-    if (!ping_socket?.close || !ping_socket?.CLOSING)
+    if (ping_socket?.readyState != ping_socket?.CLOSING && ping_socket?.readyState != ping_socket?.CLOSED)
         ping_socket?.close();
-    if (!ping_Tsocket?.close || !ping_Tsocket?.CLOSING) {
+    if (ping_Tsocket?.readyState != ping_Tsocket?.CLOSING && ping_Tsocket?.readyState != ping_Tsocket?.CLOSED) {
         ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
         ping_Tsocket?.close();
     }

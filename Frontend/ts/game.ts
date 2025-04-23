@@ -163,7 +163,7 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
     win = 0;
 }
 
-function input_down_pong(event) : void {
+function input_down_pong(event: KeyboardEvent) : void {
     console.log("keydown");
     console.log("socket?.readyState: " + socket?.readyState);
     if (socket?.readyState === WebSocket.OPEN) {
@@ -186,7 +186,7 @@ function input_down_pong(event) : void {
     }
 }
 
-function input_up_pong(event) : void {
+function input_up_pong(event: KeyboardEvent) : void {
     if (socket?.readyState === WebSocket.OPEN) {
         let message: { player?: number; move?: string; game?: string; lobbyKey?: string | null } | null = null;
 
@@ -213,11 +213,11 @@ function Disconnect_from_game() {
     }
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
-    if (!Wsocket?.CLOSING || !Wsocket?.close)
+    if (Wsocket?.readyState != Wsocket?.CLOSING && Wsocket?.readyState != Wsocket?.CLOSED)
         Wsocket?.close();
-    if (!socket?.CLOSING || !socket?.close)
+    if (socket?.readyState != socket?.CLOSING && socket?.readyState != socket?.CLOSED)
         socket?.close();
-    if (!Tsocket?.CLOSING || !Tsocket?.close) {
+    if (Tsocket?.readyState != Tsocket?.CLOSING && Tsocket?.readyState != Tsocket?.CLOSED) {
         Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
         Tsocket?.close();
     }
@@ -229,7 +229,6 @@ function Disconnect_from_game() {
 }
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
-    console.log("Initialisation du jeu...");
     const btnUp = document.getElementById("btnUp");
     btnUp?.addEventListener("mousedown", () => move_mobile_pong("up"));
     btnUp?.addEventListener("mouseup", () => move_mobile_pong("stop"));
