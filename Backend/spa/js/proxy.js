@@ -390,8 +390,6 @@ async function setup2fa(request, reply) {
 async function twofaverify(request, reply) {
 	try {
 		const { email, code } = request.body;
-		console.log("email :" + email);
-		console.log("code : ", code);
 		const response = await axios.post("http://users:5000/2fa/get_secret",
 			{ email },  // ✅ Envoie le JSON correctement
 			{ headers: { "Content-Type": "application/json" } }

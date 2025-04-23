@@ -501,9 +501,9 @@ async function get_stats(history, history_tournament, username) {
     }
   }
   const topPlayers = await db.prepare(`
-    SELECT username, high_score 
-    FROM users 
-    ORDER BY high_score DESC 
+    SELECT username, high_score
+    FROM users
+    ORDER BY high_score DESC
     LIMIT 5
   `).all();
   const my_high_score = await db.prepare(`
@@ -907,7 +907,6 @@ fastify.post("/userExists", async (request, reply) => {
 	const { username } = request.body;
 	try {
 		const row = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
-		console.log("Test row : ", row);
 		if (row) {
 			reply.send({ success: true, user: row });
 		} else {
