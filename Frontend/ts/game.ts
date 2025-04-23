@@ -1,5 +1,3 @@
-console.log("game.js chargé");
-
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -34,7 +32,7 @@ WIN_image.src = "Frontend/assets/WIN.webp";
 const LOSE_image = new Image();
 LOSE_image.src = "Frontend/assets/LOSE.webp";
 
-function input_down(event) : void {
+function input_down(event: KeyboardEvent) : void {
     if (window.location.pathname == "/solo_ping") {
         input_down_solo_ping(event);
     } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {
@@ -44,7 +42,7 @@ function input_down(event) : void {
     }
 }
 
-function input_up(event) : void {
+function input_up(event: KeyboardEvent) : void {
     if (window.location.pathname == "/solo_ping") {
         input_up_solo_ping(event);
     } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {

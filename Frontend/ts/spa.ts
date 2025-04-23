@@ -1,5 +1,3 @@
-console.log("Script spa.ts chargé !");
-
 let old_url: null | string = null;
 
 declare function display_friends(): void;
@@ -190,7 +188,6 @@ function disable_bars() {
 }
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-	console.log(`🚀 Changement de page: ${page}`);
 	let afficheUser = false;
 	const username = await get_user();
     const loging: boolean = page == "login";
@@ -207,7 +204,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         credentials: "include",
     });
     const statusJson = await status.json();
-    console.log(`status: ${statusJson.status}`);
     if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
         navigateTo("index", true, null);
     }
@@ -243,7 +239,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 url = "/";
                 page = "index";
             }
-            console.log("url: ", url);
             response = await fetch(url, {
                 credentials: "include",
                 headers: { "Content-Type": "text/html" }
@@ -266,13 +261,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
             contentDiv.innerHTML = newContent.innerHTML;
-        } else {
-            console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
-        console.log("document title: ", document.title);
-        if (addHistory/*  && window.history.state.page !== page */) {
-            // old_url = page;
+        if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
         Disconnect_from_game();
@@ -319,7 +310,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             disable_bars();
 
     } catch (error) {
-        console.error('❌ Erreur de chargement de la page:', error);
+        console.log('Error while loading the page.');
     }
 }
 

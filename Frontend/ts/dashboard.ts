@@ -1,4 +1,3 @@
-console.log("dashboard.ts charger")
 
 let canvas_map: any = [];
 let general_ctx: CanvasRenderingContext2D | null = null;
@@ -24,13 +23,11 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 
 	// Créer un canvas pour chaque ami
 	for (let i: number = 0; i < winrate_per_friend.length; i++) {
-		console.log("create canvas number: ", i);
 		const friend = winrate_per_friend[i];
 		document.getElementById(`friend_${friend.username}`)?.remove();
 		document.getElementById(`friend_${friend.username}_canvas`)?.remove();
 		const canvas = document.createElement("canvas");
 		friendContainer = canvas;
-		console.log(`canva name: friend_${friend.username}`);
 		canvas.id = `friend_${friend.username}_canvas`;
 		canvas.width = 600;
 		canvas.height = 700;
@@ -46,7 +43,6 @@ function create_friend_canvas(winrate_per_friend: any, json: any) {
 			ctx_canva?.scale(scale, scale);
 			ctx_canva?.translate(-canvas.width / 2, -canvas.height / 2);
 		}
-		console.log(json.winrate_against_friends[0].winrate)
 		if (ctx_canva) {
 			let size: number = friend.username.length;
 			let image_height: number = 50;
@@ -103,7 +99,6 @@ async function get_stats(username: string | null, canva_name: string): Promise<v
 		shadow_text("Average place in tournaments: " + jsonResponse.average_place_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32, 20, "start", general_ctx, "black");
 		shadow_text("Average score in tournaments: " + jsonResponse.average_score_in_tournament.toFixed(2), general_canvas.width / 8, general_canvas.height / 2 + general_canvas.height * 0.32 + general_canvas.height * 0.1, 20, "start", general_ctx, "black");
 	}
-	console.log(`general canva : width : ${general_canvas.width}, height: ${general_canvas.height}`);
 	pong_stats_canvas = document.getElementById("pong_stats") as HTMLCanvasElement;
 	if (pong_stats_canvas) {
 		pong_stats_ctx = pong_stats_canvas.getContext("2d");
@@ -174,7 +169,6 @@ async function get_stats(username: string | null, canva_name: string): Promise<v
 			shadow_text(`${i + 1}. ${jsonResponse.topPlayers[i]?.username}`, ping_solo_canvas.width / 10, ping_solo_canvas.height / 5 + ping_solo_canvas.height / 10 * i, 30 - i * 2, "start", ping_solo_ctx, color);
 			shadow_text(`${jsonResponse.topPlayers[i]?.high_score}`, ping_solo_canvas.width - ping_solo_canvas.width / 8, ping_solo_canvas.height / 5 + ping_solo_canvas.height / 10 * i, 30 - i * 2, "end", ping_solo_ctx, color);
 		}
-		console.log("SCORE::::", jsonResponse.my_high_score);
 	}
 	display_canvas(canva_name);
 }
@@ -200,7 +194,6 @@ function display_canvas(canva_name: string) {
 	}
 	canva_to_display?.classList.remove("hidden");
 	if (canva_name == "general") {
-		console.log("hide other than general");
 		if (general_canvas?.classList.contains("hidden"))
 			general_canvas?.classList.remove("hidden");
 		if (!ping_stats_canvas?.classList.contains("hidden"))
@@ -210,7 +203,6 @@ function display_canvas(canva_name: string) {
 		if (!ping_solo_canvas?.classList.contains("hidden"))
 			ping_solo_canvas?.classList.add("hidden");
 	} else if(canva_name == "ping") {
-		console.log("hide other than ping");
 		if (!general_canvas?.classList.contains("hidden"))
 			general_canvas?.classList.add("hidden");
 		if (ping_stats_canvas?.classList.contains("hidden"))
@@ -220,7 +212,6 @@ function display_canvas(canva_name: string) {
 		if (!ping_solo_canvas?.classList.contains("hidden"))
 			ping_solo_canvas?.classList.add("hidden");
 	} else if (canva_name == "pong") {
-		console.log("hide other than pong");
 		if (!general_canvas?.classList.contains("hidden"))
 			general_canvas?.classList.add("hidden");
 		if (!ping_stats_canvas?.classList.contains("hidden"))
@@ -230,7 +221,6 @@ function display_canvas(canva_name: string) {
 		if (!ping_solo_canvas?.classList.contains("hidden"))
 			ping_solo_canvas?.classList.add("hidden");
 	} else if (canva_name == "solo") {
-		console.log("hide other than solo");
 		if (!general_canvas?.classList.contains("hidden"))
 			general_canvas?.classList.add("hidden");
 		if (!ping_stats_canvas?.classList.contains("hidden"))

@@ -1,5 +1,3 @@
-console.log("solo_ping.js chargé");
-
 const solo_ballRadius = 10;
 const bonusRadius = 50;
 const move = Math.PI / 50;
@@ -29,7 +27,6 @@ let canvasWidth: number;
 let canvasHeight: number;   
 
 function solo_randballPos() {
-    console.log("canva width: " + canvasWidth);
     solo_ball.x = Math.floor(Math.random() * canvasWidth);
     solo_ball.y = Math.floor(Math.random() * canvasHeight);
     let dx = solo_ball.x - canvasWidth / 2;
@@ -55,7 +52,7 @@ function new_solo_game() {
     end_solo = false;
 }
 
-function input_down_solo_ping(event) {
+function input_down_solo_ping(event: KeyboardEvent) {
     if (event.key === "h")
         document.getElementById("div_ping_solo_help")?.classList.toggle("hidden");
     if (event.key === "ArrowUp") {
@@ -87,7 +84,7 @@ function input_down_solo_ping(event) {
     }
 }
 
-function input_up_solo_ping(event) {
+function input_up_solo_ping(event: KeyboardEvent) {
     if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
         player.move.up = false;
         player.move.down = false;
@@ -97,7 +94,6 @@ function input_up_solo_ping(event) {
 }
 
 function soloping_initializeGame(): void {
-    console.log("Initialisation du jeu...");
     let solo_score = document.getElementById("solo_score") as HTMLDataElement;
     const canvas = document.getElementById("solopingCanvas") as HTMLCanvasElement;
     fetch("/update_status", {
@@ -624,12 +620,9 @@ function soloping_initializeGame(): void {
                 const data = await response.json();
             }
             catch (error) {
-                console.log('Error sending score to db', error);
+                console.log('Error sending score to db');
             }
             sending = false;
         }
-    } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }

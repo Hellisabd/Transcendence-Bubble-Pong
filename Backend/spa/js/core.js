@@ -25,9 +25,6 @@ const multipart = require('@fastify/multipart');
 
 fastify.register(multipart);
 
-// let pongSocket = new WebSocket("ws://pong:4000/ws/pong");
-// pongSocket.on("open", () => { console.log("✅ Connecté au serveur WebSocket de Pong !")});
-
 fastify.register(cors, {
   origin: "http://localhost:8000",  // Autorise toutes les origines (*). Pour plus de sécurité, mets l'URL de ton frontend.
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Autorise ces méthodes HTTP
@@ -73,7 +70,6 @@ fastify.get("/logout", async (req, reply) => {
 
 fastify.register(async function (fastify) {
   fastify.get("/ws/spa/friends", {websocket: true}, (connection, req) => {
-    console.log("Nouvelle connexion Social WebSocket !");
     connection.socket.on("message", (message) => {
       const data = JSON.parse(message.toString());
       Websocket_handling(data.username, connection);
@@ -127,7 +123,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
   const { email } = request.body;
 
   if (!email) {
-      return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+      return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
   }
 
   try {
@@ -138,8 +134,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
 
       return reply.send(response.data);
   } catch (error) {
-      console.error("Erreur:", error.message);
-      return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+      return reply.send({ success: false, error: "Erreur interne du serveur" });
   }
 });
 
@@ -147,7 +142,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 	const { email } = request.body;
 
 	if (!email) {
-		return reply.code(400).send({ success: false, error: "Nom d'utilisateur manquant" });
+		return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
 	}
 
 	try {
@@ -158,8 +153,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 
 		return reply.send(response.data);
 	} catch (error) {
-		console.error("Erreur:", error.message);
-		return reply.code(500).send({ success: false, error: "Erreur interne du serveur" });
+		return reply.send({ success: false, error: "Erreur interne du serveur" });
 	}
   });
 
@@ -174,10 +168,10 @@ fastify.get('/:page', async (request, reply) => {
   let filePath = "Frontend/templates/" + page + ".ejs"
   let fileName =  page + ".ejs"
   if (page.includes('..') || path.isAbsolute(page)) {
-    return reply.code(400).send('Requête invalide');
+    return reply.send('Requête invalide');
   }
   if (!fs.existsSync(filePath)) {
-    return reply.code(404).send('Page non trouvée');
+    return reply.send('Page non trouvée');
   }
   return reply.view(fileName);
 });
