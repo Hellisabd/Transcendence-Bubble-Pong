@@ -34,6 +34,29 @@ WIN_image.src = "Frontend/assets/WIN.webp";
 const LOSE_image = new Image();
 LOSE_image.src = "Frontend/assets/LOSE.webp";
 
+function input_down(event) : void {
+    if (window.location.pathname == "/solo_ping") {
+        input_down_solo_ping(event);
+    } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {
+        input_down_ping(event);
+    } else if (window.location.pathname == "/pong_tournament" || window.location.pathname == "/waiting_room") {
+        input_down_pong(event);
+    }
+}
+
+function input_up(event) : void {
+    if (window.location.pathname == "/solo_ping") {
+        input_up_solo_ping(event);
+    } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {
+        input_up_ping(event);
+    } else if (window.location.pathname == "/pong_tournament" || window.location.pathname == "/waiting_room") {
+        input_up_pong(event);
+    }
+}
+
+document.addEventListener("keydown", input_down);
+document.addEventListener("keyup", input_up);
+
 async function play_pong() {
     Disconnect_from_game();
     const user = await get_user();
@@ -127,8 +150,8 @@ async function pong_tournament() {
     };
     Tsocket.onerror = (event) => {
         console.error("❌ WebSocket tournament erreur :", user);};
-    Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket tournament fermée :", user);};
+        Tsocket.onclose = (event) => {
+            console.warn("⚠️ WebSocket tournament fermée :", user);};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -166,6 +189,43 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
     }
     win = 0;
 }
+
+function input_down_pong(event) : void {
+    console.log("keydown");
+    if (socket?.readyState === WebSocket.OPEN) {
+        console.log("keydown + websocket open");
+        let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
+
+        if (event.key === "ArrowUp")
+            message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
+        if (event.key === "ArrowDown")
+            message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
+        if (event.key === " " && disp == true) {
+            win = 0;
+            message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
+            console.log("space triggered : message from front: ", message);
+        }
+
+        if (message) {
+            socket?.send(JSON.stringify(message));
+        }
+    }
+}
+
+function input_up_pong(event) : void {
+    if (socket?.readyState === WebSocket.OPEN) {
+        let message: { player?: number; move?: string; game?: string; lobbyKey?: string | null } | null = null;
+
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            message = { player: player_id, move: "stop", "lobbyKey": lobbyKey  };
+        }
+
+        if (message) {
+            socket.send(JSON.stringify(message));
+        }
+    }
+}
+
 
 function Disconnect_from_game() {
     fetch("/update_status", {
@@ -300,39 +360,6 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             }
         };
 
-        document.addEventListener("keydown", (event) => {
-            if (socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
-        
-                if (event.key === "ArrowUp")
-                    message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
-                if (event.key === "ArrowDown")
-                    message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
-                if (event.key === " " && disp == true) {
-                    win = 0;
-                    message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-                    console.log("message from front: ", message);
-                }
-
-                if (message) {
-                    socket?.send(JSON.stringify(message));
-                }
-            }
-        });
-
-        document.addEventListener("keyup", (event) => {
-            if (socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; game?: string; lobbyKey?: string | null } | null = null;
-
-                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    message = { player: player_id, move: "stop", "lobbyKey": lobbyKey  };
-                }
-
-                if (message) {
-                    socket.send(JSON.stringify(message));
-                }
-            }
-        });        
 
         function drawGame(): void {
             if (!ctx) {

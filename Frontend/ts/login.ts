@@ -1,5 +1,7 @@
 console.log("login.ts chargé");
 
+declare const Swal: any;
+
 type LoginResponse = {
     success: boolean;
     message?: string;

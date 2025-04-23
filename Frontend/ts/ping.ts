@@ -1,12 +1,5 @@
 console.log("ping.js chargé");
 
-document.addEventListener("keydown", (event) => {
-    if (window.location.pathname === "/ping_waiting_room" || window.location.pathname === "/ping_tournament") {
-        if (event.key === "h")
-          document.getElementById("div_ping_help")?.classList.toggle("hidden");  
-    }
-});
-
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -34,6 +27,49 @@ let bounce: number = 0;
 
 let bonus_stats: any = null;
 
+function input_down_ping(event){
+    if (event.key === "h")
+        document.getElementById("div_ping_help")?.classList.toggle("hidden");  
+    if (ping_socket?.readyState === WebSocket.OPEN) {
+        let message: { player?: number; move?: string; playerReady?: boolean; ping_lobbyKey?: string | null} | null = null;
+
+        if (event.key === "ArrowUp") {
+            message = { player: ping_player_id, move: "up", "ping_lobbyKey": ping_lobbyKey };
+        }
+        if (event.key === "ArrowDown") {
+            message = { player: ping_player_id, move: "down", "ping_lobbyKey": ping_lobbyKey};
+        }
+        if (event.key === "ArrowRight") {
+            message = { player: ping_player_id, move: "right", "ping_lobbyKey": ping_lobbyKey };
+        }
+        if (event.key === "ArrowLeft") {
+            message = { player: ping_player_id, move: "left", "ping_lobbyKey": ping_lobbyKey };
+        } 
+        if (event.key === " " && ping_disp == true) {
+            ping_win = 0;
+            message = { playerReady: true, player: ping_player_id, "ping_lobbyKey": ping_lobbyKey };
+        }
+
+        if (message) {
+            ping_socket?.send(JSON.stringify(message));
+        }
+    }
+}
+
+function input_up_ping(event){
+    if (ping_socket?.readyState === WebSocket.OPEN) {
+        let message: { player?: number; move?: string; game?: string; ping_lobbyKey?: string | null } | null = null;
+
+        if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
+            message = { player: ping_player_id, move: "stop", "ping_lobbyKey": ping_lobbyKey  };
+        }
+
+        if (message) {
+            ping_socket.send(JSON.stringify(message));
+        }
+    }
+}
+
 function display_next_match(match: any) {
     console.log("passe dans display next_match");
     let html: any = document.getElementById("next_match1");
@@ -42,14 +78,14 @@ function display_next_match(match: any) {
     if (match != "last_match")
         html.innerHTML = `${match[0]} vs ${match[1]}`;
     else
-        html.innerHTML = "No More Match";
-    html = document.getElementById("next_match2");
-    if (!html)
-        return ;
-    if (match != "last_match")
-        html.innerHTML = `${match[2]} vs ${match[3]}`;
-    else
-        html.innerHTML = "No More Match";
+    html.innerHTML = "No More Match";
+html = document.getElementById("next_match2");
+if (!html)
+    return ;
+if (match != "last_match")
+    html.innerHTML = `${match[2]} vs ${match[3]}`;
+else
+html.innerHTML = "No More Match";
 }
 
 async function play_ping() {
@@ -347,46 +383,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
             }
         };
 
-        document.addEventListener("keydown", (event) => {
-            if (ping_socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; playerReady?: boolean; ping_lobbyKey?: string | null} | null = null;
-        
-                if (event.key === "ArrowUp") {
-                    message = { player: ping_player_id, move: "up", "ping_lobbyKey": ping_lobbyKey };
-                }
-                if (event.key === "ArrowDown") {
-                    message = { player: ping_player_id, move: "down", "ping_lobbyKey": ping_lobbyKey};
-                }
-                if (event.key === "ArrowRight") {
-                    message = { player: ping_player_id, move: "right", "ping_lobbyKey": ping_lobbyKey };
-                }
-                if (event.key === "ArrowLeft") {
-                    message = { player: ping_player_id, move: "left", "ping_lobbyKey": ping_lobbyKey };
-                } 
-                if (event.key === " " && ping_disp == true) {
-                    ping_win = 0;
-                    message = { playerReady: true, player: ping_player_id, "ping_lobbyKey": ping_lobbyKey };
-                }
-
-                if (message) {
-                    ping_socket?.send(JSON.stringify(message));
-                }
-            }
-        });
-
-        document.addEventListener("keyup", (event) => {
-            if (ping_socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; game?: string; ping_lobbyKey?: string | null } | null = null;
-
-                if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowRight" || event.key === "ArrowLeft") {
-                    message = { player: ping_player_id, move: "stop", "ping_lobbyKey": ping_lobbyKey  };
-                }
-
-                if (message) {
-                    ping_socket.send(JSON.stringify(message));
-                }
-            }
-        });
 
         function drawGame(): void {
             if (!ctx) {

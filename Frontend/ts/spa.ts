@@ -3,7 +3,7 @@ console.log("Script spa.ts chargé !");
 let old_url: null | string = null;
 
 declare function display_friends(): void;
-declare function set_up_friend_list(user: string | null);
+declare function set_up_friend_list(user: string | null): void;
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;

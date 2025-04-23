@@ -16,7 +16,7 @@ let pong_ballSpeedX: number  = 0;
 let pong_ballSpeedY: number  = 0;
 let pong_speed: number  = 0;
 
-let id_pong_anim: number | null = null;
+let id_pong_anim: number | null = null; 
 
 function initializeAnimationPong(): void {
     pong_canvas = document.getElementById("pong_animation") as HTMLCanvasElement;

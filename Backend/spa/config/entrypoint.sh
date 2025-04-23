@@ -1,7 +1,7 @@
 #!/bin/bash
 
 npx tsc
-chown -R spa:spa /usr/src/app/Frontend
+# chown -R spa:spa /usr/src/app/Frontend
 
 npx tailwindcss -i ./Frontend/css/style.css -o ./Frontend/css/output.css
 
