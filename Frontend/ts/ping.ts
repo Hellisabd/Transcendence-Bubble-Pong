@@ -148,9 +148,11 @@ async function ping_tournament() {
         ping_Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
     ping_Tsocket.onerror = (event) => {
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
         console.error("❌ WebSocket ping tournament erreur :", user);};
     ping_Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket ping tournament fermée :", user);};
+        console.log("WebSocket ping tournament closed :");
+    };
     ping_Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -740,8 +742,10 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
     } 
 }
 
-window.addEventListener("beforeunload", () => {
-    if (ping_Tsocket?.readyState === WebSocket.OPEN) {
-        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
-    }
-});
+// window.addEventListener("beforeunload", () => {
+//     fetch("/ping_tournament/disconnect", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({id_tournament_key_from_player: ping_id_tournament, disconnect: true})
+//     });
+// });

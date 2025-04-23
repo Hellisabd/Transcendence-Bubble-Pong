@@ -7,6 +7,8 @@ let mobile_move_interval: any = null;
 
 let player_id = 0;
 
+let i_test_socket = 0;
+
 let id_tournament: number = 0;
 
 let inTournament:boolean = false;
@@ -68,13 +70,13 @@ async function play_pong() {
     const sock_name = window.location.host;
     Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
-        console.log("✅ WebSocket waiting connectée !");
+        console.log("WebSocket waiting pong connectee")
         Wsocket?.send(JSON.stringify({ username: user }));
     };
     Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket waiting erreur :", user);};
+        console.log("❌ WebSocket waiting pong erreur :", user);};
     Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket waiting fermée :", user);};
+        console.log("⚠️ WebSocket waiting pong fermée :", user);};
     Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -117,14 +119,18 @@ async function pong_tournament() {
     inTournament = true;
     const sock_name = window.location.host;
     Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
+    console.log("Tsocket: ", Tsocket);
     Tsocket.onopen = () => {
         console.log("✅ WebSocket tournament connectée !");
-        Tsocket?.send(JSON.stringify({ username: user, init: true }));
+        Tsocket?.send(JSON.stringify({ username: `${user}${i_test_socket}`, init: true }));
+        i_test_socket++;
     };
     Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket tournament erreur :", user);};
-        Tsocket.onclose = (event) => {
-            console.warn("⚠️ WebSocket tournament fermée :", user);};
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
+        console.log("❌ WebSocket tournament pong erreur :", user);};
+    Tsocket.onclose = (event) => {
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
+        console.log("⚠️ WebSocket tournament  pong fermée :", user);};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -141,7 +147,7 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2, user);
         }
-        console.log("censee ne pas etre vide" + data.next_match);
+        console.log("censee ne pas etre vide " + data.next_match);
         if (data.next_match) {
             display_next_match(data.next_match);
         }
@@ -265,17 +271,17 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         if (!socket)
             return ;
         socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");
+            console.log("✅ WebSocket game pong connectée !");
             socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
         socket.onerror = (event) => {
-            console.error("❌ WebSocket erreur :", event);};
+            console.error("❌ WebSocket game pong  erreur :", event);};
         socket.onclose = (event) => {
             socket = null;
             lobbyKey = null;
             disp = true;
             win = 0;
-            console.warn("⚠️ WebSocket fermée :", event);
+            console.warn("⚠️ WebSocket game pong fermée :", event);
         };
         
         const paddleWidth = 20;
@@ -409,15 +415,14 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                 end_game(win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, inTournament);
             }
         }
-    } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }
 
-window.addEventListener("beforeunload", () => {
-    if (Tsocket?.readyState === WebSocket.OPEN) {
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-    }
-});
+// window.addEventListener("beforeunload", () => {
+//     fetch("/pong_tournament/disconnect", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({id_tournament_key_from_player: id_tournament, disconnect: true})
+//     });
+// });
 

@@ -59,6 +59,27 @@ tournamentMapPing.set(id_tournamentPing, {
 
 })
 
+function disconnect_player(connection, currentTournament, id_key) {
+    if (currentTournament.tournamentsUsernames.length < 4) {
+        for (let i = 0; i < currentTournament.tournamentsUsernames.length; i++) {
+            if (connection == currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]]) {
+                delete currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]];
+                const index = currentTournament.classements.findIndex(player => player.username === currentTournament.tournamentsUsernames[i])
+                currentTournament.tournamentsUsernames.splice(i, 1);
+                if (index !== -1)
+                    currentTournament.classements.splice(index, 1);
+                return ;
+            }
+        }
+    }
+    currentTournament.classements.sort((a, b) => b.score - a.score);
+    for (let i = 0; i < currentTournament.tournamentsUsernames.length ; i++) {
+        if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
+            currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
+    } 
+    tournamentMapPong.delete(id_key);
+}
+
 function isUsernameInAnyTournament(username) {
     if (tournamentMapPing.size != 1) {
         for (const tournamentData of tournamentMapPing.values()) {
@@ -136,6 +157,19 @@ fastify.register(async function (fastify) {
     })
     fastify.get("/ws/matchmaking/tournament", { websocket: true }, (connection, req) => {
         try {
+            let currentTournament;
+            let id_tournament_key_from_player;
+            connection.socket.on("close", (connection) => {
+                for (const [id_tournament, tournament] of tournamentMapPing.entries()) {
+                    for (const [username, conn] of Object.entries(tournament.tournamentQueue)) {
+                        if (conn === connection) {
+                            id_tournament_key_from_player = id_tournament;
+                            currentTournament = tournamentMapPong.get(id_tournament);
+                        }
+                    }
+                }
+                disconnect_player(connection, currentTournament, id_tournament_key_from_player ?? id_tournamentPong);
+            });
             connection.socket.on("message", (message) => {
                 if (old_id_tournamentPong != id_tournamentPong) {
                     tournamentMapPong.set(id_tournamentPong, {
@@ -151,43 +185,27 @@ fastify.register(async function (fastify) {
                 }
                 const data = JSON.parse(message.toString());
                 if (isUsernameInAnyTournament(data.username) && data.init == true) {
+                    console.log("peut pas se co au tournoi car deja dans un tournoi");
                     return ;
                 }
-                let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
-                let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
+                id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
+                currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
                     return ;
-                }
-                if (data.disconnect) {
-                    if (currentTournament.tournamentsUsernames.length < 4) { 
-                        for (let i = 0; i < currentTournament.tournamentsUsernames.length; i++) {
-                            if (connection == currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]]) {
-                                delete currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]];
-                                const index = currentTournament.classements.findIndex(player => player.username === currentTournament.tournamentsUsernames[i])
-                                currentTournament.tournamentsUsernames.splice(i, 1);
-                                if (index !== -1)
-                                    currentTournament.classements.splice(index, 1);
-                                return ;
-                            }
-                        }
-                    }
-                    currentTournament.classements.sort((a, b) => b.score - a.score);
-                    for (let i = 0; i < currentTournament.tournamentsUsernames.length ; i++) {
-                        if (connection != currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]])
-                            currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
-                    }
-                    tournamentMapPong.delete(id_tournament_key_from_player);
                 }
                 if (data.init) {
                     if (currentTournament.tournamentsUsernames.includes(data.username)) {
                         return ;
                     }
-                    currentTournament.tournamentQueue[data.username] = connection;
+                    currentTournament.tournamentQueue[data.username] = connection; 
                     currentTournament.classements.push({username: data.username, score: 0});
                     currentTournament.tournamentsUsernames.push(data.username);
                     currentTournament.history[data.username] = [];
                     if (currentTournament.tournamentsUsernames.length == 4) {
+                        console.log(tournamentMapPong);
                         for (let i = 0; i < 4; i++) {
+                            console.log("i: " + i);
+                            console.log("username: " + currentTournament.tournamentsUsernames[i] + "          connection: " + currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket);
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({ succes: true, id_tournament: id_tournamentPong}));
                         }
                         id_tournamentPong++;
@@ -221,7 +239,7 @@ fastify.register(async function (fastify) {
                         currentTournament.classements.sort((a, b) => b.score - a.score);
                         for (let i = 0; i < 4; i++) {
                             currentTournament.tournamentQueue[currentTournament.tournamentsUsernames[i]].socket.send(JSON.stringify({end_tournament : true, classementDecroissant: currentTournament.classements}));
-                            axios.post("http://users:5000/update_history",
+                            axios.post("http://users:5000/update_history", 
                                 {
                                     history: currentTournament.history[currentTournament.tournamentsUsernames[i]],
                                     gametype: "pong",
@@ -248,9 +266,9 @@ fastify.register(async function (fastify) {
                         );
                         if (currentTournament) {
                             let socketClose = Object.values(currentTournament.tournamentQueue);
-
+                            
                             tournamentMapPong.delete(id_tournament_key_from_player);
-
+                            
                             socketClose.forEach(client => {
                                 if (client && client.socket) {
                                     client.socket.close();
