@@ -107,31 +107,6 @@ function move_mobile_pong(input: string) {
     }
 }
 
-function display_order (player1: string, player2: string, player3: string, player4: string) {
-    const canvas = document.getElementById("tournament_order") as HTMLCanvasElement;
-    if (canvas) {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            return ;
-        }
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let i = 0;
-        ctx.textAlign = "start";
-        ctx.textBaseline = "alphabetic";
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(String("Game 1 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player2), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player3 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String("Game 2 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player3), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player2 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String("Game 3 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player2 + "   vs   " + player3), 0, 20 + (i++ * 30));
-    }
-}
-
 async function pong_tournament() {
     Disconnect_from_game();
     const user = await get_user();
@@ -192,6 +167,7 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 
 function input_down_pong(event) : void {
     console.log("keydown");
+    console.log("socket?.readyState: " + socket?.readyState);
     if (socket?.readyState === WebSocket.OPEN) {
         console.log("keydown + websocket open");
         let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
@@ -226,7 +202,6 @@ function input_up_pong(event) : void {
     }
 }
 
-
 function Disconnect_from_game() {
     fetch("/update_status", {
         method: "POST",
@@ -240,10 +215,14 @@ function Disconnect_from_game() {
     }
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
-    Wsocket?.close();
-    socket?.close();
-    Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-    Tsocket?.close();
+    if (!Wsocket?.CLOSING || !Wsocket?.close)
+        Wsocket?.close();
+    if (!socket?.CLOSING || !socket?.close)
+        socket?.close();
+    if (!Tsocket?.CLOSING || !Tsocket?.close) {
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
+        Tsocket?.close();
+    }
     socket = null;
     lobbyKey = null;
     id_tournament = 0;

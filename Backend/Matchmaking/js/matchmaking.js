@@ -147,7 +147,7 @@ fastify.register(async function (fastify) {
                         tournament_id: id_tournamentPong,
                         classements: [],
                         tournamentQueue: {},
-                        tournamentsUsernames: []
+                        tournamentsUsernames: [] 
                     });
                     old_id_tournamentPong = id_tournamentPong; // Met à jour l'ancien ID
                 }
@@ -158,7 +158,7 @@ fastify.register(async function (fastify) {
                 let id_tournament_key_from_player = data.id_tournament_key_from_player ?? id_tournamentPong;
                 let currentTournament = tournamentMapPong.get(id_tournament_key_from_player);
                 if (!currentTournament) {
-                    console.error(`Tournoi ${id_tournament_key_from_player} introuvable`);
+                    console.error(`Tournoi ${id_tournament_key_from_player} introuvable`); 
                     return ;
                 }
                 if (data.disconnect) {
@@ -204,7 +204,7 @@ fastify.register(async function (fastify) {
                     }
                 }
                 if (data.endgame) {
-                    id_tournament_key_from_player = data.id_tournament_key_from_player;
+                    id_tournament_key_from_player = data.id_tournament_key_from_player; 
                     currentTournament.end_lobby++;
                     currentTournament.history[data.username].push(data.history);
                     if (data.history.win == 1) {
@@ -218,15 +218,15 @@ fastify.register(async function (fastify) {
                     console.log("nombre de joueurs dans la queue pour le tournoi: ", currentTournament.end_lobby)
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
                         console.log("game 2");
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.count_game++;
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
                         console.log("game 3");
+                        currentTournament.count_game++; 
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0;
-                        currentTournament.count_game++; 
                     }
                     else if (currentTournament.count_game == 3 && currentTournament.end_lobby == 4) {
                         currentTournament.classements.sort((a, b) => b.score - a.score);
@@ -412,15 +412,15 @@ fastify.register(async function (fastify) {
                     if (currentTournament.count_game == 1 && currentTournament.end_lobby == 4) {
                         console.log("game 2"); 
     
-                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.count_game++;
+                        launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[2], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[3], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0; 
                     } 
                     else if (currentTournament.end_lobby == 4 && currentTournament.count_game == 2) {
                         console.log("game 3");
+                        currentTournament.count_game++; 
                         launchTournament(currentTournament.tournamentsUsernames[0], currentTournament.tournamentsUsernames[3], currentTournament.tournamentsUsernames[1], currentTournament.tournamentsUsernames[2], currentTournament.count_game, currentTournament)
                         currentTournament.end_lobby = 0;
-                        currentTournament.count_game++; 
                     }
                     else if (currentTournament.count_game == 3 && currentTournament.end_lobby == 4) {
                         currentTournament.classements.sort((a, b) => b.score - a.score);
@@ -487,6 +487,7 @@ function launchTournament(user1, user2, user3, user4, count_game, currentTournam
     let username2 = null;
     const lobbyKeypart1 = `${user1}${user2}`;
     const lobbyKeypart2 = `${user3}${user4}`;
+    console.log("count_game: " + count_game);
     if (count_game == 1) {
         next_match = [];
         next_match.push(user1);
@@ -494,11 +495,12 @@ function launchTournament(user1, user2, user3, user4, count_game, currentTournam
         next_match.push(user2);
         next_match.push(user4);
     } else if (count_game == 2) {
+        console.log("user1: " + user1 + "     user2: " + user2 + "          user3: " + user3 + "       user4: " + user4);
         next_match = [];
         next_match.push(user1);
         next_match.push(user4);
-        next_match.push(user2);
         next_match.push(user3);
+        next_match.push(user2);
     } else if (count_game == 3) {
         next_match = "last_match";
     }
