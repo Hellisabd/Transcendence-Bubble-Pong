@@ -12,7 +12,7 @@ COPY ./Backend/nginx/config/conf.d/nginx.conf /etc/nginx/nginx.conf
 
 RUN mkdir -p /etc/nginx/ssl
 RUN apt install openssl -y
-RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/nginx/ssl/transcendence.key -subj "/C=FR/ST=Alsace/L=Mulhouse/O=42/OU=42/CN=transcendence"
+RUN openssl req -x509 -nodes -out /etc/nginx/ssl/transcendence.crt -keyout /etc/nginx/ssl/transcendence.key -subj "/C=FR/ST=Alsace/L=Mulhouse/O=42/OU=42/CN=transcendence" -addext "subjectAltName = DNS:nginx, DNS:localhost, IP:127.0.0.1, IP:::1"
 RUN chown -R nginx:nginx_new_group /etc/nginx/ssl
 RUN chmod -R 644 /etc/nginx/ssl/*
 RUN mkdir -p /var/cache/nginx/client_temp

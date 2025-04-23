@@ -205,9 +205,9 @@ services:
     volumes:
       - ./certs/ca/ca.crt:/etc/ssl/certs/ca.crt:ro
     command:
-      - "--nginx.scrape-uri=https://nginx:8000/stub_status"
+      - "--nginx.scrape-uri=https://nginx:8000/nginx_status"
       - "--nginx.ssl-ca-cert=/etc/ssl/certs/ca.crt"
-      - "--nginx.ssl-verify=true"
+      - "--nginx.ssl-verify"
 
   exporter-proxy:
     # service dédié pour terminer le TLS
