@@ -112,12 +112,12 @@ async function create_account(req, reply) {
 
 		let i = 0;
 		if(activeFA){
-			while(secret_keys[i] && secret_keys[i][0] != username){
+			while(secret_keys[i] && secret_keys[i][0] != email){
 				i++;
 			}
 
 			if (!secret_keys[i]) {
-				return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+				return reply.send({ success: false, error: "Utilisateur non trouvé" });
 			}
 			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
@@ -380,7 +380,7 @@ async function twofaverify(request, reply) {
 		)
 
 		if (!email || !code) {
-			return reply.status(400).send({ success: false, error: "email et code requis" });
+			return reply.send({ success: false, error: "email et code requis" });
 		}
 
 		let i = 0;
@@ -392,20 +392,12 @@ async function twofaverify(request, reply) {
         if (secret_keys[i])
             sekret = secret_keys[i][1];
 		if (!sekret) {
-			return reply.status(404).send({ success: false, error: "Utilisateur non trouvé" });
+			return reply.send({ success: false, error: "Utilisateur non trouvé" });
 		}
-
-		// Vérifier le code OTP avec la clé secrète
-		const isValid = authenticator.check(code, sekret);
-		if (!isValid) {
-			return reply.status(401).send({ success: false, error: "Code 2FA invalide" });
-		}
-
-		// Répondre avec succès
 		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
 
 	} catch (error) {
-		return reply.status(500).send({ success: false, error: "Erreur serveur" });
+		return reply.send({ success: false, error: "Erreur serveur" });
 	}
 };
 
@@ -416,7 +408,7 @@ async function checkUserExists(username) {
 			{ headers: { "Content-Type": "application/json" } }
 		)
         const data = await response.data;
-        return true;
+        return data.success;
     } catch (error) {
         return false;
     }

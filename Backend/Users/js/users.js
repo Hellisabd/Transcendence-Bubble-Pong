@@ -246,7 +246,7 @@ fastify.post("/add_friend", async (request, reply) => {
           SET status = 'accepted'
           WHERE (user_id = ? AND friend_id = ?)
           `).run( user_to_add_id, user_sending_id);
-          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent u an invitation you are now friends!"}));
+          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent you an invitation you are now friends!"}));
       }
       else if (!pending && exisitingFriendship) {
         return reply.send(JSON.stringify({success: false, message: "You already invited this user"}));
@@ -303,11 +303,11 @@ fastify.post("/decline_friend", async (request, reply) => {
 			return reply.send({ success: true, message: `You successfully declined ${user_to_decline}`, user_decline: user_to_decline });
 
 		} catch (dbError) {
-			return reply.status(500).send({ success: false, message: "Erreur lors de la suppression en base." });
+			return reply.send({ success: false, message: "Erreur lors de la suppression en base." });
 		}
 
 	} catch (error) {
-		return reply.status(500).send({ success: false, message: "Erreur serveur, vérifie les logs." });
+		return reply.send({ success: false, message: "Erreur serveur, vérifie les logs." });
 	}
 });
 
