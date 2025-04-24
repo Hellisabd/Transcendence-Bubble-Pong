@@ -278,14 +278,12 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         ping_socket.onopen = () => {
             ping_socket?.send(JSON.stringify({ username1: user1, username2: user2, "ping_lobbyKey": ping_lobbyKey, "myuser": myuser}));
         };
-        ping_socket.onerror = (event) => {
-            console.error("❌ WebSocket erreur :", event);};
+        ping_socket.onerror = (event) => {};
         ping_socket.onclose = (event) => {
             ping_socket = null;
             ping_lobbyKey = null;
             ping_disp = true;
             ping_win = 0;
-            console.warn("⚠️ WebSocket fermée :", event);
         };
 
         const ballRadius = 15;

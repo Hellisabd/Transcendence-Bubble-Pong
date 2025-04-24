@@ -988,7 +988,6 @@ fastify.post("/update_solo_score",  async (request, reply) => {
     return reply.send({success: true});
   }
   catch (error) {
-    console.log(error);
     return reply.send({ success: false, message: "Internal server error" });
   }
 });

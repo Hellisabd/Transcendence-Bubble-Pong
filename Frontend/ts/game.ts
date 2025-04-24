@@ -259,14 +259,12 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         socket.onopen = () => {
             socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
-        socket.onerror = (event) => {
-            console.error("❌ WebSocket game pong  erreur :", event);};
+        socket.onerror = (event) => {};
         socket.onclose = (event) => {
             socket = null;
             lobbyKey = null;
             disp = true;
             win = 0;
-            console.warn("⚠️ WebSocket game pong fermée :", event);
         };
         
         const paddleWidth = 20;

@@ -134,7 +134,6 @@ async function create_account(req, reply) {
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
         const errormessage = error.response ? error.response.data.error : "Server Error";
-        console.error("❌ Erreur API users.");
         return reply.send({ error: errormessage });
     }
 }
