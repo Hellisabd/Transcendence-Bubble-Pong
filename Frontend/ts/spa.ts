@@ -29,8 +29,6 @@ async function set_user(username: string | null): Promise<void> {
 	userDiv?.classList.add("text-white");
 	avatarElement.classList.add("w-12");
 	avatarElement.classList.add("h-12");
-	avatarElement.classList.add("hover:border-2");
-	avatarElement.classList.add("hover:border-white");
 
 	const response = await fetch("/get_avatar", {
 		method: "POST",
@@ -95,7 +93,7 @@ async function set_up_bars() {
                 <div class="relative flex h-16 items-center justify-between">
                     <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                         <button onclick="displayMenu()" id="mobile-menu-button" type="button"
-                            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white">
                             <span class="sr-only">Open main menu</span>
                             <svg id="menu-icon-open" class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" aria-hidden="true">
@@ -149,8 +147,8 @@ async function set_up_bars() {
                         <div class="relative ml-3">
                             <div>
                                 <button onclick="displayUserMenu()" id="user-menu-button" type="button"
-                                    class="relative flex rounded-full bg-black text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                                    <img id="avatar" class="size-8 rounded-full" alt="Profile picture">
+                                    class="relative flex rounded-full bg-black text-sm">
+                                    <img id="avatar" class="size-8 rounded-full hover:outline-none hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-gray-800" alt="Profile picture">
                                 </button>
                             </div>
                             <div id="user-menu"
