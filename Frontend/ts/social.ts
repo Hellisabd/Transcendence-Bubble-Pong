@@ -183,9 +183,7 @@ async function display_pending(user: string[]) {
 let i = 0;
 
 async function set_up_friend_list(user: string | null) {
-	if (!user) {
-		user = await get_user();
-	}
+	user = await get_user();
     const sock_name = window.location.host;
 	if (socialSocket)
 		return ;
@@ -193,6 +191,8 @@ async function set_up_friend_list(user: string | null) {
     socialSocket.onopen = () => {
         socialSocket?.send(JSON.stringify({ username: user }));
     };
+	socialSocket.onerror = (event) => {
+	}
 	socialSocket.onclose = (event) => {
         socialSocket = null;
 	}
@@ -204,9 +204,9 @@ async function set_up_friend_list(user: string | null) {
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
-		if (data.display)
-			display_friends();
+		display_friends();
     };
+	display_friends();
 }
 
 function close_users_socket() {

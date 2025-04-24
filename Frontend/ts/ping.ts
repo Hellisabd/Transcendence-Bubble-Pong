@@ -143,9 +143,7 @@ async function ping_tournament() {
     };
     ping_Tsocket.onerror = (event) => {
         ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}))};
-    ping_Tsocket.onclose = (event) => {
-        console.log("WebSocket ping tournament closed");
-    };
+    ping_Tsocket.onclose = (event) => {};
     ping_Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {

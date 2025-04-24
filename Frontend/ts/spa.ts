@@ -290,7 +290,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             soloping_initializeGame();
         }
         display_friends();
-
         if (page === "dashboard") {
             get_stats(username, "general");
         }
@@ -304,8 +303,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             set_user(username);
             return ;
         }
-        else
+        else {
             disable_bars();
+        }
 
     } catch (error) {
         console.log('Error while loading the page.');

@@ -128,7 +128,6 @@ async function create_account(req, reply) {
 				{username, password, email},
 				{ headers: { "Content-Type": "application/json" } }
 		)};
-
         return reply.send(response.data);
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
@@ -140,9 +139,10 @@ async function create_account(req, reply) {
 let users_connection = [];
 
 async function Websocket_handling(username, connection) {
+    console.log(`in Webscocket handling : username: ${username} with connection: `, connection);
     users_connection[username] = connection;
 }
-
+ 
 async function get_user(token) {
     if (usersession.get(token))
         return usersession.get(token).username || null;
@@ -250,11 +250,14 @@ async function send_to_friend(username, token) {
         return ;
     }
     let tab_of_friends = response.friends;
-    for (let i = 0; i < tab_of_friends.length; i++) {
+    for (let i = 0; i < tab_of_friends.length; i++) { 
+        console.log("status: ", status);
         if (tab_of_friends[i].status != "offline" && status == null) {
+            console.log(`${username} sending status to ${tab_of_friends[i].username} in connection : ${users_connection[tab_of_friends[i].username]?.socket}`);
             users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
         }
         else if (tab_of_friends[i].status != "offline") {
+            console.log(`${username} sending status to ${tab_of_friends[i].username} in connection : ${users_connection[tab_of_friends[i].username]?.socket}`);
             users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: status}));
         }
     }
