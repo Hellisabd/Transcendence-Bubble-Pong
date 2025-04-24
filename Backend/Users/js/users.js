@@ -857,7 +857,7 @@ fastify.post("/update_history", async (request, reply) => {
 // 🔹 Route POST pour créer un compte
 fastify.post("/create_account", async (request, reply) => {
   const { username, email, password, secretKey } = request.body;
-  if (!username || !email || !password) {
+  if (!username || !email || !password || username == "default") {
     return reply.send({ success: false, error: "Champs manquants" });
   }
 
