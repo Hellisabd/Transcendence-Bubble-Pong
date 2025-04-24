@@ -176,6 +176,7 @@ async function set_up_bars() {
     }
     const username = await get_user();
     set_user(username);
+    display_friends();
 }
 
 function disable_bars() {

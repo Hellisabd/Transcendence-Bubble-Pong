@@ -72,9 +72,10 @@ fastify.register(async function (fastify) {
   fastify.get("/ws/spa/friends", {websocket: true}, (connection, req) => {
     connection.socket.on("message", (message) => {
       const data = JSON.parse(message.toString());
-      Websocket_handling(data.username, connection);
+      let username = data.username;
+      Websocket_handling(username, connection);
       send_to_friend();
-      display_friends(data.username, connection);
+      display_friends(username, connection);
     })
   });
 });

@@ -80,8 +80,8 @@ async function login(event: Event): Promise<void> {
 				text: "Welcome!",
 				icon: 'success'
 			  });
-            navigateTo("index", true, null);
-            set_up_friend_list(await get_user());
+			set_up_friend_list(await get_user());
+            navigateTo("pong_game", true, null);
         } else {
 			Swal.fire({
 				text: "Wrong informations!",

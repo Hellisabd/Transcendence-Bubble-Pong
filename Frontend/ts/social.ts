@@ -85,6 +85,8 @@ async function display_pending(user: string[]) {
 	const pendingDiv = <HTMLDivElement>document.getElementById("pending_request");
 	const pellet = <HTMLDivElement>document.getElementById("pelletSocial");
 	const pendingParent = <HTMLDivElement>document.getElementById("pending_request_div");
+	if (!pellet)
+		return ;
 	pellet.innerHTML = "";
 	if (user.length > 0 && pellet) {
 		pellet.classList.remove("hidden");
@@ -184,6 +186,8 @@ let i = 0;
 
 async function set_up_friend_list(user: string | null) {
 	user = await get_user();
+	if (!user)
+		return ;
     const sock_name = window.location.host;
 	if (socialSocket)
 		return ;

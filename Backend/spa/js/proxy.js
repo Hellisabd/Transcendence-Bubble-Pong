@@ -139,7 +139,6 @@ async function create_account(req, reply) {
 let users_connection = [];
 
 async function Websocket_handling(username, connection) {
-    console.log(`in Webscocket handling : username: ${username} with connection: `, connection);
     users_connection[username] = connection;
 }
  
@@ -251,13 +250,10 @@ async function send_to_friend(username, token) {
     }
     let tab_of_friends = response.friends;
     for (let i = 0; i < tab_of_friends.length; i++) { 
-        console.log("status: ", status);
         if (tab_of_friends[i].status != "offline" && status == null) {
-            console.log(`${username} sending status to ${tab_of_friends[i].username} in connection : ${users_connection[tab_of_friends[i].username]?.socket}`);
             users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: usersession.get(token).status}));
         }
         else if (tab_of_friends[i].status != "offline") {
-            console.log(`${username} sending status to ${tab_of_friends[i].username} in connection : ${users_connection[tab_of_friends[i].username]?.socket}`);
             users_connection[tab_of_friends[i].username]?.socket.send(JSON.stringify({username: username, status: status}));
         }
     }
@@ -284,8 +280,8 @@ async function get_status(req, reply) {
 async function add_friend(req, reply) {
     const {user_sending, user_to_add} = req.body;
     const token = req.cookies.session;
-    if (user_sending != get_user(token) && user_to_add != get_user(token))
-        reply.send(JSON.stringify({success: false}));
+    if (user_sending != get_user(token))
+        return reply.send(JSON.stringify({succes: false}));
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
