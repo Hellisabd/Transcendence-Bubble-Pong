@@ -36,6 +36,9 @@ users :
 	docker-compose up
 
 build :
+	@if ! grep -q "127.0.0.1 transcendence" /etc/hosts; then \
+		echo >> /etc/hosts "127.0.0.1 transcendence"; \
+	fi
 	docker-compose down
 	docker-compose build
 	docker-compose up

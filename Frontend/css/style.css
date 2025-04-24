@@ -22,14 +22,7 @@
 
 @font-face {
     font-family: 'KaBlam';
-    src: url('/Frontend/assets/fonts/Ka Blam.ttf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'KaBlam Under';
-    src: url('/Frontend/assets/fonts/Ka Blam Under.ttf') format('opentype');
+    src: url('/Frontend/assets/fonts/Bangers-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -130,28 +123,28 @@
 }
 
 .arrow-up {
-    background-image: url('/Frontend/assets/ARROW_UP.png');
+    background-image: url('/Frontend/assets/ARROW_UP.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
 }
 
 .arrow-down {
-    background-image: url('/Frontend/assets/ARROW_DOWN.png');
+    background-image: url('/Frontend/assets/ARROW_DOWN.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
 }
 
 .arrow-clock {
-    background-image: url('/Frontend/assets/ROTATE_CLOCKWISE.png');
+    background-image: url('/Frontend/assets/ROTATE_CLOCKWISE.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;
 }
 
 .arrow-cclock {
-    background-image: url('/Frontend/assets/ROTATE_COUNTER.png');
+    background-image: url('/Frontend/assets/ROTATE_COUNTER.webp');
     background-size: contain;
     background-position: top center;
     background-repeat: no-repeat;

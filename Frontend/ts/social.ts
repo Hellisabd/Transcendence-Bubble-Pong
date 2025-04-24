@@ -1,4 +1,3 @@
-console.log("Script social.ts chargé !");
 declare function get_user(): Promise<string | null>;
 
 let friends: { username: string; status: string }[] = [];
@@ -67,13 +66,6 @@ async function display_friends() {
 				`;
 			}
 
-		// sablier 1
-			// badge.innerHTML = `
-			// <svg class="absolute rounded-full bg-gray-800 w-6 h-6 bottom-0 right-0" fill="#22c55e" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
-			// 	<path fill-rule="evenodd" d="M256,7.10542736e-15 L256,115.477333 L158.165333,213.333333 L256,311.146667 L256,426.666667 L-2.84217094e-14,426.666667 L-2.84217094e-14,311.146667 L97.8133333,213.333333 L-2.84217094e-14,115.477333 L-2.84217094e-14,7.10542736e-15 L256,7.10542736e-15 Z M128,243.498667 L42.6666667,328.832 L42.6666667,373.333333 L128,320 L213.333333,373.333333 L213.333333,328.832 L128,243.498667 Z M213.333333,42.6666667 L42.6666667,42.6666667 L42.6666667,97.8133333 L72.9030755,128.057301 L183.356249,127.797912 L213.333333,97.8133333 L213.333333,42.6666667 Z" transform="translate(128 42.667)"></path></g>
-			// </svg>
-			// `;
-
 			avatarDiv.appendChild(badge);
 			avatarDiv.appendChild(avatar);
 			friendDiv.appendChild(avatarDiv);
@@ -97,7 +89,6 @@ async function display_pending(user: string[]) {
 	if (user.length > 0 && pellet) {
 		pellet.classList.remove("hidden");
 		pendingParent.classList.remove("hidden");
-		console.log("enleve le hide de pending");
 	} else {
 		pendingParent.classList.add("hidden");
 		pellet.classList.add("hidden");
@@ -105,7 +96,6 @@ async function display_pending(user: string[]) {
 	if (pendingDiv && user.length > 0) {
 		for (const username of user) {
 			if (document.getElementById(`${username}_pending`)) {
-				console.log("censer ignorer la div")
 				continue ;
 			}
 			const userDiv = document.createElement("div");
@@ -201,11 +191,8 @@ async function set_up_friend_list(user: string | null) {
 		return ;
 	socialSocket = new WebSocket("wss://" + sock_name + "/ws/spa/friends");
     socialSocket.onopen = () => {
-        console.log("✅ WebSocket users connectée !");
         socialSocket?.send(JSON.stringify({ username: user }));
     };
-    socialSocket.onerror = (event) => {
-    	console.error("❌ WebSocket users erreur :", user);};
 	socialSocket.onclose = (event) => {
         socialSocket = null;
 	}
@@ -217,14 +204,9 @@ async function set_up_friend_list(user: string | null) {
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}
-		if (data.success == true && data.user_inviting) {
-			console.log("lol?");
-		}
-		console.log(i);
 		if (data.display)
 			display_friends();
     };
-	// pending_request();
 }
 
 function close_users_socket() {
@@ -233,6 +215,12 @@ function close_users_socket() {
 }
 
 async function valid_friend(friend_username: string): Promise<void> {
+	if (!sanitizeInput(friend_username)) {
+        return (Swal.fire({
+			text: "We cannot let you do that!",
+			icon: 'error'
+		  }));
+    }
 	const myusername = await get_user();
 	if (myusername == friend_username) {
 		Swal.fire({

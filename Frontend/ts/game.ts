@@ -1,5 +1,3 @@
-console.log("game.js chargé");
-
 declare function navigateTo(page: string, addHistory: boolean, classement:  { username: string; score: number }[] | null): void;
 declare function get_user(): Promise<string | null>;
 
@@ -8,6 +6,8 @@ let mystatus: string | null = null;
 let mobile_move_interval: any = null;
 
 let player_id = 0;
+
+let i_test_socket = 0;
 
 let id_tournament: number = 0;
 
@@ -34,6 +34,29 @@ WIN_image.src = "Frontend/assets/WIN.webp";
 const LOSE_image = new Image();
 LOSE_image.src = "Frontend/assets/LOSE.webp";
 
+function input_down(event: KeyboardEvent) : void {
+    if (window.location.pathname == "/solo_ping") {
+        input_down_solo_ping(event);
+    } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {
+        input_down_ping(event);
+    } else if (window.location.pathname == "/pong_tournament" || window.location.pathname == "/waiting_room") {
+        input_down_pong(event);
+    }
+}
+
+function input_up(event: KeyboardEvent) : void {
+    if (window.location.pathname == "/solo_ping") {
+        input_up_solo_ping(event);
+    } else if (window.location.pathname == "/ping_tournament" || window.location.pathname == "/ping_waiting_room") {
+        input_up_ping(event);
+    } else if (window.location.pathname == "/pong_tournament" || window.location.pathname == "/waiting_room") {
+        input_up_pong(event);
+    }
+}
+
+document.addEventListener("keydown", input_down);
+document.addEventListener("keyup", input_up);
+
 async function play_pong() {
     Disconnect_from_game();
     const user = await get_user();
@@ -47,13 +70,8 @@ async function play_pong() {
     const sock_name = window.location.host;
     Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
-        console.log("✅ WebSocket waiting connectée !");
         Wsocket?.send(JSON.stringify({ username: user }));
     };
-    Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket waiting erreur :", user);};
-    Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket waiting fermée :", user);};
     Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -84,31 +102,6 @@ function move_mobile_pong(input: string) {
     }
 }
 
-function display_order (player1: string, player2: string, player3: string, player4: string) {
-    const canvas = document.getElementById("tournament_order") as HTMLCanvasElement;
-    if (canvas) {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-            return ;
-        }
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-        let i = 0;
-        ctx.textAlign = "start";
-        ctx.textBaseline = "alphabetic";
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(String("Game 1 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player2), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player3 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String("Game 2 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player3), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player2 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String("Game 3 :"), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player1 + "   vs   " + player4), 0, 20 + (i++ * 30));
-        ctx.fillText(String(player2 + "   vs   " + player3), 0, 20 + (i++ * 30));
-    }
-}
-
 async function pong_tournament() {
     Disconnect_from_game();
     const user = await get_user();
@@ -122,13 +115,13 @@ async function pong_tournament() {
     const sock_name = window.location.host;
     Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
     Tsocket.onopen = () => {
-        console.log("✅ WebSocket tournament connectée !");
         Tsocket?.send(JSON.stringify({ username: user, init: true }));
+        i_test_socket++;
     };
     Tsocket.onerror = (event) => {
-        console.error("❌ WebSocket tournament erreur :", user);};
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}))};
     Tsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket tournament fermée :", user);};
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}))};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -145,7 +138,6 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2, user);
         }
-        console.log("censee ne pas etre vide" + data.next_match);
         if (data.next_match) {
             display_next_match(data.next_match);
         }
@@ -167,6 +159,39 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
     win = 0;
 }
 
+function input_down_pong(event: KeyboardEvent) : void {
+    if (socket?.readyState === WebSocket.OPEN) {
+        let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
+
+        if (event.key === "ArrowUp")
+            message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
+        if (event.key === "ArrowDown")
+            message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
+        if (event.key === " " && disp == true) {
+            win = 0;
+            message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
+        }
+
+        if (message) {
+            socket?.send(JSON.stringify(message));
+        }
+    }
+}
+
+function input_up_pong(event: KeyboardEvent) : void {
+    if (socket?.readyState === WebSocket.OPEN) {
+        let message: { player?: number; move?: string; game?: string; lobbyKey?: string | null } | null = null;
+
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            message = { player: player_id, move: "stop", "lobbyKey": lobbyKey  };
+        }
+
+        if (message) {
+            socket.send(JSON.stringify(message));
+        }
+    }
+}
+
 function Disconnect_from_game() {
     fetch("/update_status", {
         method: "POST",
@@ -180,10 +205,14 @@ function Disconnect_from_game() {
     }
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
-    Wsocket?.close();
-    socket?.close();
-    Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-    Tsocket?.close();
+    if (Wsocket?.readyState != Wsocket?.CLOSING && Wsocket?.readyState != Wsocket?.CLOSED)
+        Wsocket?.close();
+    if (socket?.readyState != socket?.CLOSING && socket?.readyState != socket?.CLOSED)
+        socket?.close();
+    if (Tsocket?.readyState != Tsocket?.CLOSING && Tsocket?.readyState != Tsocket?.CLOSED) {
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
+        Tsocket?.close();
+    }
     socket = null;
     lobbyKey = null;
     id_tournament = 0;
@@ -192,7 +221,6 @@ function Disconnect_from_game() {
 }
 
 function initializeGame(user1: string, user2: string, myuser: string | null): void {
-    console.log("Initialisation du jeu...");
     const btnUp = document.getElementById("btnUp");
     btnUp?.addEventListener("mousedown", () => move_mobile_pong("up"));
     btnUp?.addEventListener("mouseup", () => move_mobile_pong("stop"));
@@ -229,17 +257,14 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         if (!socket)
             return ;
         socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");
             socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
-        socket.onerror = (event) => {
-            console.error("❌ WebSocket erreur :", event);};
+        socket.onerror = (event) => {};
         socket.onclose = (event) => {
             socket = null;
             lobbyKey = null;
             disp = true;
             win = 0;
-            console.warn("⚠️ WebSocket fermée :", event);
         };
         
         const paddleWidth = 20;
@@ -300,39 +325,6 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
             }
         };
 
-        document.addEventListener("keydown", (event) => {
-            if (socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
-        
-                if (event.key === "ArrowUp")
-                    message = { player: player_id, move: "up", "lobbyKey": lobbyKey };
-                if (event.key === "ArrowDown")
-                    message = { player: player_id, move: "down", "lobbyKey": lobbyKey};
-                if (event.key === " " && disp == true) {
-                    win = 0;
-                    message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-                    console.log("message from front: ", message);
-                }
-
-                if (message) {
-                    socket?.send(JSON.stringify(message));
-                }
-            }
-        });
-
-        document.addEventListener("keyup", (event) => {
-            if (socket?.readyState === WebSocket.OPEN) {
-                let message: { player?: number; move?: string; game?: string; lobbyKey?: string | null } | null = null;
-
-                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                    message = { player: player_id, move: "stop", "lobbyKey": lobbyKey  };
-                }
-
-                if (message) {
-                    socket.send(JSON.stringify(message));
-                }
-            }
-        });        
 
         function drawGame(): void {
             if (!ctx) {
@@ -406,15 +398,14 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
                 end_game(win, gameState.paddles.player2.name, gameState.paddles.player1.name, gameState.score.player2, gameState.score.player1, inTournament);
             }
         }
-    } 
-    else {
-        console.error("Erreur : Le canvas n'a pas été trouvé.");
     }
 }
 
-window.addEventListener("beforeunload", () => {
-    if (Tsocket?.readyState === WebSocket.OPEN) {
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-    }
-});
+// window.addEventListener("beforeunload", () => {
+//     fetch("/pong_tournament/disconnect", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({id_tournament_key_from_player: id_tournament, disconnect: true})
+//     });
+// });
 

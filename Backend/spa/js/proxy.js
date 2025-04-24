@@ -66,21 +66,15 @@ async function update_avatar(req, reply) {
         reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
     }
     } catch (error) {
-      console.error("Erreur lors de l'upload de l'avatar :", error);
       reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
     }
   };
 
 fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET,
-}).then(() => {
-    console.log("✅ Plugin `@fastify/cookie` chargé !");
-}).catch(err => {
-    console.error("❌ Erreur lors de l'enregistrement du plugin :", err);
 });
 
 async function log(req, reply) {
-    console.log("🔄 Redirection de /login vers users...");
     const {username} = req.body;
     const response = await axios.post("http://users:5000/login", req.body);
     const result = await response.data;
@@ -112,7 +106,6 @@ async function log(req, reply) {
 
 async function create_account(req, reply) {
     try {
-        console.log("🔄 Redirection de /create_account vers users...");
 		let response;
 
 		const { username, password, email, activeFA } = req.body;
@@ -140,8 +133,7 @@ async function create_account(req, reply) {
     } catch (error) {
         const statuscode = error.response ? error.response.status : 500;
         const errormessage = error.response ? error.response.data.error : "Server Error";
-        console.error("❌ Erreur API users:", error.message);
-        return reply.code(statuscode).send({ error: errormessage });
+        return reply.send({ error: errormessage });
     }
 }
 
@@ -242,7 +234,6 @@ async function display_friends(username, connection) {
         return ;
     }
     for (let i = 0; i < friends.length; i++) {
-        console.log(friends[i]);
         connection?.socket.send(JSON.stringify(friends[i]));
     }
     connection?.socket.send(JSON.stringify({display : true}));
@@ -289,13 +280,11 @@ async function get_status(req, reply) {
 
 async function add_friend(req, reply) {
     const {user_sending} = req.body;
-    console.log("req.body in add friend", req.body);
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
     if (response.data.success && response.data.display)
     {
-        console.log(user_sending);
         display_friends(user_sending, users_connection[user_sending]);
     }
    else if (response.data.succes) {
@@ -343,8 +332,7 @@ async function setup2fa(request, reply) {
 	const { email, username } = request.body;
 
 	if (!email) {
-		console.log("Erreur : email inexistant");
-		return reply.code(400).send({ error: 'email inexistant.' });
+		return reply.send({ error: 'email inexistant.' });
 	}
 
 
@@ -357,8 +345,7 @@ async function setup2fa(request, reply) {
 		// Générer le secret 2FA
 		const secret = otplib.authenticator.generateSecret();
 		if (!secret || typeof secret !== 'string') {
-			console.error("Le secret généré n'est pas valide");
-			return reply.code(500).send({ error: "Erreur lors de la generation du secret 2FA" });
+			return reply.send({ error: "Erreur lors de la generation du secret 2FA" });
 		}
 
 		// Générer l'URL pour le QR Code
@@ -369,7 +356,6 @@ async function setup2fa(request, reply) {
 		const dataUrl = await new Promise((resolve, reject) => {
 			qrcode.toDataURL(otplibUrl, (err, url) => {
 				if (err) {
-					console.error("Erreur lors de la generation du QR code:", err);
 					return reject(err);
 				}
 				resolve(url);
@@ -377,12 +363,10 @@ async function setup2fa(request, reply) {
 		});
 
 		// Une fois le QR code généré, on envoie la réponse
-		console.log("QR Code genere avec succes");
 		return reply.send({ otplib_url: otplibUrl, qr_code: dataUrl });
 
 	} catch (err) {
-		console.error("Erreur serveur lors du traitement 2FA:", err);
-		return reply.code(500).send({ error: "Erreur serveur lors de la mise en place du 2FA" });
+		return reply.send({ error: "Erreur serveur lors de la mise en place du 2FA" });
 	}
   };
 
@@ -421,7 +405,6 @@ async function twofaverify(request, reply) {
 		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
 
 	} catch (error) {
-		console.error("Erreur de vérification 2FA:", error);
 		return reply.status(500).send({ success: false, error: "Erreur serveur" });
 	}
 };
@@ -435,7 +418,6 @@ async function checkUserExists(username) {
         const data = await response.data;
         return true;
     } catch (error) {
-        console.error("Erreur:", error.message);
         return false;
     }
 }
@@ -449,7 +431,6 @@ async function get_secret(email){
         const data = await response.data;
         return true;
     } catch (error) {
-        console.error("Erreur:", error.message);
         return false;
     }
 }
@@ -463,7 +444,6 @@ async function get_secret_two(email){
         const data = await response.data;
         return true;
     } catch (error) {
-        console.error("Erreur:", error.message);
         return false;
     }
 }

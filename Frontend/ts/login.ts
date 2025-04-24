@@ -1,4 +1,5 @@
-console.log("login.ts chargé");
+
+declare const Swal: any;
 
 type LoginResponse = {
     success: boolean;
@@ -41,9 +42,8 @@ async function login(event: Event): Promise<void> {
 
 	const data = await response.json();
 
-
 	if (data.success) {
-		const code = prompt("Veuillez saisir votre code 2FA:");
+		const code = prompt("Please enter your 2FA code:");
 		if (!code) 
 			return (Swal.fire({
 				text: "The 2FA code is required for connection!",
@@ -142,9 +142,8 @@ async function create_account(event: Event): Promise<void> {
 					</div>`;
 				document.body.appendChild(qrCodeModal);
 			}
-			console.log("2FA setup result:", repResult);
 		} catch (e) {
-			console.error("Erreur de parsing JSON pour 2FA setup:", e);
+			console.log("2FA rror");
 		}
 	}
 
@@ -204,7 +203,7 @@ async function create_account(event: Event): Promise<void> {
 				});
 			});
 		} catch (error) {
-			console.error("La vérification 2FA a échoué:", error);
+			console.log("2FA error");
 			return;
 		}
 	}
@@ -219,15 +218,11 @@ async function create_account(event: Event): Promise<void> {
 
 		if (response.ok) {
 			const responseText = await response.text();
-			console.log("Reponse brute create_account:", responseText);
 			if (responseText) {
 				result = JSON.parse(responseText);
 			}
-		} else {
-			console.error("Erreur serveur pour create_account:", response.statusText);
-		}
+		} 
 	}
-	console.log(result.success);
 	if (result.success) {
 		Swal.fire({
 			text: "Account successfully created!",
@@ -281,7 +276,7 @@ async function uploadProfileImage() {
 			});
         }
         } catch (error) {
-        console.error('Error uploading image:', error);
+        	console.log('Error uploading image.');
         }
     }
 }

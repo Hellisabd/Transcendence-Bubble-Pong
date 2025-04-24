@@ -1,9 +1,7 @@
-console.log("Script spa.ts chargé !");
-
 let old_url: null | string = null;
 
 declare function display_friends(): void;
-declare function set_up_friend_list(user: string | null);
+declare function set_up_friend_list(user: string | null): void;
 declare function play_pong(): void;
 declare function pong_tournament(): void;
 declare function play_ping(): void;
@@ -31,8 +29,6 @@ async function set_user(username: string | null): Promise<void> {
 	userDiv?.classList.add("text-white");
 	avatarElement.classList.add("w-12");
 	avatarElement.classList.add("h-12");
-	avatarElement.classList.add("hover:border-2");
-	avatarElement.classList.add("hover:border-white");
 
 	const response = await fetch("/get_avatar", {
 		method: "POST",
@@ -77,7 +73,7 @@ async function set_up_bars() {
             </div>
 
             <div id="pending_request_div" class="p-4 mt-10">
-                <h2 class="font-bold text-center text-2xl">Pending requesth2>
+                <h2 class="font-bold text-center text-2xl">Pending request</h2>
                 <div class="border justify-self-center border-slate-500 w-56 mt-2"></div>
                 <div id="pending_request"></div>
             </div>
@@ -97,7 +93,7 @@ async function set_up_bars() {
                 <div class="relative flex h-16 items-center justify-between">
                     <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
                         <button onclick="displayMenu()" id="mobile-menu-button" type="button"
-                            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                            class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white">
                             <span class="sr-only">Open main menu</span>
                             <svg id="menu-icon-open" class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" aria-hidden="true">
@@ -141,7 +137,7 @@ async function set_up_bars() {
                     </div>
 
                     <h1 onclick="navigateTo('index')" class="absolute left-1/2 transform -translate-x-1/2 text-white text-3xl sm:text-5xl font-kablam">
-                        PONG GAME
+                        BUBBLE PONG
                     </h1>
 
                     <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
@@ -151,8 +147,8 @@ async function set_up_bars() {
                         <div class="relative ml-3">
                             <div>
                                 <button onclick="displayUserMenu()" id="user-menu-button" type="button"
-                                    class="relative flex rounded-full bg-black text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                                    <img id="avatar" class="size-8 rounded-full" alt="Profile picture">
+                                    class="relative flex rounded-full bg-black text-sm">
+                                    <img id="avatar" class="size-8 rounded-full hover:outline-none hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-gray-800" alt="Profile picture">
                                 </button>
                             </div>
                             <div id="user-menu"
@@ -190,7 +186,6 @@ function disable_bars() {
 }
 
 async function navigateTo(page: string, addHistory: boolean = true, classement:  { username: string; score: number }[] | null): Promise<void> {
-	console.log(`🚀 Changement de page: ${page}`);
 	let afficheUser = false;
 	const username = await get_user();
     const loging: boolean = page == "login";
@@ -207,7 +202,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         credentials: "include",
     });
     const statusJson = await status.json();
-    console.log(`status: ${statusJson.status}`);
     if ((page == "waiting_room" || page == "ping_waiting_room" || page == "pong_tournament" || page == "ping_tournament") && (statusJson.status == "ingame" || statusJson.status == "inqueue")) {
         navigateTo("index", true, null);
     }
@@ -243,7 +237,6 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
                 url = "/";
                 page = "index";
             }
-            console.log("url: ", url);
             response = await fetch(url, {
                 credentials: "include",
                 headers: { "Content-Type": "text/html" }
@@ -266,13 +259,9 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         const newContent: HTMLDivElement | null = tempDiv.querySelector("#content");
         if (newContent) {
             contentDiv.innerHTML = newContent.innerHTML;
-        } else {
-            console.error("Erreur : Aucun élément #content trouvé dans la page chargée.");
         }
         document.title =  html.substring(html.indexOf("<title>") + 7, html.indexOf("</title>", html.indexOf("<title>")));
-        console.log("document title: ", document.title);
-        if (addHistory/*  && window.history.state.page !== page */) {
-            // old_url = page;
+        if (addHistory) {
             window.history.pushState({ page: page }, "", `/${page}`);
         }
         Disconnect_from_game();
@@ -319,7 +308,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
             disable_bars();
 
     } catch (error) {
-        console.error('❌ Erreur de chargement de la page:', error);
+        console.log('Error while loading the page.');
     }
 }
 
@@ -335,7 +324,7 @@ async function get_user(): Promise<string | null> {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.substring(1) == "end_tournament") {
+    if (window.location.pathname.substring(1) == "end_tournament" || window.location.pathname.substring(1) == "pong_tournament" || window.location.pathname.substring(1) == "ping_tournament" || window.location.pathname.substring(1) == "waiting_room" || window.location.pathname.substring(1) == "ping_waiting_room") {
         window.location.pathname = "/index";
     }
     navigateTo(window.location.pathname.substring(1), false, null);

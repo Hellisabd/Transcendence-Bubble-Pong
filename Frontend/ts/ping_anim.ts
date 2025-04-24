@@ -1,5 +1,3 @@
-console.log("ping_anim.js chargé");
-
 let ping_ctx: CanvasRenderingContext2D | null = null;
 let ping_canvas: HTMLCanvasElement | null = null;
 

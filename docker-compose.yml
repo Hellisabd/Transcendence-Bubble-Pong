@@ -47,8 +47,8 @@ services:
     container_name: spa
     env_file:
       - .env
-    ports:
-      - "7000:7000"
+    expose:
+      - "7000"
 
 # # Prod
 #   spa:
@@ -89,8 +89,8 @@ services:
     env_file:
       - .env
     restart: "no"
-    ports:
-      - "4000:4000"
+    expose:
+      - "4000"
 
   ping:
     build:
@@ -108,8 +108,8 @@ services:
     env_file:
       - .env
     restart: "no"
-    ports:
-      - "4002:4002"
+    expose:
+      - "4002"
 
   users:
     build:
@@ -126,8 +126,8 @@ services:
     container_name: users
     env_file:
       - .env
-    ports:
-      - "5000:5000"
+    expose:
+      - "5000"
 
   matchmaking:
     build:
@@ -146,8 +146,8 @@ services:
     env_file:
       - .env
     restart: "no"
-    ports:
-      - "4020:4020"
+    expose:
+      - "4020"
 
   prometheus:
     container_name: prometheus

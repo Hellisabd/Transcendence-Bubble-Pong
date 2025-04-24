@@ -1,5 +1,3 @@
-console.log("resize_canvas.js chargé");
-
 function resizeCanvases() {
     let pong_anim_Canvas = document.getElementById("pong_animation") as HTMLCanvasElement;
     let ping_anim_Canvas = document.getElementById("ping_animation") as HTMLCanvasElement;
