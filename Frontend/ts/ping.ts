@@ -98,13 +98,8 @@ async function play_ping() {
     const sock_name = window.location.host;
     ping_Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping");
     ping_Wsocket.onopen = () => {
-        console.log("✅ WebSocket waiting connectée !");
         ping_Wsocket?.send(JSON.stringify({ username: user }));
     };
-    ping_Wsocket.onerror = (event) => {
-        console.error("❌ WebSocket waiting erreur :", user);};
-    ping_Wsocket.onclose = (event) => {
-        console.warn("⚠️ WebSocket waiting fermée :", user);};
     ping_Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -144,12 +139,10 @@ async function ping_tournament() {
     const sock_name = window.location.host;
     ping_Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/ping_tournament");
     ping_Tsocket.onopen = () => {
-        console.log("✅ WebSocket ping tournament connectée !");
         ping_Tsocket?.send(JSON.stringify({ username: user, init: true }));
     };
     ping_Tsocket.onerror = (event) => {
-        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}));
-        console.error("❌ WebSocket ping tournament erreur :", user);};
+        ping_Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: ping_id_tournament, disconnect: true}))};
     ping_Tsocket.onclose = (event) => {
         console.log("WebSocket ping tournament closed :");
     };
@@ -283,7 +276,6 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         if (!ping_socket)
             return ;
         ping_socket.onopen = () => {
-            console.log("✅ WebSocket connectée !");
             ping_socket?.send(JSON.stringify({ username1: user1, username2: user2, "ping_lobbyKey": ping_lobbyKey, "myuser": myuser}));
         };
         ping_socket.onerror = (event) => {

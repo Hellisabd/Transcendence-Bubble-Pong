@@ -70,13 +70,8 @@ async function play_pong() {
     const sock_name = window.location.host;
     Wsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/pong");
     Wsocket.onopen = () => {
-        console.log("WebSocket waiting pong connectee")
         Wsocket?.send(JSON.stringify({ username: user }));
     };
-    Wsocket.onerror = (event) => {
-        console.log("❌ WebSocket waiting pong erreur :", user);};
-    Wsocket.onclose = (event) => {
-        console.log("⚠️ WebSocket waiting pong fermée :", user);};
     Wsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.success == true) {
@@ -119,18 +114,14 @@ async function pong_tournament() {
     inTournament = true;
     const sock_name = window.location.host;
     Tsocket = new WebSocket("wss://" + sock_name + "/ws/matchmaking/tournament");
-    console.log("Tsocket: ", Tsocket);
     Tsocket.onopen = () => {
-        console.log("✅ WebSocket tournament connectée !");
-        Tsocket?.send(JSON.stringify({ username: `${user}${i_test_socket}`, init: true }));
+        Tsocket?.send(JSON.stringify({ username: user, init: true }));
         i_test_socket++;
     };
     Tsocket.onerror = (event) => {
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-        console.log("❌ WebSocket tournament pong erreur :", user);};
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}))};
     Tsocket.onclose = (event) => {
-        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}));
-        console.log("⚠️ WebSocket tournament  pong fermée :", user);};
+        Tsocket?.send(JSON.stringify({ id_tournament_key_from_player: id_tournament, disconnect: true}))};
     Tsocket.onmessage = (event) => {
         let data = JSON.parse(event.data);
         if (data.id_tournament != undefined) {
@@ -147,7 +138,6 @@ async function pong_tournament() {
             lobbyKey = data.lobbyKey;
             initializeGame(data.player1, data.player2, user);
         }
-        console.log("censee ne pas etre vide " + data.next_match);
         if (data.next_match) {
             display_next_match(data.next_match);
         }
@@ -170,10 +160,7 @@ function end_game(win: number, user: string | null, otheruser: string, myscore: 
 }
 
 function input_down_pong(event: KeyboardEvent) : void {
-    console.log("keydown");
-    console.log("socket?.readyState: " + socket?.readyState);
     if (socket?.readyState === WebSocket.OPEN) {
-        console.log("keydown + websocket open");
         let message: { player?: number; move?: string; playerReady?: boolean; lobbyKey?: string | null} | null = null;
 
         if (event.key === "ArrowUp")
@@ -183,7 +170,6 @@ function input_down_pong(event: KeyboardEvent) : void {
         if (event.key === " " && disp == true) {
             win = 0;
             message = { playerReady: true, player: player_id, "lobbyKey": lobbyKey };
-            console.log("space triggered : message from front: ", message);
         }
 
         if (message) {
@@ -271,7 +257,6 @@ function initializeGame(user1: string, user2: string, myuser: string | null): vo
         if (!socket)
             return ;
         socket.onopen = () => {
-            console.log("✅ WebSocket game pong connectée !");
             socket?.send(JSON.stringify({ username1: user1, username2: user2, "lobbyKey": lobbyKey, "myuser": myuser}));
         };
         socket.onerror = (event) => {
