@@ -1,2 +1,6 @@
 Frontend/avatar
 !Frontend/default.jpg
+Backend/monitoring/Grafana/certs
+Backend/monitoring/Prometheus/certs
+Backend/monitoring/nginx-exporter/certs
+.env

@@ -19,6 +19,9 @@ all :
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
 	export DOCKER_ROOT=/goinfre/$(whoami)/docker-root
+	mkdir -p Backend/monitoring/Grafana/certs
+	mkdir -p Backend/monitoring/Prometheus/certs
+	mkdir -p Backend/monitoring/nginx-exporter/certs
 	@./generate_certs_prome.sh > /dev/null 2>&1
 	@chmod -R 755 ./Backend/monitoring/Prometheus/certs
 	docker-compose down
@@ -39,6 +42,8 @@ build :
 	@if ! grep -q "127.0.0.1 transcendence" /etc/hosts; then \
 		echo >> /etc/hosts "127.0.0.1 transcendence"; \
 	fi
+	@./generate_certs_prome.sh > /dev/null 2>&1
+	@chmod -R 755 ./Backend/monitoring/Prometheus/certs
 	docker-compose down
 	docker-compose build
 	docker-compose up
