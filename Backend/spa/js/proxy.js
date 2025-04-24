@@ -282,7 +282,10 @@ async function get_status(req, reply) {
 }
 
 async function add_friend(req, reply) {
-    const {user_sending} = req.body;
+    const {user_sending, user_to_add} = req.body;
+    const token = req.cookies.session;
+    if (user_sending != get_user(token) && user_to_add != get_user(token))
+        reply.send(JSON.stringify({success: false}));
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
