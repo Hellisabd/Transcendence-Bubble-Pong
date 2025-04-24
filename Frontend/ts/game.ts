@@ -193,6 +193,7 @@ function input_up_pong(event: KeyboardEvent) : void {
 }
 
 function Disconnect_from_game() {
+    
     fetch("/update_status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -203,6 +204,7 @@ function Disconnect_from_game() {
         animation_pong_stop();
         animation_ping_stop();
     }
+    solo_ping_stop();
     if (!Wsocket && !socket && !lobbyKey && !Tsocket)
         return;
     if (Wsocket?.readyState != Wsocket?.CLOSING && Wsocket?.readyState != Wsocket?.CLOSED)

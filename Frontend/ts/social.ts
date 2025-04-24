@@ -312,10 +312,17 @@ async function add_friend(event: Event): Promise<void> {
 		body: JSON.stringify({ user_sending: myusername, user_to_add: friend_username })
 	});
 	const result: LoginResponse = await response.json();
-	Swal.fire({
-		text: result.message,
-		icon: 'success'
-	  });
+	if (result.success) {
+		Swal.fire({
+			text: result.message,
+			icon: 'success'
+		  });
+	} else {
+		Swal.fire({
+			text: result.message,
+			icon: 'error'
+		  });
+	}
 	return ;
 }
 

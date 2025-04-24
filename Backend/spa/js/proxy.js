@@ -280,8 +280,6 @@ async function get_status(req, reply) {
 async function add_friend(req, reply) {
     const {user_sending, user_to_add} = req.body;
     const token = req.cookies.session;
-    if (user_sending != get_user(token))
-        return reply.send(JSON.stringify({succes: false}));
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
     });
@@ -289,9 +287,7 @@ async function add_friend(req, reply) {
     {
         display_friends(user_sending, users_connection[user_sending]);
     }
-   else if (response.data.succes) {
-    }
-    reply.send(response.data);
+    return reply.send(response.data);
 }
 
 async function decline_friend(req, reply) {

@@ -26,6 +26,8 @@ let player: {angle: number, size: number, move: {up: boolean, down: boolean, rig
 let canvasWidth: number;
 let canvasHeight: number;   
 
+let id_solo_ping: number | null = null; 
+
 function solo_randballPos() {
     solo_ball.x = Math.floor(Math.random() * canvasWidth);
     solo_ball.y = Math.floor(Math.random() * canvasHeight);
@@ -600,7 +602,7 @@ function soloping_initializeGame(): void {
             if (solo_score) {
                 solo_score.innerHTML = Math.round(score).toString();
             }
-            requestAnimationFrame(solo_loop);
+            id_solo_ping = requestAnimationFrame(solo_loop);
         }
         if (end_solo == false)
             solo_loop();
@@ -624,5 +626,12 @@ function soloping_initializeGame(): void {
             }
             sending = false;
         }
+    }
+}
+
+function solo_ping_stop() {
+    if (id_solo_ping != null) {
+        cancelAnimationFrame(id_solo_ping);
+        id_solo_ping = null;
     }
 }

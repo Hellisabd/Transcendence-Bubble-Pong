@@ -729,11 +729,3 @@ function ping_initializeGame(user1: string, user2: string, myuser: string | null
         }
     } 
 }
-
-// window.addEventListener("beforeunload", () => {
-//     fetch("/ping_tournament/disconnect", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({id_tournament_key_from_player: ping_id_tournament, disconnect: true})
-//     });
-// });
