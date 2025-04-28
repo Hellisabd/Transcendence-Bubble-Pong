@@ -8,6 +8,7 @@ services:
         GROUP_ID: ${GROUP_ID}
     ports:
       - "8000:8000"
+      - "8080:8080"
     volumes:
       - ./Frontend:/usr/share/nginx/html
     depends_on:

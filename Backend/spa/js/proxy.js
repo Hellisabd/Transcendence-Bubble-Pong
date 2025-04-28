@@ -45,6 +45,7 @@ async function update_avatar(req, reply) {
       }
 
       const fileExtension = path.extname(data.filename);
+      //proteger l extention
       const filePath = '/usr/src/app/Frontend/avatar';
       const filename = `${username}${fileExtension}`;
       const fullPath = path.join(filePath, filename);
@@ -392,6 +393,10 @@ async function twofaverify(request, reply) {
 		if (!sekret) {
 			return reply.send({ success: false, error: "Utilisateur non trouvé" });
 		}
+        const isValid = authenticator.check(code, sekret);
+        if (!isValid) {
+            return reply.send({ success: false, error: "Code 2FA invalide" });
+        }
 		return reply.send({ success: true, message: "2FA vérifiée avec succès." });
 
 	} catch (error) {
