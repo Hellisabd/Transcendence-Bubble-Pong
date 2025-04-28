@@ -120,10 +120,17 @@ fastify.post('/2fa/setup', setup2fa);
 
 fastify.post('/userExists', checkUserExists);
 
+function sanitizeInput(input) {
+  if (typeof input !== "string") return false;
+  if (input.length > 50) return false; // Empêche les inputs trop longs
+  if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
+  return input;
+}
+
 fastify.post("/2fa/get_secret", async (request, reply) => {
   const { email } = request.body;
 
-  if (!email) {
+  if (!email || !sanitizeInput(email)) {
       return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
   }
 
@@ -142,7 +149,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
 fastify.post("/2fa/get_secret_two", async (request, reply) => {
 	const { email } = request.body;
 
-	if (!email) {
+	if (!email || !sanitizeInput(email)) {
 		return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
 	}
 

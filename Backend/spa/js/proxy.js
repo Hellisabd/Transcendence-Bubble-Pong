@@ -3,6 +3,7 @@ const axios = require("axios");
 const fastifyCookie = require("@fastify/cookie");
 const ejs = require("ejs");
 const fs = require("fs");
+const fsp  = fs.promises;
 const { pipeline } = require('stream');
 const util = require('util');
 const path = require('path');
@@ -15,6 +16,13 @@ fastify.register(require('@fastify/multipart'), {
   attachFieldsToBody: true,
 });
 
+function sanitizeInput(input) {
+    if (typeof input !== "string") return false;
+    if (input.length > 50) return false; // Empêche les inputs trop longs
+    if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
+    return input;
+  }
+
 let usersession = new Map();
 
 async function get_avatar(request, reply) {
@@ -24,10 +32,6 @@ async function get_avatar(request, reply) {
         { headers: { "Content-Type": "application/json" } }
     );
     return reply.send(response.data.avatar_name);
-}
-
-async function update_solo_score(req, reply) {
-
 }
 
 async function update_avatar(req, reply) {
@@ -45,12 +49,32 @@ async function update_avatar(req, reply) {
       }
 
       const fileExtension = path.extname(data.filename);
-      //proteger l extention
+      if ((fileExtension != ".png" && fileExtension != ".webp" && fileExtension != ".jpg")) {
+        return reply.send({ success: false, message: 'Wrong file extension' });
+      }
+      CHUNK_SIZE = 12;
+      let buffer = await data.file.read(CHUNK_SIZE);
+      if (!checkMagicNumber(buffer, fileExtension)) {
+        return reply.send({ success: false, message: 'Wrong file extension' });
+      }
+      data.file.unshift(buffer);
       const filePath = '/usr/src/app/Frontend/avatar';
       const filename = `${username}${fileExtension}`;
       const fullPath = path.join(filePath, filename);
-
-      // Vérifiez que le dossier d'avatar existe
+      const files = await fsp.readdir(filePath);
+      for (let i = 0; i < files.length; i++) {
+        const basename = files[i].split(".");
+        let name_before_extension;
+        for (let index = 0; index < basename.length - 1; index++){
+            if (index == 0)
+                name_before_extension = basename[index]; 
+            else 
+                name_before_extension += basename[index]; 
+        }
+        if (name_before_extension == username) {
+            await fsp.unlink(path.join(filePath, files[i]))
+        }
+      }
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
       }
@@ -69,7 +93,20 @@ async function update_avatar(req, reply) {
     } catch (error) {
       reply.send({ success: false, message: "Erreur lors de l'upload de l'avatar." });
     }
-  };
+};
+
+function checkMagicNumber(buffer, ext) {
+    const hex = buffer.toString('hex');
+
+    // PNG (8 octets)
+    if (ext == ".png" && hex.startsWith('89504e470d0a1a0a')) return true;
+    // JPEG (3 octets)
+    if (ext == ".jpg" && hex.startsWith('ffd8ff')) return true;
+    // WEBP ("RIFF....WEBP")
+    if (ext == ".webp" && buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') return true;
+
+    return false;
+}
 
 fastify.register(fastifyCookie, {
     secret: process.env.COOKIE_SECRET,
