@@ -22,7 +22,25 @@
 
 ## Installation & Usage
 
+```bash
 
+git clone https://github.com/Hellisabd/Transcendence-Bubble-Pong.git
+echo > .env "DB_FILE=/usr/src/app/dataBase/core.db
+USER_ID=1001
+GROUP_ID=1001
+
+COOKIE_SECRET=108
+JWT_SECRET=10
+
+GF_SECURITY_ADMIN_USER=
+GF_SECURITY_ADMIN_PASSWORD=
+GF_SERVER_PROTOCOL=https"
+make build
+
+```
+
+
+---
 
 ### Requirements
 
