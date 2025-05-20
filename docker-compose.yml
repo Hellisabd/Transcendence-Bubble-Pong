@@ -111,6 +111,25 @@ services:
     expose:
       - "4002"
 
+  solo_ping:
+    build:
+      context: .
+      dockerfile: ./Backend/solo_ping/Dockerfile
+      args:
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    volumes:
+      - ./Backend/solo_ping:/usr/src/app/Backend
+    networks:
+      - spa-network
+      - ping-network
+    container_name: solo_ping
+    env_file:
+      - .env
+    restart: "no"
+    expose:
+      - "4003"
+
   users:
     build:
       context: .
