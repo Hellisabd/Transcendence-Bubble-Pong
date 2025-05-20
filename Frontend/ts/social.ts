@@ -2,6 +2,8 @@ declare function get_user(): Promise<string | null>;
 
 let friends: { username: string; status: string }[] = [];
 
+let old_friends_size: number = 0
+
 
 
 let socialSocket: WebSocket | null = null;
@@ -13,11 +15,12 @@ function check_friend_list_state(): WebSocket | null {
 let displaying_friends: boolean = false;
 
 async function display_friends() {
-	if (displaying_friends) {
+	if (displaying_friends || (old_friends_size == friends.length)) {
+		pending_request();
 		return ;
 	}
 	displaying_friends = true;
-	pending_request();
+	old_friends_size = friends.length;
     const friendsDiv = <HTMLDivElement>document.getElementById("friends_list");
     if (friendsDiv) {
 		friendsDiv.innerHTML = "";
@@ -81,7 +84,8 @@ let displaying_pending: boolean = false;
 async function display_pending(user: string[]) {
 	if (!user || displaying_pending)
 		return ;
-	displaying_pending = true;
+	if (user.length > 0 )
+		displaying_pending = true;
 	const pendingDiv = <HTMLDivElement>document.getElementById("pending_request");
 	const pellet = <HTMLDivElement>document.getElementById("pelletSocial");
 	const pendingParent = <HTMLDivElement>document.getElementById("pending_request_div");
@@ -90,6 +94,7 @@ async function display_pending(user: string[]) {
 	pellet.innerHTML = "";
 	if (user.length > 0 && pellet) {
 		pellet.classList.remove("hidden");
+		pendingDiv.innerHTML = "";
 		pendingParent.classList.remove("hidden");
 	} else {
 		pendingParent.classList.add("hidden");
@@ -105,7 +110,6 @@ async function display_pending(user: string[]) {
 			userDiv.classList.add("flex", "items-center", "p-2", "border-b-2", "border-gray-200");
 			const avatar = document.createElement("img");
 			avatar.classList.add("w-8", "h-8", "rounded-full");
-
 
 			const response = await fetch("/get_avatar", {
 				method: "POST",
@@ -201,10 +205,11 @@ async function set_up_friend_list(user: string | null) {
         socialSocket = null;
 	}
 	socialSocket.onmessage = (event) => {
-        let data = JSON.parse(event.data);
+		let data = JSON.parse(event.data);
 		const index = friends.findIndex(friend => friend.username == data.username);
-		if (index == -1 &&  data.username && data.status)
+		if (index == -1 &&  data.username && data.status) {
 			friends.push({username: data.username, status: data.status});
+		}
 		else {
 			friends[index] = {username: data.username, status: data.status};
 		}

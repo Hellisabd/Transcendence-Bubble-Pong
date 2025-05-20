@@ -331,6 +331,10 @@ async function add_friend(req, reply) {
     if (response.data.success && response.data.display)
     {
         display_friends(user_sending, users_connection[user_sending]);
+        display_friends(user_to_add, users_connection[user_to_add]);
+    }
+    if (response.data.user_added) {
+        users_connection[response.data.user_added]?.socket.send(JSON.stringify({pending_request: true}));
     }
     return reply.send(response.data);
 }
