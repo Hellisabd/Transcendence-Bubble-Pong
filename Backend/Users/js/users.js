@@ -259,10 +259,10 @@ fastify.post("/add_friend", async (request, reply) => {
           SET status = 'accepted'
           WHERE (user_id = ? AND friend_id = ?)
           `).run( user_to_add_id, user_sending_id);
-          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent you an invitation you are now friends!"}));
+          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent you an invitation you are now friends!", user_added: user_to_add}));
       }
       else if (!pending && exisitingFriendship) {
-        return reply.send(JSON.stringify({success: false, message: "You already invited this user"}));
+        return reply.send(JSON.stringify({success: false, message: "You already invited this user", user_added: user_to_add}));
       }
 
     db.prepare(`
