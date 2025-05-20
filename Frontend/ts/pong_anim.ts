@@ -128,15 +128,23 @@ function pong_resetBall(): void {
     pong_ballSpeedY = pong_speed * Math.sin(angle);
 }
 
+let lastTime_pong: number = 0;
 
-function pong_gameLoop(): void {
+const MIN_FRAME_TIME_PONG = 1000 / 80; 
+
+function pong_gameLoop(now: DOMHighResTimeStamp): void {
 	if (!pong_ctx || !pong_canvas) {
 		return;
 	}
-    let canvasWidth: number = pong_canvas.offsetWidth;
-    let ratio: number = canvasWidth / 1000;
-    pong_update();
-    pong_draw(ratio);
+    const delta = now - lastTime_pong;
+
+    if (delta >= MIN_FRAME_TIME_PONG) {
+        let canvasWidth: number = pong_canvas.offsetWidth;
+        let ratio: number = canvasWidth / 1000;
+        pong_update();
+        pong_draw(ratio);
+        lastTime_pong = now;
+    }
     id_pong_anim = requestAnimationFrame(pong_gameLoop);
 }
 

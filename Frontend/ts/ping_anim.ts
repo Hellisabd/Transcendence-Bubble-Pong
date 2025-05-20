@@ -367,15 +367,24 @@ function ping_draw(ratio: number): void {
     } 
 }
 
-function ping_gameLoop() {
+let lastTime_ping: number = 0;
+
+const MIN_FRAME_TIME_PING = 1000 / 80; 
+
+function ping_gameLoop(now: DOMHighResTimeStamp): void {
 	if (!ping_ctx || !ping_canvas) {
 		return;
 	}
-    let canvasWidth: number = ping_canvas.offsetWidth;
-    let ratio: number = canvasWidth / 1000;
-	ping_update();
-	ping_draw(ratio);
-	id_ping_anim = requestAnimationFrame(ping_gameLoop);
+    const delta = now - lastTime_ping;
+
+    if (delta >= MIN_FRAME_TIME_PING) {
+        let canvasWidth: number = ping_canvas.offsetWidth;
+        let ratio: number = canvasWidth / 1000;
+        ping_update();
+        ping_draw(ratio);
+        lastTime_ping = now;
+    }
+    id_ping_anim = requestAnimationFrame(ping_gameLoop);
 }
 
 function animation_ping_stop() {
