@@ -121,7 +121,7 @@ fastify.post('/2fa/setup', setup2fa);
 fastify.post('/userExists', checkUserExists);
 
 function sanitizeInput(input) {
-  if (typeof input !== "string") return false;
+  if (typeof input !== "string") return input;
   if (input.length > 50) return false; // Empêche les inputs trop longs
   if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
   return input;

@@ -27,6 +27,8 @@ let usersession = new Map();
 
 async function get_avatar(request, reply) {
     const {username} = request.body;
+    if (!sanitizeInput(username))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const response = await axios.post("http://users:5000/get_avatar",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
@@ -38,7 +40,6 @@ async function update_avatar(req, reply) {
     try {
       const token = req.cookies.session;
       const username = await get_user(token);
-
       if (!username) {
         return reply.send({ success: false, message: 'Utilisateur non authentifié' });
       }
@@ -113,7 +114,6 @@ fastify.register(fastifyCookie, {
 });
 
 async function log(req, reply) {
-    const {username} = req.body;
     const response = await axios.post("http://users:5000/login", req.body);
     const result = await response.data;
     if (result.success) {
@@ -147,6 +147,8 @@ async function create_account(req, reply) {
 		let response;
 
 		const { username, password, email, activeFA } = req.body;
+        if (!sanitizeInput(username) || !sanitizeInput(password) || !sanitizeInput(email))
+            return reply.send({ success: false, message: 'Unauthorized' });
 
 		let i = 0;
 		if(activeFA){
@@ -219,7 +221,8 @@ async function update_history(req, reply) {
 async function get_stats(req, reply) {
     const {username} = req.body;
 
-
+    if (!sanitizeInput(username))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const response = await axios.post("http://users:5000/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
@@ -248,6 +251,8 @@ async function get_history(req, reply) {
 
 async function end_tournament(req, reply) {
     const {classement} = req.body;
+    if (!sanitizeInput(classement))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const end_tournamentTemplate = fs.readFileSync("Frontend/templates/end_tournament.ejs", "utf8");
     const finalFile = ejs.render(end_tournamentTemplate, {classement: classement});
 
@@ -302,7 +307,7 @@ async function update_status(req, reply) {
     if (!token)
         return ;
     const {status} = req.body;
-    if (!status)
+    if (!sanitizeInput(status))
         return ;
     if (!usersession.get(token))
         return ;
@@ -317,6 +322,8 @@ async function get_status(req, reply) {
 
 async function add_friend(req, reply) {
     const {user_sending, user_to_add} = req.body;
+    if (!sanitizeInput(user_sending))
+        return reply.send({success : false});
     const token = req.cookies.session;
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
@@ -367,7 +374,7 @@ let secret_keys = [];
 async function setup2fa(request, reply) {
 	const { email, username } = request.body;
 
-	if (!email) {
+	if (!sanitizeInput(email) || !sanitizeInput(username)) {
 		return reply.send({ error: 'email inexistant.' });
 	}
 
@@ -410,6 +417,8 @@ async function setup2fa(request, reply) {
 async function twofaverify(request, reply) {
 	try {
 		const { email, code } = request.body;
+        if (!sanitizeInput(email) || !sanitizeInput(code))
+            return reply.send({ success: false, error: "Nope" });
 		const response = await axios.post("http://users:5000/2fa/get_secret",
 			{ email },  // ✅ Envoie le JSON correctement
 			{ headers: { "Content-Type": "application/json" } }
@@ -423,7 +432,6 @@ async function twofaverify(request, reply) {
 		while(secret_keys[i] && secret_keys[i][0] != email){
 			i++;
 		}
-
         let sekret = response.data.secret;
         if (secret_keys[i])
             sekret = secret_keys[i][1];
