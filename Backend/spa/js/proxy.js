@@ -162,6 +162,7 @@ async function create_account(req, reply) {
 			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
 			{ headers: { "Content-Type": "application/json" } })
+            secret_keys.splice(i, 1);
 		}
 		else{
 			response = await axios.post("http://users:5000/create_account",
@@ -417,6 +418,59 @@ async function setup2fa(request, reply) {
 	}
   };
 
+async function insert2fa(request, reply) {
+    const {email} = request.body;
+    let i = 0; 
+    while(secret_keys[i] && secret_keys[i][0] != email){
+        i++;
+    }
+
+    if (!secret_keys[i]) {
+        return reply.send({ success: false});
+    }
+    response = await axios.post("http://users:5000/insert_secret",
+    {email, secretKey: secret_keys[i][1]},
+    { headers: { "Content-Type": "application/json" } })
+    secret_keys.splice(i, 1);
+}
+
+async function twofaSettings(request, reply) {
+    const token = request.cookies.session;
+    const username = await get_user(token);
+    const response = await axios.post("http://users:5000/get_email",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+    if (response.data.fa) {
+        axios.post("http://users:5000/remove_secret",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        return reply.send({removed: true})
+    }
+    else {
+        const secret = otplib.authenticator.generateSecret();
+		if (!secret || typeof secret !== 'string') {
+			return reply.send({ error: "Erreur lors de la generation du secret 2FA" });
+		}
+
+		// Générer l'URL pour le QR Code
+		const otplibUrl = otplib.authenticator.keyuri(response.data.email, 'MyApp', secret);
+		secret_keys.push([response.data.email, secret]);
+
+		// Utiliser un async/await pour gérer correctement la génération du QR code
+		const dataUrl = await new Promise((resolve, reject) => {
+			qrcode.toDataURL(otplibUrl, (err, url) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve(url);
+			});
+		});
+
+		return reply.send({ created: true, email: response.data.email, username: response.data.username, otplib_url: otplibUrl, qr_code: dataUrl });
+    }    
+}
 
 async function twofaverify(request, reply) {
 	try {
@@ -492,4 +546,4 @@ async function get_secret_two(email){
     }
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };
+module.exports = { log , create_account , insert2fa,logout, get_user, settings, twofaSettings, waiting_room, update_history, update_solo_score, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };

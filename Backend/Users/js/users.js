@@ -189,6 +189,15 @@ async function get_user_with_id(user_id) {
     return user.username;
 }
 
+fastify.post("/remove_secret", async (request, reply) => {
+  const {username} = request.body;
+  db.prepare(`
+    UPDATE users
+    SET secret = ?
+    WHERE username = ?
+    `).run(null, username)
+});
+
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
   if (!sanitizeInput(username))
@@ -344,17 +353,46 @@ fastify.post("/login", async (request, reply) => {
   try {
     const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
     if (!user)
-        return reply.send({ success: false, error: "Connexion Echouée : invalid email" });
+        return reply.send({ success: false, error: "Connexion Failed : invalid email" });
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch)
-      return reply.send({ success: false, error: "Connexion échouée : Mot de passe incorrect" });
+      return reply.send({ success: false, error: "Connexion Failed : Incorrect passsword" });
     const token = generateToken(user);
     return reply.send({ success: true, token, username: user.username, "domain": domain });
   } catch (error) {
-    return reply.send({ success: false, error: "Erreur interne du serveur" });
+    return reply.send({ success: false, error: "Internal servor error" });
   }
 });
 
+
+fastify.post("/insert_secret", async (request, reply) => {
+  const {email, secretKey} = request.body;
+  db.prepare(`
+    UPDATE users
+    SET secret = ?
+    WHERE email = ?
+    `).run(secretKey, email);
+});
+
+
+fastify.post("/get_email", async (request, reply) => { 
+  const {username} = request.body
+  const user = await db.prepare(`
+  SELECT email FROM users
+  WHERE username = ?
+  `).get(username);
+  const secret = await db.prepare(`
+  SELECT secret FROM users
+  WHERE username = ?
+  `).get(username);
+  let status;
+  if (secret && secret.secret)
+    status = true;
+  else
+    status = false;
+  data = {email: user.email, fa: status}
+  return data;
+});
 
 fastify.post("/settings", async (request, reply) => {
   let old_file_name = null;
