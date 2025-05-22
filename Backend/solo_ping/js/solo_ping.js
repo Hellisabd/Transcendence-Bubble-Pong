@@ -9,7 +9,7 @@ const solo_ballRadius = 15;
 const bonusRadius = 50;
 const arena_radius = arena_width / 2;
 const bonus_set = "PPGGS";
-let	gameState;
+let lobbies = {};
 
 fastify.register(async function (fastify) {
     fastify.get("/ws/solo_ping", { websocket: true }, (connection, req) => {
@@ -19,42 +19,149 @@ fastify.register(async function (fastify) {
             if (data.disconnect) {
                 connection.socket.send(JSON.stringify({disconnect: true}));
             }
-			gameState = {
-				solo_ball: {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5},
-				player: { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} },
-				goal: { angle: 0, size: Math.PI / 3, protected: false },
-				bonus: {tag: null, x: 350, y: 350 },
-				last_bounce: Date.now(),
-				bounceInterval : 500,
-				bounce: 0,
-				score: 0,
-				playerReady: false,
-				gameinterval: null,
-				start_solo: false,
-				end_solo: false,
-				x_bounce: 0,
-				y_bounce: 0,
-				solo_bonus_bool: 0,
+            const lobbyKey = data.solo_lobbyKey;
+			if (!lobbies[lobbyKey]) {
+                lobbies[lobbyKey] = {
+					player_connection: null,
+					gameState: {
+						solo_ball: {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5},
+						player: { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} },
+						goal: { angle: 0, size: Math.PI / 3, protected: false },
+						bonus: {tag: null, x: 350, y: 350 },
+						last_bounce: Date.now(),
+						bounceInterval : 500,
+						bounce: 0,
+						score: 0,
+						playerReady: false,
+						gameinterval: null,
+						start_solo: false,
+						end_solo: false,
+						x_bounce: 0,
+						y_bounce: 0,
+						solo_bonus_bool: 0,
+					}
+				}
 			}
-            if (data.move || data.playerReady) {
+			const lobby = lobbies[lobbyKey];
+            if (!lobby.player_connection) {
+                lobby.player_connection = connection;
+            }
+            if (data.move || data.ready) {
                 handleGameInput(data, lobbyKey);
             }
         });
-    });
+		connection.socket.on("close", () => {
+            cleanupLobby(connection);
+		});
+	});
 });
 
-function solo_randballPos() {
+function cleanupLobby(connection) {
+    Object.keys(lobbies).forEach(lobbyKey => {
+        let lobby = lobbies[lobbyKey];
+        if (!lobby || !lobby.player_connection) 
+			return;
+        
+		if (lobby.player_connection === connection) {
+			lobby.player_connection = null;
+		}
+
+        if (lobby.player_connection == null) {
+            
+            if (lobby.gameinterval) {
+                clearInterval(lobby.gameinterval);
+                lobby.gameinterval = null;
+            }
+
+            delete lobbies[lobbyKey];
+        }
+    });
+}
+
+function handleGameInput(data, lobbyKey) {
+	if (!lobbies[lobbyKey])
+        return ;
+    const gameState = lobbies[lobbyKey].gameState;
+	if (data.move === "up") {
+		gameState.player.move.up = true;
+		gameState.player.move.down = false;
+		gameState.player.move.right = false;
+		gameState.player.move.left = false;
+	} else if (data.move === "down") {
+		gameState.player.move.up = false;
+		gameState.player.move.down = true;
+		gameState.player.move.right = false;
+		gameState.player.move.left = false;
+	} else if (data.move === "right") {
+		gameState.player.move.up = false;
+		gameState.player.move.down = false;
+		gameState.player.move.right = true;
+		gameState.player.move.left = false;
+	} else if (data.move === "left") {
+		gameState.player.move.up = false;
+		gameState.player.move.down = false;
+		gameState.player.move.right = false;
+		gameState.player.move.left = true;
+	} else if (data.move === "stop") {
+		gameState.player.move.up = false;
+		gameState.player.move.down = false;
+		gameState.player.move.right = false;
+		gameState.player.move.left = false;
+	}
+	if (data.ready == true) {
+		gameState.start_solo = true;
+		lobbies[lobbyKey].player_connection.socket.send(JSON.stringify({ start: "start" }));
+		solo_randballPos(gameState);
+		startGameLoop(lobbyKey);
+	}
+}
+
+function gameLoop(lobbyKey) {
+	if (!lobbies[lobbyKey])
+        return ;
+    gameState = lobbies[lobbyKey].gameState;
+    if (gameState.start_solo) {
+		solo_update(lobbyKey);
+		lobbies[lobbyKey].player_connection.socket.send(JSON.stringify({ gameState, "solo_lobbyKey": lobbyKey }));
+  	}
+}
+
+function startGameLoop(lobbyKey) {
+    if (!lobbies[lobbyKey]) {
+        return;
+    }
+    if (lobbies[lobbyKey].gameinterval) {
+		
+		new_solo_game(lobbyKey);
+        return ;
+    }
+    lobbies[lobbyKey].gameinterval = setInterval(() =>  {
+		if (lobbies[lobbyKey] && lobbies[lobbyKey].player_connection == null && lobbies[lobbyKey].gameinterval) {
+			clearInterval(lobbies[lobbyKey]?.gameinterval);
+            lobbies[lobbyKey].gameinterval = null;
+            lobbies[lobbyKey] = null;
+			console.log("2");
+            return;
+        }
+        gameLoop(lobbyKey)
+    }, 16);
+}
+
+function solo_randballPos(gameState) {
     gameState.solo_ball.x = Math.floor(Math.random() * arena_width);
     gameState.solo_ball.y = Math.floor(Math.random() * arena_height);
     let dx = gameState.solo_ball.x - arena_width / 2;
     let dy = gameState.solo_ball.y - arena_height / 2;
     let solo_ball_dist = Math.sqrt(dx * dx + dy * dy);
     if (solo_ball_dist + solo_ballRadius + 50 >= arena_radius)
-        solo_randballPos();
+        solo_randballPos(gameState);
 }
 
-function new_solo_game() {
-    solo_randballPos();
+function new_solo_game(lobbyKey) {
+	if (!lobbies[lobbyKey])
+        return ;
+    gameState = lobbies[lobbyKey].gameState;
+    solo_randballPos(gameState);
     gameState.score = 0;
     gameState.solo_bounce = 0;
     gameState.player.angle = Math.PI;
@@ -69,7 +176,12 @@ function new_solo_game() {
     gameState.end_solo = false;
 }
 
-function solo_update() {
+function solo_update(lobbyKey) {
+	if (!lobbies[lobbyKey]) {
+        return ;
+    }
+    let gameState = lobbies[lobbyKey].gameState;
+
 	gameState.solo_ball.x += gameState.solo_ball.speedX;
 	gameState.solo_ball.y += gameState.solo_ball.speedY;
 	
@@ -156,6 +268,7 @@ function solo_update() {
 			if (solo_ball_angle >= lim_inf_goal && solo_ball_angle <= lim_sup_goal) {
 				gameState.start_solo = false;
 				gameState.end_solo = true;
+				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true }));
 				send_score();
 			}
 		}
@@ -163,6 +276,7 @@ function solo_update() {
 			if (solo_ball_angle >= lim_inf_goal || solo_ball_angle <= lim_sup_goal) {
 				gameState.start_solo = false;
 				gameState.end_solo = true;
+				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true }));
 				send_score();
 			} 
 		}
@@ -204,28 +318,34 @@ function solo_update() {
 		gameState.solo_ball.speedX -= 2.05 * dotProduct * normalX;
 		gameState.solo_ball.speedY -= 2.05 * dotProduct * normalY;
 		gameState.goal.size += 0.05 * Math.PI;
+		if (gameState.bounce % 2 == 0) {
+            lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.solo_ball.x, y_bounce: gameState.solo_ball.y, ping_or_pong: 0 }));
+        }
+        else {
+            lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_bounce: true, x_bounce: gameState.solo_ball.x, y_bounce: gameState.solo_ball.y, ping_or_pong: 1 }));
+        }
 		if (gameState.goal.size >= Math.PI)
 			gameState.goal.size = Math.PI;
 		gameState.score += gameState.goal.size * speed * 2;
 	}
-	bonusManager();
+	bonusManager(gameState);
 }
 
-function bonusManager() {
-	function randBonusPos() {
+function bonusManager(gameState) {
+	function randBonusPos(gameState) {
 		gameState.bonus.x = Math.floor(Math.random() * arena_width);
 		gameState.bonus.y = Math.floor(Math.random() * arena_height);
 		let dx = gameState.bonus.x - arena_width / 2;
 		let dy = gameState.bonus.y - arena_height / 2;
 		let bonus_dist = Math.sqrt(dx * dx + dy * dy);
 		if (bonus_dist + 200  >= arena_radius)
-			randBonusPos();
+			randBonusPos(gameState);
 	}
 	if (gameState.solo_bounce >= 2 && gameState.solo_bonus_bool == 0) {
 		gameState.solo_bonus_bool = 1;
 		let r = bonus_set[Math.floor(Math.random() * bonus_set.length)];
 		gameState.bonus.tag = r;
-		randBonusPos();
+		randBonusPos(gameState);
 	}
 	if (gameState.solo_bounce >= 2 && gameState.solo_bonus_bool == 1) {
 		let dist_solo_ball_bonus = Math.sqrt(((gameState.solo_ball.x - gameState.bonus.x) * (gameState.solo_ball.x - gameState.bonus.x)) + ((gameState.solo_ball.y - gameState.bonus.y) * (gameState.solo_ball.y - gameState.bonus.y)));

@@ -1,7 +1,7 @@
 {
-	"name": "ping",
+	"name": "solo_ping",
 	"version": "1.0.0",
-	"main": "ping.js",
+	"main": "solo_ping.js",
 	"scripts": {
 	  "start": "node Backend/js/solo_ping.js"
 	},

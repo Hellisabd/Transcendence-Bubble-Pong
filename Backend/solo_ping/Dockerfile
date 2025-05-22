@@ -18,6 +18,7 @@ RUN chown -R soloping:soloping /usr/src/app
 RUN npm install -g npm@11.1.0
 RUN npm install -g wscat
 RUN apt-get update && apt-get install -y net-tools
+RUN apt-get update && apt-get install -y procps
 
 COPY ./Backend/solo_ping/config/package*.json ./
 COPY ./Backend/solo_ping/js/*.js ./Backend/js/

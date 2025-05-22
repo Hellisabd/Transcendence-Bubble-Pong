@@ -540,9 +540,9 @@ function cleanupLobby(connection) {
 
         if (lobby.players.length === 0) {
             
-            if (lobby.gameinterval) {
-                clearInterval(lobby.gameinterval);
-                lobby.gameinterval = null;
+            if (lobby.gameState.gameinterval) {
+                clearInterval(lobby.gameState.gameinterval);
+                lobby.gameState.gameinterval = null;
             }
 
             delete lobbies[lobbyKey];
