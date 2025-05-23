@@ -140,7 +140,6 @@ function startGameLoop(lobbyKey) {
 			clearInterval(lobbies[lobbyKey]?.gameinterval);
             lobbies[lobbyKey].gameinterval = null;
             lobbies[lobbyKey] = null;
-			console.log("2");
             return;
         }
         gameLoop(lobbyKey)

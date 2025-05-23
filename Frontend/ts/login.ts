@@ -93,10 +93,11 @@ async function login(event: Event): Promise<void> {
 			text: "Connexion to server failed.",
 			icon: 'error'
 		  });
-    }
-}
-
-async function faSettings() {
+		}
+	}
+	
+	async function faSettings() {
+		const username =  await get_user();
 		const rep = await fetch("/2fa/settings", {
 			method: "GET",
 		});
@@ -131,18 +132,24 @@ async function faSettings() {
 					</div>`;
 				document.body.appendChild(verifyModal);
 				const submitBtn = document.getElementById("qr-verify-submit") as HTMLButtonElement;
-
 				(document.getElementById("qr-alert-annuler") as HTMLButtonElement)?.addEventListener("click", () => {
-					if (qrCodeModal && document.body.contains(qrCodeModal)) {
-						document.body.removeChild(qrCodeModal);
-						create_account_card.classList.remove('hidden');
-						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
-							reject(new Error("2FA verification annulée"));
-					}
-				});
+						if (qrCodeModal && document.body.contains(qrCodeModal)) {
+							document.body.removeChild(qrCodeModal);
+							create_account_card.classList.remove('hidden');
+							if (document.body.contains(verifyModal))
+								document.body.removeChild(verifyModal);
+				
+						}
+						fetch("/2fa/delete_thing", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ username })
+						});
+					});
+				
 				submitBtn.addEventListener("click", async () => {
 					const code = (document.getElementById("qr-verify-code") as HTMLInputElement).value;
-					create_account_card.classList.remove('hidden');
+					create_account_card.classList.remove('hidden'); 
 					const verifResponse = await fetch("/2fa/verify", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
@@ -231,6 +238,7 @@ async function create_account(event: Event): Promise<void> {
 	// If 2FA is active and a setup result exists, perform code verification
 	if (activeFA && repResult) {
 		try {
+			const username =  await get_user();
 			await new Promise<void>((resolve, reject) => {
 				const verifyModal = document.createElement('div');
 				let create_account_card = document.getElementById('content') as HTMLDivElement;
@@ -250,8 +258,14 @@ async function create_account(event: Event): Promise<void> {
 					if (qrCodeModal && document.body.contains(qrCodeModal)) {
 						document.body.removeChild(qrCodeModal);
 						create_account_card.classList.remove('hidden');
-						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
-							reject(new Error("2FA verification annulée"));
+						if (document.body.contains(verifyModal))
+							document.body.removeChild(verifyModal);
+						reject(new Error("2FA verification annulée"));
+						fetch("/2fa/delete_thing", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ username})
+						});
 					}
 				});
 				submitBtn.addEventListener("click", async () => {

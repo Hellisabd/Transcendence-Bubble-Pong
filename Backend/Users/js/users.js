@@ -156,6 +156,7 @@ fastify.post("/update_history_tournament", async (request, reply) => {
                   gametype
               );
 });
+ 
 
 fastify.post("/pending_request", async (request, reply) => {
     const {username} = request.body;

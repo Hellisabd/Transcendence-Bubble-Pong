@@ -502,6 +502,30 @@ async function twofaverify(request, reply) {
 	}
 };
 
+async function get_email(token) {
+    const username = await get_user(token);
+    const response = await axios.post("http://users:5000/get_email",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+    return response.data.email;
+}
+
+async function delete_thing(request, reply) {
+    const {username} = request.body; 
+    const token = request.cookies.session;
+    const db_user = await get_user(token)
+    const db_email = await get_email(token);
+    if (username != db_user)
+        return ;
+    let i = 0;
+    while(secret_keys[i] && secret_keys[i][0] != db_email){
+        i++;
+    }
+    secret_keys.splice(i, 1);
+}
+
+
 async function checkUserExists(username) {
 	try {
 		const response = await axios.post("http://users:5000/userExists",
@@ -541,4 +565,4 @@ async function get_secret_two(email){
     }
 }
 
-module.exports = { log , create_account , insert2fa,logout, get_user, settings, twofaSettings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };
+module.exports = { log , create_account , insert2fa,logout, get_user, settings, twofaSettings, delete_thing, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };
