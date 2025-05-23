@@ -6,6 +6,7 @@ let solo_lobbyKey: string | null = null;
 let solo_bonus_glowing: number = 0;
 let solo_up_down: boolean;
 let id_solo_ping: number | null = null; 
+let drawing: boolean = true;
 
 function input_down_solo_ping(event: KeyboardEvent) {
     if (event.key === "h")
@@ -27,6 +28,7 @@ function input_down_solo_ping(event: KeyboardEvent) {
         } 
         if (event.key === " ") {
             message = { ready: true, "solo_lobbyKey": solo_lobbyKey };
+            drawing = true;
         }
 
         if (message) {
@@ -141,14 +143,13 @@ function soloping_initializeGame(): void {
         let gameState = {
             solo_ball: {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5},
             player: { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} },
-            goal: { angle: 0, size: Math.PI / 3, protected: false },
+            goal: { angle: Math.PI, size: Math.PI / 3, protected: false },
             bonus: {tag: null, x: 350, y: 350 },
             last_bounce: Date.now(),
             bounceInterval : 500,
             bounce: 0,
             score: 0,
             playerReady: false,
-            gameinterval: null,
             start_solo: false,
             end_solo: false,
             solo_bonus_bool: 0,
@@ -169,21 +170,26 @@ function soloping_initializeGame(): void {
                 y_bounce = gs.y_bounce;
                 ping_or_pong = gs.ping_or_pong;
             }
-            else if (gs.draw_score == true) {
-                draw_score(ratio);
+            if (gs.draw_score == true) {
+                let score = gs.score;
+                draw_score(ratio, score);
             }
         };
         
         function solo_drawGame(): void {
+            if (drawing == false)
+                return ;
             if (!ctx) {
                 return ;
             }
+            solo_score.innerHTML = Math.round(gameState.score).toString();
 
             let canvasWidth: number = canvas.offsetWidth;
             let canvasHeight: number = canvas.offsetHeight;
             
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
+            ratio = canvasWidth / 1000;
             
             let arena_radius: number = canvasWidth / 2 - canvasWidth / 20;
             let scale = arena_radius / (canvasWidth / 2);
@@ -235,7 +241,7 @@ function soloping_initializeGame(): void {
             
             //solo_ball
             ctx.beginPath();
-            ctx.arc(gameState.solo_ball.x, gameState.solo_ball.y, solo_ballRadius, 0, Math.PI * 2);
+            ctx.arc(gameState.solo_ball.x * ratio, gameState.solo_ball.y * ratio, solo_ballRadius * ratio, 0, Math.PI * 2);
             ctx.fillStyle = "#efb60a";
             ctx.fill(); 
             ctx.lineWidth = 2;
@@ -293,13 +299,13 @@ function soloping_initializeGame(): void {
             //BONUS
             if (gameState.bonus.tag == 'P') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 20 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00E100";
                 if (solo_up_down == true) {
                     solo_bonus_glowing++;
@@ -320,13 +326,13 @@ function soloping_initializeGame(): void {
             }
             if (gameState.bonus.tag == 'G') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 20 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#FC00C6";
                 if (solo_up_down == true) {
                     solo_bonus_glowing++;
@@ -348,13 +354,13 @@ function soloping_initializeGame(): void {
             
             if (gameState.bonus.tag == 'S') {
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "black";
                 ctx.lineWidth = 20 * ratio;
                 ctx.stroke();
                 ctx.closePath();
                 ctx.beginPath();
-                ctx.arc(gameState.bonus.x, gameState.bonus.y, solo_bonusRadius * ratio, 0, Math.PI * 2);
+                ctx.arc(gameState.bonus.x * ratio, gameState.bonus.y * ratio, solo_bonusRadius * ratio, 0, Math.PI * 2);
                 ctx.strokeStyle = "#00CDFF";
                 if (solo_up_down == true) {
                     solo_bonus_glowing++;
@@ -381,7 +387,7 @@ function soloping_initializeGame(): void {
                 else if (ping_or_pong == 1)
                     image = PONG_image;
                 let image_size: number = 100 * ratio;
-                ctx.drawImage(image, (x_bounce - image_size / 2), (y_bounce - image_size / 2), image_size, image_size);
+                ctx.drawImage(image, (x_bounce * ratio - image_size / 2), (y_bounce * ratio - image_size / 2), image_size, image_size);
                 image_bounce_refresh++;
                 if (image_bounce_refresh == 60) {
                     draw_bounce = false;
@@ -398,38 +404,36 @@ function soloping_initializeGame(): void {
         }
         id_solo_ping = requestAnimationFrame(solo_drawGame);
 
-        function draw_score(ratio: number): void {
+        function draw_score(ratio: number, score: number): void {
+            drawing = false;
             if (!ctx)
                 return;
             ctx.font = `bold ${100 * ratio}px 'KaBlam', 'system-ui', sans-serif`;
             ctx.fillStyle = "red";
             ctx.textAlign = "center";
-            ctx.fillText(Math.round(gameState.score).toString(), canvas.width / 2, canvas.height / 2);
+            ctx.fillText(Math.round(score).toString(), canvas.width / 2, canvas.height / 2);
+            ctx.font = `bold ${30 * ratio}px 'Canted Comic', 'system-ui', sans-serif`;
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";
+            ctx.fillText("Press SPACE to start", canvas.width / 2, canvas.height / 2 + 100);
+            solo_ping_stop();
         }
     }
 }
 
-    //    async function send_score() {
-    //         if (sending == true)
-    //             return;
-    //         sending = true;
-    //         const player = await get_user();
-    //         try {
-    //             const response = await fetch('/update_solo_score', {
-    //                 method: 'POST',
-    //                 headers: { "Content-Type": "application/json" }, 
-    //                 body: JSON.stringify({ username: player, score: Math.round(score) })
-    //             });
-        
-    //             const data = await response.json();
-    //         }
-    //         catch (error) {
-    //             console.log('Error sending score to db');
-    //         }
-    //         sending = false;
-    //     }
-//     }
-// }
+function solo_Disconnect_from_game() {
+    if (solo_socket) {
+        fetch("/update_status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({"status": "online"})
+        });
+    }
+    if (solo_socket?.readyState != solo_socket?.CLOSING && solo_socket?.readyState != solo_socket?.CLOSED)
+        solo_socket?.close();
+    solo_socket = null;
+    solo_lobbyKey = null;
+}
 
 function solo_ping_stop() {
     if (id_solo_ping != null) {

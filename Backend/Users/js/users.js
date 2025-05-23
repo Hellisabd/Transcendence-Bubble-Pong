@@ -960,6 +960,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 		return reply.send({ success: false, error: "Erreur interne du serveur" });
 	}
   });
+
 fastify.post("/update_solo_score",  async (request, reply) => {
   try {
     const {username, score} = request.body;

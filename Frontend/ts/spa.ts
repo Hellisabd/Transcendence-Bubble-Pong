@@ -267,6 +267,7 @@ async function navigateTo(page: string, addHistory: boolean = true, classement: 
         }
         Disconnect_from_game();
         ping_Disconnect_from_game();
+        solo_Disconnect_from_game();
         if (page === "waiting_room") {
             initializeAnimationPong();
             play_pong();

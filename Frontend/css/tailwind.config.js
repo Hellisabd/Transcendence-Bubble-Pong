@@ -10,6 +10,15 @@ module.exports = {
 	theme: {
 	  extend: {
 		screens: {
+        // breakpoints basés sur la hauteur
+			 // exige largeur ≥ 640px ET hauteur ≥ 640px
+			'2d-sm': { raw: '(min-width: 640px) and (min-height: 640px)' },
+			// exige largeur ≥ 768px ET hauteur ≥ 768px
+			'2d-md': { raw: '(min-width: 768px) and (min-height: 768px)' },
+			// exige largeur ≥ 1024px ET hauteur ≥ 1024px
+			'2d-lg': { raw: '(min-width: 1024px) and (min-height: 1024px)' },
+			// exige largeur ≥ 1280px ET hauteur ≥ 1280px
+			'2d-xl': { raw: '(min-width: 1280px) and (min-height: 1280px)' },
 			xs: '340px',
 		  },
 		fontFamily: {

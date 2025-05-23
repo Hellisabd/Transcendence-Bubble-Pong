@@ -7,13 +7,13 @@
     <title>Solo PING</title>
     <%- include('links.ejs') %>
 </head>
-<body class=" bg-paper min-h-screen">
+<body class=" bg-paper min-h-screen overflow-hidden">
   <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
-      <p id="solo_score" class="text-red-600 text-3xl font-kablam"></p>
-      <div class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
-        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
-        <canvas id="solopingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      <p id="solo_score" class="text-red-500 text-3xl font-kablam"></p>
+      <div class="relative flex w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]">
+        <div id="pingarena" class="bg-ping w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]"></div>
+        <canvas id="solopingCanvas" class="absolute w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]"></canvas>
       </div>
       <div class="hidden md:block">
         <p class="mt-8 bubble relative font-canted font-bold text:xl md:text-2xl">Press H to get some help</p>

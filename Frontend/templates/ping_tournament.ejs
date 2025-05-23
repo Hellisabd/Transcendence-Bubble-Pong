@@ -7,20 +7,20 @@
       <title>Ping Tournament</title>
       <%- include('links.ejs') %>
 </head>
-<body class=" bg-paper min-h-screen">
+<body class=" bg-paper min-h-screen overflow-hidden">
   <div id="content">
     <div class="relative flex flex-col items-center translate-y-20">
-      <div id="ping_playersdiv" class="relative hidden flex justify-between items-center w-[320px] h-[50px] sm:w-[600px] sm:h-[50px] md:w-[800px] md:h-[50px] lg:w-[1000px] lg:h-[50px]">
-        <p id="playerOne" class="player-bubble-left top-0 left-0 text-red-600 text-2xl font-canted"></p>
-        <p id="playerTwo" class="player-bubble-right top-0 right-0 text-blue-700 text-2xl font-canted"></p>
+      <div id="ping_playersdiv" class="relative hidden flex justify-between items-center w-[320px] h-[50px] 2d-sm:w-[500px] 2d-sm:h-[50px] 2d-md:w-[800px] 2d-md:h-[50px] 2d-lg:w-[1000px] 2d-lg:h-[50px]">
+        <p id="playerOne" class="player-bubble-left top-0 left-0 text-red-500 text-2xl font-canted"></p>
+        <p id="playerTwo" class="player-bubble-right top-0 right-0 text-blue-650 text-2xl font-canted"></p>
       </div>
-      <div id="div_ping_anim" class="relative flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]" >
-        <div id="ping_animation_arena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
-        <canvas id="ping_animation" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      <div id="div_ping_anim" class="relative flex w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]" >
+        <div id="ping_animation_arena" class="bg-ping w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]"></div>
+        <canvas id="ping_animation" class="absolute w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]"></canvas>
       </div>
-      <div id="div_ping_game" class="relative hidden flex w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]">
-        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></div>
-        <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] sm:w-[600px] sm:h-[600px] md:w-[700px] md:h-[700px]"></canvas>
+      <div id="div_ping_game" class="relative hidden flex w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]">
+        <div id="pingarena" class="bg-ping w-[320px] h-[320px] sm:w-[500px] 2d-sm:h-[500px] md:w-[650px] 2d-md:h-[650px]"></div>
+        <canvas id="pingCanvas" class="absolute w-[320px] h-[320px] 2d-sm:w-[500px] 2d-sm:h-[500px] 2d-md:w-[650px] 2d-md:h-[650px]"></canvas>
       </div>
       <div class="bubble font-canted">
         <h2 class="font-bold text-2xl">Next Matches:</h2>

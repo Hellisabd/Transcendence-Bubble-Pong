@@ -1,5 +1,6 @@
 const fastify = require("fastify")({ logger: true });
 fastify.register(require("@fastify/websocket"));
+const axios = require("axios");
 
 const move = Math.PI / 50;
 const paddle_thickness = 15;
@@ -26,14 +27,13 @@ fastify.register(async function (fastify) {
 					gameState: {
 						solo_ball: {x: arena_radius, y: arena_radius, speedX: 4.5, speedY: 4.5},
 						player: { angle: Math.PI, size: Math.PI * 0.08, move: {up: false, down: false, right: false, left: false} },
-						goal: { angle: 0, size: Math.PI / 3, protected: false },
+						goal: { angle: Math.PI, size: Math.PI / 3, protected: false },
 						bonus: {tag: null, x: 350, y: 350 },
 						last_bounce: Date.now(),
 						bounceInterval : 500,
 						bounce: 0,
 						score: 0,
 						playerReady: false,
-						gameinterval: null,
 						start_solo: false,
 						end_solo: false,
 						x_bounce: 0,
@@ -163,7 +163,7 @@ function new_solo_game(lobbyKey) {
     gameState = lobbies[lobbyKey].gameState;
     solo_randballPos(gameState);
     gameState.score = 0;
-    gameState.solo_bounce = 0;
+    gameState.bounce = 0;
     gameState.player.angle = Math.PI;
     gameState.player.size = Math.PI * 0.08;
     gameState.goal.angle = Math.PI;
@@ -250,7 +250,7 @@ function solo_update(lobbyKey) {
 			if (solo_ball_angle >= lim_inf_player || solo_ball_angle <= lim_sup_player) {
 				gameState.last_bounce = Date.now() + gameState.bounceInterval;
 				gameState.bounce++;
-				let impactFactor = (solo_ball_angle - player.angle) / player.size;
+				let impactFactor = (solo_ball_angle - gameState.player.angle) / gameState.player.size;
 				let bounceAngle = impactFactor * Math.PI / 4;
 				let speed = Math.sqrt(gameState.solo_ball.speedX ** 2 + gameState.solo_ball.speedY ** 2);
 				gameState.solo_ball.speedX = speed * Math.cos(solo_ball_angle + bounceAngle) * -1.1;
@@ -268,16 +268,18 @@ function solo_update(lobbyKey) {
 			if (solo_ball_angle >= lim_inf_goal && solo_ball_angle <= lim_sup_goal) {
 				gameState.start_solo = false;
 				gameState.end_solo = true;
-				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true }));
-				send_score();
+				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true, score: gameState.score }));
+				send_score(lobbyKey, gameState.score);
+				return ;
 			}
 		}
 		else {
 			if (solo_ball_angle >= lim_inf_goal || solo_ball_angle <= lim_sup_goal) {
 				gameState.start_solo = false;
 				gameState.end_solo = true;
-				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true }));
-				send_score();
+				lobbies[lobbyKey].player_connection?.socket.send(JSON.stringify({ draw_score: true, score: gameState.score }));
+				send_score(lobbyKey, gameState.score);
+				return ;
 			} 
 		}
 	}
@@ -341,13 +343,13 @@ function bonusManager(gameState) {
 		if (bonus_dist + 200  >= arena_radius)
 			randBonusPos(gameState);
 	}
-	if (gameState.solo_bounce >= 2 && gameState.solo_bonus_bool == 0) {
+	if (gameState.bounce >= 2 && gameState.solo_bonus_bool == 0) {
 		gameState.solo_bonus_bool = 1;
 		let r = bonus_set[Math.floor(Math.random() * bonus_set.length)];
 		gameState.bonus.tag = r;
 		randBonusPos(gameState);
 	}
-	if (gameState.solo_bounce >= 2 && gameState.solo_bonus_bool == 1) {
+	if (gameState.bounce >= 2 && gameState.solo_bonus_bool == 1) {
 		let dist_solo_ball_bonus = Math.sqrt(((gameState.solo_ball.x - gameState.bonus.x) * (gameState.solo_ball.x - gameState.bonus.x)) + ((gameState.solo_ball.y - gameState.bonus.y) * (gameState.solo_ball.y - gameState.bonus.y)));
 		if (dist_solo_ball_bonus <= solo_ballRadius + bonusRadius) {
 			gameState.score += 1000;
@@ -368,6 +370,19 @@ function bonusManager(gameState) {
 			gameState.solo_bonus_bool = 0;
 		}
 	}
+}
+
+async function send_score(lobbyKey, score) {
+	try {
+		axios.post("http://users:5000/update_solo_score",
+			{ username: lobbyKey, score: Math.round(score) },
+			{ headers: { "Content-Type": "application/json" } }
+    	);
+	}
+	catch (error) {
+		console.log(error.message);
+	}
+	sending = false;
 }
 
 const start = async () => {
