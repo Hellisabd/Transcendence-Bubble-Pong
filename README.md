@@ -25,6 +25,7 @@
 ```bash
 
 git clone https://github.com/Hellisabd/Transcendence-Bubble-Pong.git
+cd Transcendence-Bubble-Pong
 echo > .env "DB_FILE=/usr/src/app/dataBase/core.db
 USER_ID=1001
 GROUP_ID=1001

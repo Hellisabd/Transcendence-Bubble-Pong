@@ -20,7 +20,7 @@ RUN chown -R nginx:nginx_new_group /var
 RUN chmod -R 777 /var/cache/nginx
 RUN touch  /var/run/nginx.pid
 RUN chmod -R 777 /var/run/nginx.pid
-RUN rm /etc/nginx/conf.d/default.conf
+# RUN rm /etc/nginx/conf.d/default.conf
 
 USER nginx
 

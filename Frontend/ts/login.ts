@@ -96,6 +96,87 @@ async function login(event: Event): Promise<void> {
     }
 }
 
+async function faSettings() {
+		const rep = await fetch("/2fa/settings", {
+			method: "GET",
+		});
+		const repResult = await rep.json();
+		let qrCodeModal: HTMLElement | null = null;  // hold a reference to the QR code modal
+		if (repResult.created) {
+			Swal.fire({
+				text: "2FA setup completed! Scan this QR code to complete the setup.",
+				icon: 'success'
+			});
+			// Create and display the QR code modal
+			let create_account_card = document.getElementById('content') as HTMLDivElement;
+			create_account_card.classList.add('hidden');
+			qrCodeModal = document.createElement('div');
+			qrCodeModal.innerHTML = `
+				<div class="bulle fixed top-[40%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] bg-[#c0b9ac] hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
+					<h2 class="text-center text-2xl font-bold font-kablam mb-4 tracking-[0.1em]">QR CODE</h2>
+					<img class="mx-auto mb-4 min-w-[100%]" src="${repResult.qr_code}" alt="QR Code"/>
+				</div>`;
+			document.body.appendChild(qrCodeModal);
+			await new Promise<void>((resolve, reject) => {
+				const verifyModal = document.createElement('div');
+				let create_account_card = document.getElementById('content') as HTMLDivElement;
+				verifyModal.innerHTML = `
+					<div class="bulle w-fit fixed top-[65%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] bg-[#c0b9ac] hover:scale-105 hover:shadow-2xl hover:shadow-[#efe5d1]">
+						<p class="text-center font-canted mb-2">Enter your 2fa code</p>
+						<input class="mx-auto block" id="qr-verify-code" type="text"/>
+						<div class ="flex justify-around mt-4">
+							<button id="qr-verify-submit" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Check</button>
+							<button id="qr-alert-annuler" class="underline hover:text-indigo-400 text-neutral-200 font-semibold text-sm transition-all">Cancel</button>
+						</div>
+					</div>`;
+				document.body.appendChild(verifyModal);
+				const submitBtn = document.getElementById("qr-verify-submit") as HTMLButtonElement;
+
+				(document.getElementById("qr-alert-annuler") as HTMLButtonElement)?.addEventListener("click", () => {
+					if (qrCodeModal && document.body.contains(qrCodeModal)) {
+						document.body.removeChild(qrCodeModal);
+						create_account_card.classList.remove('hidden');
+						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
+							reject(new Error("2FA verification annulée"));
+					}
+				});
+				submitBtn.addEventListener("click", async () => {
+					const code = (document.getElementById("qr-verify-code") as HTMLInputElement).value;
+					create_account_card.classList.remove('hidden');
+					const verifResponse = await fetch("/2fa/verify", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ email: repResult.email, username: repResult.username, code })
+					});
+
+					const verifResult = await verifResponse.json();
+					if (verifResult.success) {
+						Swal.fire({
+							text: "2FA code successfully checked!",
+							icon: 'success'
+						});
+						if (document.body.contains(verifyModal)) document.body.removeChild(verifyModal);
+						// Close the QR code modal if it is still open
+						if (qrCodeModal && document.body.contains(qrCodeModal)) {
+							document.body.removeChild(qrCodeModal);
+						}
+						resolve();
+						fetch("/2fa/insert", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ email: repResult.email, username: repResult.username})
+					});
+					} else {
+						Swal.fire({
+							text: "Incorrect 2FA code, please try again.",
+							icon: 'error'
+						});
+					}
+				});
+			});
+	}
+}
+
 async function create_account(event: Event): Promise<void> {
 	event.preventDefault();
 
@@ -143,7 +224,7 @@ async function create_account(event: Event): Promise<void> {
 				document.body.appendChild(qrCodeModal);
 			}
 		} catch (e) {
-			console.log("2FA rror");
+			console.log("2FA error");
 		}
 	}
 

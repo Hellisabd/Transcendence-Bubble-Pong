@@ -25,6 +25,13 @@ fastify.register(cors, {
   credential: true
 });
 
+function sanitizeInput(input) {
+    if (typeof input !== "string") return input;
+    if (input.length > 50) return false; // Empêche les inputs trop longs
+    if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
+    return input;
+  }
+
 const generateToken = (user) => {
   return jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '5h' });
 };
@@ -116,6 +123,8 @@ db.prepare(`
 
 fastify.post("/update_history_tournament", async (request, reply) => {
   const {classement, gametype} = request.body;
+  if (!sanitizeInput(classement) || !sanitizeInput(gametype))
+    return ;
   let rank1 = 1;
   let rank2 = 2;
   let rank3 = 3;
@@ -150,6 +159,8 @@ fastify.post("/update_history_tournament", async (request, reply) => {
 
 fastify.post("/pending_request", async (request, reply) => {
     const {username} = request.body;
+    if (!sanitizeInput(username))
+      return reply.send(JSON.stringify({success: false}));
     const user_id = await db.prepare(`
       SELECT id FROM users
       WHERE username = ?
@@ -178,9 +189,18 @@ async function get_user_with_id(user_id) {
     return user.username;
 }
 
+fastify.post("/remove_secret", async (request, reply) => {
+  const {username} = request.body;
+  db.prepare(`
+    UPDATE users
+    SET secret = ?
+    WHERE username = ?
+    `).run(null, username)
+});
+
 fastify.post("/get_friends", async (request, reply) => {
   const {username} = request.body;
-  if (!username)
+  if (!sanitizeInput(username))
     return reply.send(JSON.stringify({success: false}));
   const user = await db.prepare(`
     SELECT id FROM users
@@ -215,6 +235,8 @@ fastify.post("/get_friends", async (request, reply) => {
 
 fastify.post("/add_friend", async (request, reply) => {
   const {user_sending, user_to_add} = request.body;
+  if (!sanitizeInput(user_sending) || !sanitizeInput(user_to_add))
+    return reply.send(JSON.stringify({success: false, message: "can't find you in database"}));
   const user_sending_id = await db.prepare(`
     SELECT id FROM users
     WHERE username = ?
@@ -246,10 +268,10 @@ fastify.post("/add_friend", async (request, reply) => {
           SET status = 'accepted'
           WHERE (user_id = ? AND friend_id = ?)
           `).run( user_to_add_id, user_sending_id);
-          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent you an invitation you are now friends!"}));
+          return reply.send(JSON.stringify({success: true, display: true, message: "This user already sent you an invitation you are now friends!", user_added: user_to_add}));
       }
       else if (!pending && exisitingFriendship) {
-        return reply.send(JSON.stringify({success: false, message: "You already invited this user"}));
+        return reply.send(JSON.stringify({success: false, message: "You already invited this user", user_added: user_to_add}));
       }
 
     db.prepare(`
@@ -262,7 +284,8 @@ fastify.post("/add_friend", async (request, reply) => {
 
 fastify.post("/decline_friend", async (request, reply) => {
 	const { user_sending, user_to_decline } = request.body;
-
+  if (!sanitizeInput(user_sending) || !sanitizeInput(user_to_decline))
+    	return reply.send({ success: false, message: "Serveur Error" });
 	try {
 		const user_sending_row = await db.prepare(`
 			SELECT id FROM users WHERE username = ?
@@ -307,7 +330,7 @@ fastify.post("/decline_friend", async (request, reply) => {
 		}
 
 	} catch (error) {
-		return reply.send({ success: false, message: "Erreur serveur, vérifie les logs." });
+		  return reply.send({ success: false, message: "Serveur Error" });
 	}
 });
 
@@ -324,30 +347,59 @@ fastify.listen({ port: 5000, host: "0.0.0.0" }, (err, address) => {
 // 🔹 Route POST pour le login
 fastify.post("/login", async (request, reply) => {
   const { email, password , domain} = request.body;
-  if (!email || !password) {
+  if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(domain)) {
     return reply.send({ success: false, error: "Champs manquants" });
   }
   try {
     const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
     if (!user)
-        return reply.send({ success: false, error: "Connexion Echouée : invalid email" });
+        return reply.send({ success: false, error: "Connexion Failed : invalid email" });
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch)
-      return reply.send({ success: false, error: "Connexion échouée : Mot de passe incorrect" });
+      return reply.send({ success: false, error: "Connexion Failed : Incorrect passsword" });
     const token = generateToken(user);
     return reply.send({ success: true, token, username: user.username, "domain": domain });
   } catch (error) {
-    return reply.send({ success: false, error: "Erreur interne du serveur" });
+    return reply.send({ success: false, error: "Internal servor error" });
   }
 });
 
+
+fastify.post("/insert_secret", async (request, reply) => {
+  const {email, secretKey} = request.body;
+  db.prepare(`
+    UPDATE users
+    SET secret = ?
+    WHERE email = ?
+    `).run(secretKey, email);
+});
+
+
+fastify.post("/get_email", async (request, reply) => { 
+  const {username} = request.body
+  const user = await db.prepare(`
+  SELECT email FROM users
+  WHERE username = ?
+  `).get(username);
+  const secret = await db.prepare(`
+  SELECT secret FROM users
+  WHERE username = ?
+  `).get(username);
+  let status;
+  if (secret && secret.secret)
+    status = true;
+  else
+    status = false;
+  data = {email: user.email, fa: status}
+  return data;
+});
 
 fastify.post("/settings", async (request, reply) => {
   let old_file_name = null;
   let new_file_name = null;
   const { email, password, newusername, username } = request.body;
 
-  if (!email || !password || !newusername || !username) {
+  if (!sanitizeInput(email) || !sanitizeInput(password) || !sanitizeInput(newusername) || !sanitizeInput(username)) {
     return reply.send({ success: false, error: "Champs manquants" });
   }
 
@@ -398,6 +450,8 @@ fastify.post('/logout', async (request, reply) => {
 
 fastify.post("/get_history", async (request, reply) => {
   const {username} = request.body;
+  if (!sanitizeInput(username))
+    return   reply.send(JSON.stringify({success: false}));
   const history = await db.prepare(`
     SELECT * FROM match_history
     WHERE player1_username = ?
@@ -773,6 +827,8 @@ function extract_bonus_data(bonus_stats, player1, player2) {
 
 fastify.post("/update_history", async (request, reply) => {
   const {history, tournament, gametype} = request.body;
+  if (!sanitizeInput(history) || !sanitizeInput(tournament) || !sanitizeInput(gametype))
+		return reply.send({ success: false, message: "Serveur Error" });
   if (tournament) {
     history_for_tournament(history, gametype);
     return ;
@@ -857,7 +913,7 @@ fastify.post("/update_history", async (request, reply) => {
 // 🔹 Route POST pour créer un compte
 fastify.post("/create_account", async (request, reply) => {
   const { username, email, password, secretKey } = request.body;
-  if (!username || !email || !password || username == "default") {
+  if (!sanitizeInput(username) || !sanitizeInput(email) || !sanitizeInput(password) || username == "default") {
     return reply.send({ success: false, error: "Champs manquants" });
   }
 
@@ -889,6 +945,8 @@ fastify.post("/create_account", async (request, reply) => {
 
 fastify.post("/userExists", async (request, reply) => {
 	const { username } = request.body;
+  if (!sanitizeInput(username))
+		return reply.send({ success: false, message: "Serveur Error" });
 	try {
 		const row = db.prepare("SELECT * FROM users WHERE username = ?").get(username);
 		if (row) {
@@ -903,7 +961,7 @@ fastify.post("/userExists", async (request, reply) => {
 
 fastify.post("/get_avatar",  async (request, reply) => {
     const {username} = request.body;
-    if (!username)
+    if (!sanitizeInput(username))
       return reply.send({success: false});
     const avatar_name = await db.prepare(`
       SELECT avatar_name from users
@@ -928,7 +986,7 @@ fastify.post("/update_avatar",  async (request, reply) => {
 fastify.post("/2fa/get_secret", async (request, reply) => {
   const { email } = request.body;
 
-  if (!email) {
+  if (!sanitizeInput(email)) {
       return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
   }
 
@@ -946,7 +1004,7 @@ fastify.post("/2fa/get_secret", async (request, reply) => {
 fastify.post("/2fa/get_secret_two", async (request, reply) => {
 	const { email } = request.body;
 
-	if (!email) {
+	if (!sanitizeInput(email)) {
 		return reply.send({ success: false, error: "Nom d'utilisateur manquant" });
 	}
 
@@ -964,7 +1022,7 @@ fastify.post("/2fa/get_secret_two", async (request, reply) => {
 fastify.post("/update_solo_score",  async (request, reply) => {
   try {
     const {username, score} = request.body;
-    if (!score || !username)
+    if (!sanitizeInput(score) || !sanitizeInput(username))
       return reply.send({success: false});
 
     const parsedScore = parseInt(score, 10);

@@ -12,7 +12,7 @@ const fastify = require("fastify")({
 });
 
 fastify.register(require("@fastify/websocket"));
-const { log, create_account , get_user , logout, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_status } = require("./proxy");
+const { log, create_account , get_user , logout, settings, insert2fa,  waiting_room, update_history, twofaSettings, get_history, end_tournament, add_friend, decline_friend, pending_request, get_stats, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, setup2fa, twofaverify, checkUserExists, get_status } = require("./proxy");
 const cors = require("@fastify/cors");
 const path = require('path');
 const fastifystatic = require('@fastify/static');
@@ -116,10 +116,14 @@ fastify.post('/2fa/verify', twofaverify);
 
 fastify.post('/2fa/setup', setup2fa);
 
+fastify.post('/2fa/insert', insert2fa);
+
+fastify.get('/2fa/settings', twofaSettings);
+
 fastify.post('/userExists', checkUserExists);
 
 function sanitizeInput(input) {
-  if (typeof input !== "string") return false;
+  if (typeof input !== "string") return input;
   if (input.length > 50) return false; // Empêche les inputs trop longs
   if (!/^[a-zA-Z0-9._@-]+$/.test(input)) return false; // Autorise lettres, chiffres, ., @, _, et -
   return input;

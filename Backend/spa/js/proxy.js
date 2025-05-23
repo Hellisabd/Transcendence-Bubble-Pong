@@ -27,6 +27,8 @@ let usersession = new Map();
 
 async function get_avatar(request, reply) {
     const {username} = request.body;
+    if (!sanitizeInput(username))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const response = await axios.post("http://users:5000/get_avatar",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
@@ -38,7 +40,6 @@ async function update_avatar(req, reply) {
     try {
       const token = req.cookies.session;
       const username = await get_user(token);
-
       if (!username) {
         return reply.send({ success: false, message: 'Utilisateur non authentifié' });
       }
@@ -113,7 +114,6 @@ fastify.register(fastifyCookie, {
 });
 
 async function log(req, reply) {
-    const {username} = req.body;
     const response = await axios.post("http://users:5000/login", req.body);
     const result = await response.data;
     if (result.success) {
@@ -147,6 +147,8 @@ async function create_account(req, reply) {
 		let response;
 
 		const { username, password, email, activeFA } = req.body;
+        if (!sanitizeInput(username) || !sanitizeInput(password) || !sanitizeInput(email))
+            return reply.send({ success: false, message: 'Unauthorized' });
 
 		let i = 0;
 		if(activeFA){
@@ -160,6 +162,7 @@ async function create_account(req, reply) {
 			response = await axios.post("http://users:5000/create_account",
 			{username, password, email, secretKey: secret_keys[i][1]},
 			{ headers: { "Content-Type": "application/json" } })
+            secret_keys.splice(i, 1);
 		}
 		else{
 			response = await axios.post("http://users:5000/create_account",
@@ -214,7 +217,8 @@ async function update_history(req, reply) {
 async function get_stats(req, reply) {
     const {username} = req.body;
 
-
+    if (!sanitizeInput(username))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const response = await axios.post("http://users:5000/get_history",
         { username },  // ✅ Envoie le JSON correctement
         { headers: { "Content-Type": "application/json" } }
@@ -243,6 +247,8 @@ async function get_history(req, reply) {
 
 async function end_tournament(req, reply) {
     const {classement} = req.body;
+    if (!sanitizeInput(classement))
+        return reply.send({ success: false, message: 'Unauthorized' });
     const end_tournamentTemplate = fs.readFileSync("Frontend/templates/end_tournament.ejs", "utf8");
     const finalFile = ejs.render(end_tournamentTemplate, {classement: classement});
 
@@ -297,7 +303,7 @@ async function update_status(req, reply) {
     if (!token)
         return ;
     const {status} = req.body;
-    if (!status)
+    if (!sanitizeInput(status))
         return ;
     if (!usersession.get(token))
         return ;
@@ -312,6 +318,8 @@ async function get_status(req, reply) {
 
 async function add_friend(req, reply) {
     const {user_sending, user_to_add} = req.body;
+    if (!sanitizeInput(user_sending))
+        return reply.send({success : false});
     const token = req.cookies.session;
     const response = await axios.post("http://users:5000/add_friend", req.body, {
         withCredentials: true
@@ -319,6 +327,10 @@ async function add_friend(req, reply) {
     if (response.data.success && response.data.display)
     {
         display_friends(user_sending, users_connection[user_sending]);
+        display_friends(user_to_add, users_connection[user_to_add]);
+    }
+    if (response.data.user_added) {
+        users_connection[response.data.user_added]?.socket.send(JSON.stringify({pending_request: true}));
     }
     return reply.send(response.data);
 }
@@ -362,7 +374,7 @@ let secret_keys = [];
 async function setup2fa(request, reply) {
 	const { email, username } = request.body;
 
-	if (!email) {
+	if (!sanitizeInput(email) || !sanitizeInput(username)) {
 		return reply.send({ error: 'email inexistant.' });
 	}
 
@@ -401,10 +413,65 @@ async function setup2fa(request, reply) {
 	}
   };
 
+async function insert2fa(request, reply) {
+    const {email} = request.body;
+    let i = 0; 
+    while(secret_keys[i] && secret_keys[i][0] != email){
+        i++;
+    }
+
+    if (!secret_keys[i]) {
+        return reply.send({ success: false});
+    }
+    response = await axios.post("http://users:5000/insert_secret",
+    {email, secretKey: secret_keys[i][1]},
+    { headers: { "Content-Type": "application/json" } })
+    secret_keys.splice(i, 1);
+}
+
+async function twofaSettings(request, reply) {
+    const token = request.cookies.session;
+    const username = await get_user(token);
+    const response = await axios.post("http://users:5000/get_email",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+    if (response.data.fa) {
+        axios.post("http://users:5000/remove_secret",
+			{ username },  // ✅ Envoie le JSON correctement
+			{ headers: { "Content-Type": "application/json" } }
+		)
+        return reply.send({removed: true})
+    }
+    else {
+        const secret = otplib.authenticator.generateSecret();
+		if (!secret || typeof secret !== 'string') {
+			return reply.send({ error: "Erreur lors de la generation du secret 2FA" });
+		}
+
+		// Générer l'URL pour le QR Code
+		const otplibUrl = otplib.authenticator.keyuri(response.data.email, 'MyApp', secret);
+		secret_keys.push([response.data.email, secret]);
+
+		// Utiliser un async/await pour gérer correctement la génération du QR code
+		const dataUrl = await new Promise((resolve, reject) => {
+			qrcode.toDataURL(otplibUrl, (err, url) => {
+				if (err) {
+					return reject(err);
+				}
+				resolve(url);
+			});
+		});
+
+		return reply.send({ created: true, email: response.data.email, username: response.data.username, otplib_url: otplibUrl, qr_code: dataUrl });
+    }    
+}
 
 async function twofaverify(request, reply) {
 	try {
 		const { email, code } = request.body;
+        if (!sanitizeInput(email) || !sanitizeInput(code))
+            return reply.send({ success: false, error: "Nope" });
 		const response = await axios.post("http://users:5000/2fa/get_secret",
 			{ email },  // ✅ Envoie le JSON correctement
 			{ headers: { "Content-Type": "application/json" } }
@@ -418,7 +485,6 @@ async function twofaverify(request, reply) {
 		while(secret_keys[i] && secret_keys[i][0] != email){
 			i++;
 		}
-
         let sekret = response.data.secret;
         if (secret_keys[i])
             sekret = secret_keys[i][1];
@@ -475,4 +541,4 @@ async function get_secret_two(email){
     }
 }
 
-module.exports = { log , create_account , logout, get_user, settings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };
+module.exports = { log , create_account , insert2fa,logout, get_user, settings, twofaSettings, waiting_room, update_history, get_history, end_tournament, add_friend, decline_friend, pending_request, get_friends, update_status, Websocket_handling, send_to_friend, display_friends, ping_waiting_room, get_avatar, update_avatar, get_stats, setup2fa, twofaverify, checkUserExists, get_status };
