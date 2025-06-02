@@ -89,4 +89,8 @@ This will build all necessary Docker images and start the containers (backend, f
 
 ---
 
+###### Special Thanks
+
+- [@Xenhoxi](https://github.com/Xenhoxi)
+
 Enjoy!
