@@ -89,9 +89,9 @@ This will build all necessary Docker images and start the containers (backend, f
 * Development was focused on real-time performance and a smooth user experience, ensuring responsive gameplay and intuitive, user-friendly interfaces.
 
 ---
+Enjoy!
 
 ##### Special Thanks to our programming consultant
 
 - [@Xenhoxi](https://github.com/Xenhoxi)
 
-Enjoy!
