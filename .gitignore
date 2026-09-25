@@ -2,3 +2,5 @@ Backend/monitoring/Grafana/certs
 Backend/monitoring/Prometheus/certs
 Backend/monitoring/nginx-exporter/certs
 .env
+# Autorité de certification locale, régénérée par generate_certs_prome.sh à chaque make
+certs/ca
